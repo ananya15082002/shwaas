@@ -312,6 +312,19 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
         >
           {showWards ? "◼ WARDS ON" : "◻ SHOW WARDS"}
         </button>
+        {/* Heatmap toggle */}
+        <button
+          onClick={() => setShowHeatmap((v) => !v)}
+          className="absolute right-3 top-14 z-[1000] flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[11px] tracking-wider backdrop-blur-sm transition-all"
+          style={{
+            background: showHeatmap ? "rgba(255,61,61,0.15)" : "rgba(255,255,255,0.05)",
+            borderColor: showHeatmap ? "rgba(255,61,61,0.5)" : "rgba(255,255,255,0.1)",
+            color: showHeatmap ? "#FF3D3D" : "rgba(255,255,255,0.5)",
+          }}
+        >
+          <Flame className="h-3 w-3" />
+          {showHeatmap ? "◼ HEATMAP" : "◻ HEATMAP"}
+        </button>
         {/* Ward Search */}
         {showWards && (
           <div className="absolute left-3 top-3 z-[1000]">
