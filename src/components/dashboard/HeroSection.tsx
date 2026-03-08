@@ -1,4 +1,5 @@
 import { getAqiLevel } from "@/lib/aqi";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { AqiGauge } from "./AqiGauge";
 import { Shield, AlertTriangle, Skull } from "lucide-react";
 
@@ -9,6 +10,7 @@ interface HeroSectionProps {
 
 export function HeroSection({ aqi, stationCount }: HeroSectionProps) {
   const level = getAqiLevel(aqi);
+  const { t } = useLanguage();
 
   const Icon = aqi <= 100 ? Shield : aqi <= 200 ? AlertTriangle : Skull;
 
@@ -28,25 +30,25 @@ export function HeroSection({ aqi, stationCount }: HeroSectionProps) {
               </span>
             </div>
             <h2 className="font-display text-lg font-bold tracking-wide text-foreground sm:text-xl">
-              DELHI NCR — CITY AVERAGE
+              {t("hero.cityAverage")}
             </h2>
             <p className="mt-1 max-w-md text-center font-body text-sm text-muted-foreground sm:text-left">
-              {level.description}. Aggregated from {stationCount} monitoring stations across Delhi.
+              {level.description}. {t("hero.aggregated")} {stationCount} {t("hero.monitoringStations")}
             </p>
 
             <div className="mt-4 flex gap-3">
               <div className="cyber-border rounded-lg px-3 py-2">
-                <span className="font-mono text-[10px] text-muted-foreground">STATIONS</span>
+                <span className="font-mono text-[10px] text-muted-foreground">{t("hero.stations")}</span>
                 <p className="font-display text-lg font-bold text-primary">{stationCount}</p>
               </div>
               <div className="cyber-border rounded-lg px-3 py-2">
-                <span className="font-mono text-[10px] text-muted-foreground">DOMINANT</span>
+                <span className="font-mono text-[10px] text-muted-foreground">{t("hero.dominant")}</span>
                 <p className="font-display text-lg font-bold text-primary">PM2.5</p>
               </div>
               <div className="cyber-border rounded-lg px-3 py-2">
-                <span className="font-mono text-[10px] text-muted-foreground">STATUS</span>
+                <span className="font-mono text-[10px] text-muted-foreground">{t("hero.status")}</span>
                 <p className="font-display text-lg font-bold" style={{ color: level.color }}>
-                  {aqi > 200 ? "ALERT" : aqi > 100 ? "WATCH" : "CLEAR"}
+                  {aqi > 200 ? t("hero.alert") : aqi > 100 ? t("hero.watch") : t("hero.clear")}
                 </p>
               </div>
             </div>

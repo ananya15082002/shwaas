@@ -1,4 +1,5 @@
 import { StationData, getAqiLevel } from "@/lib/aqi";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { MapPin } from "lucide-react";
 
 interface StationCardProps {
@@ -9,14 +10,13 @@ interface StationCardProps {
 
 export function StationCard({ station, onClick, index }: StationCardProps) {
   const level = getAqiLevel(station.aqi);
+  const { t } = useLanguage();
 
   return (
     <button
       onClick={onClick}
       className="cyber-border group w-full cursor-pointer rounded-lg p-4 text-left transition-all duration-300 hover:scale-[1.02] hover:border-primary/40"
-      style={{
-        animationDelay: `${index * 80}ms`,
-      }}
+      style={{ animationDelay: `${index * 80}ms` }}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
@@ -37,18 +37,13 @@ export function StationCard({ station, onClick, index }: StationCardProps) {
           </span>
           <span
             className="rounded-full px-2 py-0.5 font-mono text-[9px] font-bold"
-            style={{
-              backgroundColor: `${level.color}20`,
-              color: level.color,
-              border: `1px solid ${level.color}40`,
-            }}
+            style={{ backgroundColor: `${level.color}20`, color: level.color, border: `1px solid ${level.color}40` }}
           >
             {level.label.toUpperCase()}
           </span>
         </div>
       </div>
 
-      {/* Mini pollutant bars */}
       <div className="mt-3 space-y-1">
         {["pm25", "pm10", "no2"].map((p) => {
           const val = station.iaqi[p]?.v;
@@ -59,10 +54,7 @@ export function StationCard({ station, onClick, index }: StationCardProps) {
               <div className="h-1 flex-1 overflow-hidden rounded-full bg-border">
                 <div
                   className="h-full rounded-full transition-all duration-700"
-                  style={{
-                    width: `${Math.min((val / 300) * 100, 100)}%`,
-                    backgroundColor: level.color,
-                  }}
+                  style={{ width: `${Math.min((val / 300) * 100, 100)}%`, backgroundColor: level.color }}
                 />
               </div>
               <span className="w-8 text-right font-mono text-[9px] text-muted-foreground">{val}</span>
@@ -72,7 +64,7 @@ export function StationCard({ station, onClick, index }: StationCardProps) {
       </div>
 
       <div className="mt-2 font-mono text-[9px] text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
-        Click for detailed analysis →
+        {t("card.clickAnalysis")}
       </div>
     </button>
   );
