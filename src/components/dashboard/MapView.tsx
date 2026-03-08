@@ -242,6 +242,28 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
         >
           {showWards ? "◼ WARDS ON" : "◻ SHOW WARDS"}
         </button>
+        {/* AQI Legend */}
+        {showWards && (
+          <div className="absolute bottom-6 left-3 z-[1000] rounded-lg border border-border bg-card/90 p-2.5 backdrop-blur-sm">
+            <p className="mb-1.5 font-mono text-[9px] uppercase tracking-widest text-muted-foreground">AQI Scale</p>
+            <div className="flex flex-col gap-1">
+              {[
+                { label: "Good", range: "0–50", color: "rgba(0,229,160,0.7)" },
+                { label: "Moderate", range: "51–100", color: "rgba(255,214,0,0.7)" },
+                { label: "Sensitive", range: "101–150", color: "rgba(255,140,0,0.7)" },
+                { label: "Unhealthy", range: "151–200", color: "rgba(255,61,61,0.75)" },
+                { label: "Very Unhealthy", range: "201–300", color: "rgba(198,43,255,0.8)" },
+                { label: "Hazardous", range: "300+", color: "rgba(255,0,51,0.85)" },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center gap-2">
+                  <span className="inline-block h-2.5 w-5 rounded-sm" style={{ background: item.color }} />
+                  <span className="font-mono text-[9px] text-foreground">{item.range}</span>
+                  <span className="font-mono text-[9px] text-muted-foreground">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
