@@ -13,6 +13,11 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        display: ["Orbitron", "monospace"],
+        body: ["Rajdhani", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -57,6 +62,14 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        aqi: {
+          good: "hsl(var(--aqi-good))",
+          moderate: "hsl(var(--aqi-moderate))",
+          sensitive: "hsl(var(--aqi-sensitive))",
+          unhealthy: "hsl(var(--aqi-unhealthy))",
+          "very-unhealthy": "hsl(var(--aqi-very-unhealthy))",
+          hazardous: "hsl(var(--aqi-hazardous))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -65,20 +78,12 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
       },
       animation: {
