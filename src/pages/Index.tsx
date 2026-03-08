@@ -125,6 +125,11 @@ const Index = () => {
                   <TabsTrigger value="compare" className="gap-1.5 font-mono text-[10px]">
                     <GitCompareArrows className="h-3 w-3" /> COMPARE
                   </TabsTrigger>
+                  {selectedWard && (
+                    <TabsTrigger value="ward" className="gap-1.5 font-mono text-[10px]">
+                      <Map className="h-3 w-3" /> WARD
+                    </TabsTrigger>
+                  )}
                 </TabsList>
 
                 <TabsContent value="intel" className="flex-1 overflow-hidden">
@@ -144,6 +149,12 @@ const Index = () => {
                 <TabsContent value="compare" className="flex-1 overflow-hidden">
                   <CompareTab stations={stations} />
                 </TabsContent>
+
+                {selectedWard && (
+                  <TabsContent value="ward" className="flex-1 overflow-hidden">
+                    <WardDetailPanel ward={selectedWard} onClose={() => { setSelectedWard(null); setActiveTab("intel"); }} />
+                  </TabsContent>
+                )}
               </Tabs>
             </div>
           </div>
