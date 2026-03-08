@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import L from "leaflet";
-import { Search, X } from "lucide-react";
+import "leaflet.heat";
+import { Search, X, Flame } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
@@ -53,8 +54,10 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
   const wardLayerRef = useRef<L.GeoJSON | null>(null);
+  const heatLayerRef = useRef<L.Layer | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showWards, setShowWards] = useState(true);
+  const [showHeatmap, setShowHeatmap] = useState(false);
   const [wardSearch, setWardSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -203,6 +206,44 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     wardLayerRef.current = wardLayer;
   }, [enrichedWards, showWards, onWardSelect]);
 
+  // Heatmap layer
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (heatLayerRef.current) {
+      map.removeLayer(heatLayerRef.current);
+      heatLayerRef.current = null;
+    }
+
+    if (!showHeatmap || !enrichedWards) return;
+
+    const heatPoints: [number, number, number][] = enrichedWards.features.map((f) => {
+      const [cLon, cLat] = f.properties.centroid;
+      const intensity = Math.min((f.properties.interpolated_aqi ?? 0) / 500, 1);
+      return [cLat, cLon, intensity];
+    });
+
+    const heat = (L as any).heatLayer(heatPoints, {
+      radius: 35,
+      blur: 25,
+      maxZoom: 15,
+      max: 1,
+      minOpacity: 0.4,
+      gradient: {
+        0.0: "#00E5A0",
+        0.2: "#FFD600",
+        0.4: "#FF8C00",
+        0.6: "#FF3D3D",
+        0.8: "#C62BFF",
+        1.0: "#FF0033",
+      },
+    });
+
+    heat.addTo(map);
+    heatLayerRef.current = heat;
+  }, [enrichedWards, showHeatmap]);
+
   // Station markers
   useEffect(() => {
     const map = mapRef.current;
@@ -270,6 +311,19 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
           }}
         >
           {showWards ? "◼ WARDS ON" : "◻ SHOW WARDS"}
+        </button>
+        {/* Heatmap toggle */}
+        <button
+          onClick={() => setShowHeatmap((v) => !v)}
+          className="absolute right-3 top-14 z-[1000] flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[11px] tracking-wider backdrop-blur-sm transition-all"
+          style={{
+            background: showHeatmap ? "rgba(255,61,61,0.15)" : "rgba(255,255,255,0.05)",
+            borderColor: showHeatmap ? "rgba(255,61,61,0.5)" : "rgba(255,255,255,0.1)",
+            color: showHeatmap ? "#FF3D3D" : "rgba(255,255,255,0.5)",
+          }}
+        >
+          <Flame className="h-3 w-3" />
+          {showHeatmap ? "◼ HEATMAP" : "◻ HEATMAP"}
         </button>
         {/* Ward Search */}
         {showWards && (
