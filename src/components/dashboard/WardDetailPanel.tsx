@@ -4,6 +4,8 @@ import { getAQICategory, aqiToBorderColor } from "@/lib/wardAqi";
 import { getAqiLevel } from "@/lib/aqi";
 import { useAiAnalysis } from "@/hooks/useAiAnalysis";
 import { useWardLiveData } from "@/hooks/useWardLiveData";
+import { useWardHistory } from "@/hooks/useWardHistory";
+import { WardTrendChart } from "@/components/dashboard/WardTrendChart";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   X, Users, MapPin, Activity, Shield, Brain, ShieldAlert, Loader2,
@@ -21,6 +23,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
   const category = getAQICategory(aqi);
   const { analyze, analysis, loading: aiLoading, error: aiError } = useAiAnalysis();
   const { data: liveData, loading: liveLoading } = useWardLiveData(ward.centroid ?? null);
+  const { history, loading: historyLoading } = useWardHistory(ward.centroid ?? null);
 
   const displayAqi = liveData?.aqi ?? aqi;
   const displayLevel = getAqiLevel(displayAqi);
@@ -281,6 +284,9 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
             </div>
           ) : null}
         </div>
+
+        {/* Historical Trend Chart */}
+        <WardTrendChart history={history} loading={historyLoading} />
 
         {/* Assembly Info */}
         <div className="rounded-lg border border-border bg-card/50 p-3">
