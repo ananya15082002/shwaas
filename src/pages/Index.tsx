@@ -57,7 +57,12 @@ const Index = () => {
                 selectedStation={effectiveStation}
                 onSelectStation={(s) => {
                   setSelectedStation(s);
+                  setSelectedWard(null);
                   setActiveTab("intel");
+                }}
+                onWardSelect={(w) => {
+                  setSelectedWard(w);
+                  setActiveTab("ward");
                 }}
               />
             </div>
