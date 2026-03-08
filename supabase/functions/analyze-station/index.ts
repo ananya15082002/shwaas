@@ -10,9 +10,9 @@ Deno.serve(async (req) => {
 
   try {
     const { station, mode } = await req.json();
-    const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
+    const apiKey = Deno.env.get('LOVABLE_API_KEY');
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'API key not configured' }), {
+      return new Response(JSON.stringify({ error: 'LOVABLE_API_KEY not configured' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
@@ -69,32 +69,33 @@ Provide your analysis in this JSON format:
 Return ONLY valid JSON, no markdown.`;
     }
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1024,
+        model: 'google/gemini-3-flash-preview',
         messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1024,
       }),
     });
 
     const data = await response.json();
     
     if (!response.ok) {
-      return new Response(JSON.stringify({ error: data.error?.message || 'Claude API error' }), {
+      return new Response(JSON.stringify({ error: data.error?.message || 'AI Gateway error' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    const text = data.content?.[0]?.text || '{}';
+    const text = data.choices?.[0]?.message?.content || '{}';
+    // Strip markdown code fences if present
+    const cleaned = text.replace(/^```json?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
     let parsed;
     try {
-      parsed = JSON.parse(text);
+      parsed = JSON.parse(cleaned);
     } catch {
       parsed = { raw: text };
     }
