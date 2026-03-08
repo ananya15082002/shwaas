@@ -12,17 +12,17 @@ export function useAiAnalysis() {
     station: StationData | StationData[] | null,
     mode: "station" | "city" | "compare" | "ward",
     ward?: WardFeature["properties"],
-    liveIaqi?: Record<string, { v: number }>
+    liveIaqi?: Record<string, { v: number }>,
+    language?: string
   ) => {
     setLoading(true);
     setError(null);
     setAnalysis(null);
     try {
       const { data, error: fnError } = await supabase.functions.invoke("analyze-station", {
-        body: { station, mode, ward, liveIaqi },
+        body: { station, mode, ward, liveIaqi, language: language || "en" },
       });
       if (fnError) {
-        // supabase client wraps non-2xx as FunctionsHttpError — check if body has data
         if (typeof data === "object" && data !== null && !data.error) {
           setAnalysis(data);
           return;

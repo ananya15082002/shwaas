@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAqiData } from "@/hooks/useAqiData";
 import { useIntroSequence } from "@/hooks/useIntroSequence";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { StationData } from "@/lib/aqi";
 import { WardFeature } from "@/hooks/useDelhiWards";
 import { Navbar } from "@/components/dashboard/Navbar";
@@ -23,20 +24,18 @@ const Index = () => {
   const [selectedWard, setSelectedWard] = useState<WardFeature["properties"] | null>(null);
   const [activeTab, setActiveTab] = useState("intel");
   const { stage, introDone, skip } = useIntroSequence();
+  const { t } = useLanguage();
 
-  // Auto-select first station if none selected
   const effectiveStation = selectedStation || stations[0] || null;
 
   return (
     <>
-      {/* Intro overlay */}
       <AnimatePresence>
         {!introDone && (
           <IntroSequence stage={stage} onSkip={skip} />
         )}
       </AnimatePresence>
 
-      {/* Dashboard */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: introDone ? 1 : 0 }}
@@ -51,7 +50,6 @@ const Index = () => {
           <HeroSkeleton />
         ) : (
           <div className="flex flex-1 overflow-hidden">
-            {/* Left: Map */}
             <div className="hidden w-1/2 border-r border-border lg:block">
               <MapView
                 stations={stations}
@@ -68,9 +66,7 @@ const Index = () => {
               />
             </div>
 
-            {/* Right: Tabbed Content */}
             <div className="flex w-full flex-col lg:w-1/2">
-              {/* Mobile map toggle */}
               <div className="block border-b border-border lg:hidden">
                 <div className="h-48">
                   <MapView
@@ -89,7 +85,6 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Station list strip */}
               <div className="flex gap-2 overflow-x-auto border-b border-border bg-card/50 px-3 py-2">
                 {stations.map((s) => {
                   const isActive = effectiveStation?.stationId === s.stationId;
@@ -114,25 +109,24 @@ const Index = () => {
                 })}
               </div>
 
-              {/* Tabs */}
               <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col overflow-hidden">
                 <TabsList className="mx-3 mt-3 w-fit bg-secondary/50">
                   <TabsTrigger value="intel" className="gap-1.5 font-mono text-[10px]">
-                    <Brain className="h-3 w-3" /> STATION INTEL
+                    <Brain className="h-3 w-3" /> {t("tab.intel")}
                   </TabsTrigger>
                   <TabsTrigger value="city" className="gap-1.5 font-mono text-[10px]">
-                    <BarChart3 className="h-3 w-3" /> CITY OVERVIEW
+                    <BarChart3 className="h-3 w-3" /> {t("tab.city")}
                   </TabsTrigger>
                   <TabsTrigger value="compare" className="gap-1.5 font-mono text-[10px]">
-                    <GitCompareArrows className="h-3 w-3" /> COMPARE
+                    <GitCompareArrows className="h-3 w-3" /> {t("tab.compare")}
                   </TabsTrigger>
                   {selectedWard && (
                     <TabsTrigger value="ward" className="gap-1.5 font-mono text-[10px]">
-                      <Map className="h-3 w-3" /> WARD
+                      <Map className="h-3 w-3" /> {t("tab.ward")}
                     </TabsTrigger>
                   )}
                   <TabsTrigger value="dictionary" className="gap-1.5 font-mono text-[10px]">
-                    <BookOpen className="h-3 w-3" /> DICTIONARY
+                    <BookOpen className="h-3 w-3" /> {t("tab.dictionary")}
                   </TabsTrigger>
                 </TabsList>
 
@@ -141,7 +135,7 @@ const Index = () => {
                     <StationIntelTab station={effectiveStation} />
                   ) : (
                     <div className="flex h-full items-center justify-center">
-                      <p className="font-mono text-xs text-muted-foreground">Select a station on the map</p>
+                      <p className="font-mono text-xs text-muted-foreground">{t("intel.selectStation")}</p>
                     </div>
                   )}
                 </TabsContent>

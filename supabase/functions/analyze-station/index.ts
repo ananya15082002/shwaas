@@ -9,7 +9,12 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { station, mode, ward, liveIaqi } = await req.json();
+    const { station, mode, ward, liveIaqi, language } = await req.json();
+    const lang = language === 'hi' ? 'hi' : 'en';
+    const langInstruction = lang === 'hi'
+      ? '\n\nIMPORTANT: Respond ENTIRELY in Hindi (Devanagari script). All text values in the JSON must be in Hindi.'
+      : '';
+
     const apiKey = Deno.env.get('LOVABLE_API_KEY');
     if (!apiKey) {
       return new Response(JSON.stringify({ error: 'LOVABLE_API_KEY not configured' }), {
@@ -19,7 +24,7 @@ Deno.serve(async (req) => {
 
     let prompt = '';
     if (mode === 'ward') {
-      const hour = new Date().getUTCHours() + 5; // IST offset
+      const hour = new Date().getUTCHours() + 5;
       const adjustedHour = hour >= 24 ? hour - 24 : hour;
       const timeOfDay = adjustedHour < 6 ? 'early morning' : adjustedHour < 12 ? 'morning' : adjustedHour < 17 ? 'afternoon' : adjustedHour < 20 ? 'evening' : 'night';
 
@@ -38,7 +43,7 @@ Live Pollutant Data:
       prompt = `You are an expert air quality analyst for Delhi, India. Analyze ward-level AQI data and provide intelligent, actionable insights.
 Return ONLY valid JSON, no markdown or code fences.
 Be specific about pollution sources based on ward location and time of day.
-Use Indian context (autos, DTC buses, construction sites, crop burning, etc).
+Use Indian context (autos, DTC buses, construction sites, crop burning, etc).${langInstruction}
 
 Ward: ${ward.ward_name}, Ward No: ${ward.ward_no}
 Assembly Constituency: ${ward.ac_name}
@@ -69,7 +74,7 @@ Return this exact JSON structure:
   "pm25_status": "SAFE or ELEVATED or DANGEROUS"
 }`;
     } else if (mode === 'station') {
-      prompt = `You are an air quality expert AI for Delhi, India. Analyze this monitoring station data and provide a concise, actionable intelligence briefing.
+      prompt = `You are an air quality expert AI for Delhi, India. Analyze this monitoring station data and provide a concise, actionable intelligence briefing.${langInstruction}
 
 Station: ${station.name} (${station.area})
 AQI: ${station.aqi}
@@ -88,7 +93,7 @@ Provide your analysis in this JSON format:
 
 Return ONLY valid JSON, no markdown.`;
     } else if (mode === 'city') {
-      prompt = `You are an air quality expert AI. Analyze this city-wide data for Delhi and provide a comprehensive overview.
+      prompt = `You are an air quality expert AI. Analyze this city-wide data for Delhi and provide a comprehensive overview.${langInstruction}
 
 Stations data: ${JSON.stringify(station)}
 
@@ -104,7 +109,7 @@ Provide your analysis in this JSON format:
 
 Return ONLY valid JSON, no markdown.`;
     } else if (mode === 'compare') {
-      prompt = `You are an air quality expert AI. Compare these Delhi monitoring stations and identify patterns.
+      prompt = `You are an air quality expert AI. Compare these Delhi monitoring stations and identify patterns.${langInstruction}
 
 Stations: ${JSON.stringify(station)}
 
