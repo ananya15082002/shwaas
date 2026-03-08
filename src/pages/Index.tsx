@@ -131,6 +131,9 @@ const Index = () => {
                       <Map className="h-3 w-3" /> WARD
                     </TabsTrigger>
                   )}
+                  <TabsTrigger value="dictionary" className="gap-1.5 font-mono text-[10px]">
+                    <BookOpen className="h-3 w-3" /> DICTIONARY
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="intel" className="flex-1 overflow-hidden">
