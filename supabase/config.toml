@@ -1,1 +1,4 @@
 project_id = "ibapgllcqpfzeqhfjtua"
+
+[functions.analyze-station]
+verify_jwt = false
