@@ -23,6 +23,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
   const category = getAQICategory(aqi);
   const { analyze, analysis, loading: aiLoading, error: aiError } = useAiAnalysis();
   const { data: liveData, loading: liveLoading } = useWardLiveData(ward.centroid ?? null);
+  const { history, loading: historyLoading } = useWardHistory(ward.centroid ?? null);
 
   const displayAqi = liveData?.aqi ?? aqi;
   const displayLevel = getAqiLevel(displayAqi);
