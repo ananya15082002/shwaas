@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const Index = () => {
   const { stations, loading, error, lastUpdated, cityAqi, refresh } = useAqiData();
   const [selectedStation, setSelectedStation] = useState<StationData | null>(null);
+  const [selectedWard, setSelectedWard] = useState<WardFeature["properties"] | null>(null);
   const [activeTab, setActiveTab] = useState("intel");
   const { stage, introDone, skip } = useIntroSequence();
 
