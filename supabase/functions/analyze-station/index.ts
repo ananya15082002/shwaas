@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { station, mode } = await req.json();
+    const { station, mode, ward } = await req.json();
     const apiKey = Deno.env.get('LOVABLE_API_KEY');
     if (!apiKey) {
       return new Response(JSON.stringify({ error: 'LOVABLE_API_KEY not configured' }), {
@@ -18,7 +18,28 @@ Deno.serve(async (req) => {
     }
 
     let prompt = '';
-    if (mode === 'station') {
+    if (mode === 'ward') {
+      prompt = `You are an air quality and urban health expert AI for Delhi, India. Analyze this ward's data and provide a concise, actionable intelligence briefing.
+
+Ward: ${ward.ward_name} (Ward #${ward.ward_no})
+Assembly Constituency: ${ward.ac_name} (AC #${ward.ac_no})
+Interpolated AQI: ${ward.interpolated_aqi}
+Total Population: ${ward.total_pop}
+SC Population: ${ward.sc_pop}
+Nearest Station Distance: ${ward.nearest_station_dist}m
+
+Provide your analysis in this JSON format:
+{
+  "summary": "2-3 sentence briefing on air quality conditions in this ward, considering its population density and AQI",
+  "health_risk": "LOW/MODERATE/HIGH/SEVERE/CRITICAL",
+  "vulnerable_impact": "1-2 sentences on how this AQI affects vulnerable populations (elderly, children, SC community) in this ward",
+  "key_concerns": ["concern1", "concern2", "concern3"],
+  "recommendations": ["rec1", "rec2", "rec3"],
+  "local_insight": "Brief insight about likely pollution sources based on ward location and AQI pattern"
+}
+
+Return ONLY valid JSON, no markdown.`;
+    } else if (mode === 'station') {
       prompt = `You are an air quality expert AI for Delhi, India. Analyze this monitoring station data and provide a concise, actionable intelligence briefing.
 
 Station: ${station.name} (${station.area})
