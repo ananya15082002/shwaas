@@ -13,7 +13,8 @@ import { HeroSkeleton } from "@/components/dashboard/LoadingSkeleton";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { IntroSequence } from "@/components/intro/IntroSequence";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { MapPin, Brain, BarChart3, GitCompareArrows, Map } from "lucide-react";
+import { MapPin, Brain, BarChart3, GitCompareArrows, Map, BookOpen } from "lucide-react";
+import { DictionaryTab } from "@/components/dashboard/DictionaryTab";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Index = () => {
