@@ -4,6 +4,8 @@ import { getAQICategory, aqiToBorderColor } from "@/lib/wardAqi";
 import { getAqiLevel } from "@/lib/aqi";
 import { useAiAnalysis } from "@/hooks/useAiAnalysis";
 import { useWardLiveData } from "@/hooks/useWardLiveData";
+import { useWardHistory } from "@/hooks/useWardHistory";
+import { WardTrendChart } from "@/components/dashboard/WardTrendChart";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   X, Users, MapPin, Activity, Shield, Brain, ShieldAlert, Loader2,
