@@ -9,6 +9,7 @@ interface IntroSequenceProps {
   onSkip: () => void;
 }
 
+// Correct lat/lon → 3D point on sphere for Three.js coordinate system
 function latLonToVector3(lat: number, lon: number, radius: number): THREE.Vector3 {
   const phi = (90 - lat) * (Math.PI / 180);
   const theta = (lon + 180) * (Math.PI / 180);
@@ -18,6 +19,16 @@ function latLonToVector3(lat: number, lon: number, radius: number): THREE.Vector
     radius * Math.sin(phi) * Math.sin(theta)
   );
 }
+
+// Calculate earth Y-rotation to face a given longitude toward camera (+Z)
+function lonToEarthRotationY(lon: number): number {
+  return -Math.PI * (lon / 180) + Math.PI * 0.5;
+}
+
+const INDIA_LAT = 20.5936;
+const INDIA_LON = 78.9629;
+const DELHI_LAT = 28.6139;
+const DELHI_LON = 77.209;
 
 export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -29,6 +40,7 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
     atmosphere: THREE.Mesh;
     glow: THREE.Mesh;
     stars: THREE.Points;
+    indiaMarker: THREE.Group;
     delhiMarker: THREE.Group;
     animationId: number;
   } | null>(null);
@@ -40,8 +52,6 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
   const [delhiText, setDelhiText] = useState("");
   const [systemText, setSystemText] = useState("");
   const [showGlitch, setShowGlitch] = useState(false);
-  const [showIndiaOverlay, setShowIndiaOverlay] = useState(false);
-  const [showDelhiOverlay, setShowDelhiOverlay] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setShowSkip(true), 2000);
@@ -71,30 +81,27 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
     return () => { clearInterval(typingInterval); clearInterval(sensorInterval); clearInterval(loadInterval); };
   }, [stage]);
 
-  // Stage 3: locating text + India overlay
+  // Stage 3: locating text
   useEffect(() => {
     if (stage !== 3) return;
     setLocatingText("");
-    setShowIndiaOverlay(true);
-    const full = "LOCATING: INDIA";
+    const full = "LOCATING: INDIA — 20.5°N 78.9°E";
     let i = 0;
     const t = setInterval(() => {
       if (i <= full.length) { setLocatingText(full.slice(0, i)); i++; } else clearInterval(t);
-    }, 80);
-    return () => { clearInterval(t); };
+    }, 60);
+    return () => clearInterval(t);
   }, [stage]);
 
-  // Stage 4: delhi text + glitch + Delhi overlay
+  // Stage 4: delhi text + glitch
   useEffect(() => {
     if (stage !== 4) return;
     setDelhiText("");
-    setShowIndiaOverlay(false);
-    setShowDelhiOverlay(true);
-    const full = "NEW DELHI — 28.6°N 77.2°E";
+    const full = "DEEP DIVE: NEW DELHI — 28.6°N 77.2°E";
     let i = 0;
     const t = setInterval(() => {
       if (i <= full.length) { setDelhiText(full.slice(0, i)); i++; } else clearInterval(t);
-    }, 60);
+    }, 50);
     const g = setTimeout(() => {
       setShowGlitch(true);
       setTimeout(() => setShowGlitch(false), 300);
@@ -102,12 +109,10 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
     return () => { clearInterval(t); clearTimeout(g); };
   }, [stage]);
 
-  // Stage 5: system text + hide overlays
+  // Stage 5: system text
   useEffect(() => {
     if (stage !== 5) return;
     setSystemText("");
-    setShowDelhiOverlay(false);
-    setShowIndiaOverlay(false);
     const full = "SYSTEM ONLINE — 8 STATIONS ACTIVE";
     let i = 0;
     const t = setInterval(() => {
@@ -124,7 +129,8 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.z = 7;
+    camera.position.set(0, 0, 8);
+    camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     renderer.setSize(width, height);
@@ -134,49 +140,86 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
 
     // Stars
     const starGeometry = new THREE.BufferGeometry();
-    const starPositions = new Float32Array(600);
-    for (let i = 0; i < 200; i++) {
-      starPositions[i * 3] = (Math.random() - 0.5) * 100;
-      starPositions[i * 3 + 1] = (Math.random() - 0.5) * 100;
-      starPositions[i * 3 + 2] = (Math.random() - 0.5) * 100;
+    const starCount = 2000;
+    const starPositions = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount * 3; i++) {
+      starPositions[i] = (Math.random() - 0.5) * 400;
     }
     starGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
-    const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.15, transparent: true, opacity: 0.8, sizeAttenuation: true });
+    const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.3, transparent: true, opacity: 0.8 });
     const stars = new THREE.Points(starGeometry, starMaterial);
     scene.add(stars);
 
-    // Earth — NASA Blue Marble texture
-    const textureLoader = new THREE.TextureLoader();
-    const earthTexture = textureLoader.load("/images/earth-texture.jpg");
-    earthTexture.colorSpace = THREE.SRGBColorSpace;
-
+    // Earth
     const earthGeometry = new THREE.SphereGeometry(2.5, 64, 64);
+    const textureLoader = new THREE.TextureLoader();
+
+    // Start with fallback material
     const earthMaterial = new THREE.MeshPhongMaterial({
-      map: earthTexture,
-      bumpScale: 0.02,
-      specular: new THREE.Color(0x222222),
-      shininess: 15,
+      color: 0x1a6b3a,
+      emissive: 0x0a2a15,
+      specular: new THREE.Color(0x2255aa),
+      shininess: 20,
     });
     const earth = new THREE.Mesh(earthGeometry, earthMaterial);
-    earth.rotation.x = 0.2;
-    earth.position.y = -8;
+    earth.rotation.x = 0.23; // Earth's axial tilt
+    earth.position.y = -10; // Start below screen
     scene.add(earth);
 
-    // Atmosphere
-    const atmosphereGeometry = new THREE.SphereGeometry(2.6, 64, 64);
-    const atmosphereMaterial = new THREE.MeshPhongMaterial({
-      color: 0x4488ff,
-      transparent: true,
-      opacity: 0.12,
+    // Try loading textures: local first, CDN fallback
+    const tryTextures = [
+      "/images/earth-texture.jpg",
+      "https://unpkg.com/three@0.128.0/examples/textures/planets/earth_atmos_2048.jpg",
+    ];
+
+    let textureLoaded = false;
+    for (const url of tryTextures) {
+      if (textureLoaded) break;
+      textureLoader.load(
+        url,
+        (texture) => {
+          if (textureLoaded) return;
+          textureLoaded = true;
+          texture.colorSpace = THREE.SRGBColorSpace;
+          earth.material = new THREE.MeshPhongMaterial({
+            map: texture,
+            specular: new THREE.Color(0x333333),
+            shininess: 15,
+          });
+        },
+        undefined,
+        () => {} // silently fail, try next
+      );
+    }
+
+    // Atmosphere glow (shader-based)
+    const atmGeo = new THREE.SphereGeometry(2.65, 64, 64);
+    const atmMat = new THREE.ShaderMaterial({
+      vertexShader: `
+        varying vec3 vNormal;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vNormal;
+        void main() {
+          float intensity = pow(0.55 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
+          gl_FragColor = vec4(0.15, 0.55, 1.0, 1.0) * intensity;
+        }
+      `,
+      blending: THREE.AdditiveBlending,
       side: THREE.FrontSide,
+      transparent: true,
     });
-    const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+    const atmosphere = new THREE.Mesh(atmGeo, atmMat);
     atmosphere.position.copy(earth.position);
     scene.add(atmosphere);
 
-    // Glow
-    const glowGeometry = new THREE.SphereGeometry(2.7, 64, 64);
-    const glowMaterial = new THREE.ShaderMaterial({
+    // Back-glow
+    const glowGeo = new THREE.SphereGeometry(2.7, 64, 64);
+    const glowMat = new THREE.ShaderMaterial({
       vertexShader: `
         varying vec3 vNormal;
         void main() {
@@ -195,34 +238,55 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
       side: THREE.BackSide,
       transparent: true,
     });
-    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+    const glow = new THREE.Mesh(glowGeo, glowMat);
     glow.position.copy(earth.position);
     scene.add(glow);
 
-    // Delhi marker
-    const delhiMarker = new THREE.Group();
-    const ringGeometry = new THREE.RingGeometry(0.03, 0.05, 32);
-    const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xff3333, transparent: true, opacity: 0.9, side: THREE.DoubleSide });
-    delhiMarker.add(new THREE.Mesh(ringGeometry, ringMaterial));
-    for (let i = 0; i < 3; i++) {
-      const sonarGeo = new THREE.RingGeometry(0.05 + i * 0.04, 0.06 + i * 0.04, 32);
-      const sonarMat = new THREE.MeshBasicMaterial({ color: 0xff3333, transparent: true, opacity: 0.4 - i * 0.1, side: THREE.DoubleSide });
-      const sonar = new THREE.Mesh(sonarGeo, sonarMat);
-      sonar.userData = { sonarIndex: i };
-      delhiMarker.add(sonar);
+    // Create marker helper
+    function createMarker(lat: number, lon: number, color: number, size: number): THREE.Group {
+      const group = new THREE.Group();
+      const pos = latLonToVector3(lat, lon, 2.52);
+      
+      // Center dot
+      const dotGeo = new THREE.SphereGeometry(size, 16, 16);
+      const dotMat = new THREE.MeshBasicMaterial({ color });
+      const dot = new THREE.Mesh(dotGeo, dotMat);
+      group.add(dot);
+
+      // Sonar rings
+      for (let i = 0; i < 3; i++) {
+        const ringGeo = new THREE.RingGeometry(size * 1.5 + i * size, size * 2 + i * size, 32);
+        const ringMat = new THREE.MeshBasicMaterial({
+          color,
+          transparent: true,
+          opacity: 0.5 - i * 0.15,
+          side: THREE.DoubleSide,
+        });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.userData = { sonarIndex: i };
+        group.add(ring);
+      }
+
+      group.position.copy(pos);
+      group.lookAt(new THREE.Vector3(0, 0, 0));
+      group.rotateY(Math.PI);
+      group.visible = false;
+      return group;
     }
-    const delhiPos = latLonToVector3(28.6139, 77.209, 2.55);
-    delhiMarker.position.copy(delhiPos);
-    delhiMarker.lookAt(new THREE.Vector3(0, 0, 0));
-    delhiMarker.rotateY(Math.PI);
-    delhiMarker.visible = false;
+
+    // India marker (gold)
+    const indiaMarker = createMarker(INDIA_LAT, INDIA_LON, 0xFFD700, 0.07);
+    earth.add(indiaMarker);
+
+    // Delhi marker (red)
+    const delhiMarker = createMarker(DELHI_LAT, DELHI_LON, 0xff3333, 0.05);
     earth.add(delhiMarker);
 
     // Lights
     const sunLight = new THREE.DirectionalLight(0xffffff, 1.8);
     sunLight.position.set(5, 3, 5);
     scene.add(sunLight);
-    const ambientLight = new THREE.AmbientLight(0x222244, 0.6);
+    const ambientLight = new THREE.AmbientLight(0x334466, 0.6);
     scene.add(ambientLight);
 
     const clock = new THREE.Clock();
@@ -230,22 +294,31 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
     const animate = () => {
       animationId = requestAnimationFrame(animate);
       const elapsed = clock.getElapsedTime();
-      earth.rotation.y += 0.002;
+
+      // Keep atmosphere/glow synced
       atmosphere.position.copy(earth.position);
       glow.position.copy(earth.position);
+
+      // Gentle star twinkle
       starMaterial.opacity = 0.6 + Math.sin(elapsed * 2) * 0.2;
-      delhiMarker.children.forEach((child) => {
-        if (child.userData.sonarIndex !== undefined) {
-          const i = child.userData.sonarIndex;
-          const scale = 1 + Math.sin(elapsed * 3 + i) * 0.5;
-          child.scale.set(scale, scale, 1);
-        }
+
+      // Pulse sonar rings on visible markers
+      [indiaMarker, delhiMarker].forEach((marker) => {
+        if (!marker.visible) return;
+        marker.children.forEach((child) => {
+          if (child.userData.sonarIndex !== undefined) {
+            const i = child.userData.sonarIndex;
+            const scale = 1 + Math.sin(elapsed * 3 + i) * 0.5;
+            child.scale.set(scale, scale, 1);
+          }
+        });
       });
+
       renderer.render(scene, camera);
     };
     animate();
 
-    sceneRef.current = { scene, camera, renderer, earth, atmosphere, glow, stars, delhiMarker, animationId };
+    sceneRef.current = { scene, camera, renderer, earth, atmosphere, glow, stars, indiaMarker, delhiMarker, animationId };
 
     const handleResize = () => {
       const w = window.innerWidth, h = window.innerHeight;
@@ -263,32 +336,43 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
     };
   }, []);
 
-  // Stage 2: Earth rises
+  // Stage 2: Earth rises + slow rotation
   useEffect(() => {
     if (stage !== 2 || !sceneRef.current) return;
     const { earth, atmosphere, glow } = sceneRef.current;
     gsap.to(earth.position, {
-      y: 0, duration: 1.5, ease: "power3.out",
+      y: 0, duration: 2, ease: "power3.out",
       onUpdate: () => { atmosphere.position.copy(earth.position); glow.position.copy(earth.position); },
     });
+    // Gentle rotation during rise
+    gsap.to(earth.rotation, { y: earth.rotation.y + 0.5, duration: 4, ease: "none" });
   }, [stage]);
 
-  // Stage 3: Zoom to India
+  // Stage 3: Rotate globe so India faces camera + zoom in
   useEffect(() => {
     if (stage !== 3 || !sceneRef.current) return;
-    const { camera, earth, stars } = sceneRef.current;
-    gsap.to(earth.rotation, { y: -1.4, duration: 2.5, ease: "power2.inOut" });
-    gsap.to(camera.position, { z: 3.5, duration: 2.5, ease: "power2.inOut" });
-    gsap.to((stars.material as THREE.PointsMaterial), { opacity: 0, duration: 2 });
+    const { camera, earth, stars, indiaMarker } = sceneRef.current;
+    indiaMarker.visible = true;
+
+    const indiaTargetY = lonToEarthRotationY(INDIA_LON);
+    gsap.to(earth.rotation, { y: indiaTargetY, duration: 2.5, ease: "power2.inOut" });
+    gsap.to(camera.position, { z: 4.5, duration: 2.5, ease: "power2.inOut" });
+    gsap.to(stars.material as THREE.PointsMaterial, { opacity: 0.3, duration: 2 });
   }, [stage]);
 
   // Stage 4: Deep zoom to Delhi
   useEffect(() => {
     if (stage !== 4 || !sceneRef.current) return;
-    const { camera, earth, delhiMarker } = sceneRef.current;
+    const { camera, earth, indiaMarker, delhiMarker, stars } = sceneRef.current;
+
+    // Swap markers
+    indiaMarker.visible = false;
     delhiMarker.visible = true;
-    gsap.to(earth.rotation, { y: -1.35, duration: 2, ease: "power2.inOut" });
-    gsap.to(camera.position, { z: 2.0, y: 0.4, duration: 2.5, ease: "power3.in" });
+
+    const delhiTargetY = lonToEarthRotationY(DELHI_LON);
+    gsap.to(earth.rotation, { y: delhiTargetY, duration: 2, ease: "power2.inOut" });
+    gsap.to(camera.position, { z: 2.2, y: 0.3, duration: 2.5, ease: "power3.inOut" });
+    gsap.to(stars.material as THREE.PointsMaterial, { opacity: 0, duration: 1.5 });
   }, [stage]);
 
   // Stage 5: Fade out
@@ -319,64 +403,6 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
 
       {/* Scanline overlay */}
       <div className="absolute inset-0 z-20 pointer-events-none scanline opacity-30" />
-
-      {/* India Map Overlay — appears during Stage 3 */}
-      <AnimatePresence>
-        {showIndiaOverlay && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.2 }}
-            transition={{ duration: 1.2, ease: "easeInOut" }}
-            className="absolute inset-0 z-15 flex items-center justify-center pointer-events-none"
-          >
-            <div className="relative">
-              <img
-                src="/images/india-map.png"
-                alt="India"
-                className="h-[50vh] max-h-[500px] object-contain opacity-20"
-                style={{
-                  filter: "brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(170deg) brightness(0.8)",
-                  mixBlendMode: "screen",
-                }}
-              />
-              {/* Glowing pulse on Delhi location (roughly top-center of India map) */}
-              <div
-                className="absolute w-3 h-3 rounded-full animate-pulse-live"
-                style={{
-                  top: "22%",
-                  left: "48%",
-                  background: "hsl(var(--destructive))",
-                  boxShadow: "0 0 15px hsl(var(--destructive) / 0.8), 0 0 30px hsl(var(--destructive) / 0.4)",
-                }}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Delhi Map Overlay — appears during Stage 4 */}
-      <AnimatePresence>
-        {showDelhiOverlay && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.6 }}
-            animate={{ opacity: 0.6, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.3 }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
-            className="absolute inset-0 z-15 flex items-center justify-center pointer-events-none"
-          >
-            <img
-              src="/images/delhi-map.png"
-              alt="Delhi"
-              className="h-[60vh] max-h-[600px] object-contain"
-              style={{
-                filter: "brightness(1.2)",
-                mixBlendMode: "screen",
-              }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Stage 1: Loading */}
       <AnimatePresence>
@@ -417,13 +443,16 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
             className="absolute top-8 left-8 z-20"
           >
             <p className="font-mono text-sm tracking-[0.2em] text-primary text-glow-primary">
-              {locatingText}<span className="animate-pulse-live">_</span>
+              🌏 {locatingText}<span className="animate-pulse-live">_</span>
+            </p>
+            <p className="font-mono text-[10px] tracking-widest text-muted-foreground mt-1">
+              SOUTH ASIA · REPUBLIC OF INDIA
             </p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Stage 4: Delhi marker text */}
+      {/* Stage 4: Delhi deep dive */}
       <AnimatePresence>
         {stage === 4 && (
           <motion.div
