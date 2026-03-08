@@ -21,9 +21,18 @@ export function useAiAnalysis() {
       const { data, error: fnError } = await supabase.functions.invoke("analyze-station", {
         body: { station, mode, ward, liveIaqi },
       });
-      if (fnError) throw fnError;
+      if (fnError) {
+        // supabase client wraps non-2xx as FunctionsHttpError — check if body has data
+        if (typeof data === "object" && data !== null && !data.error) {
+          setAnalysis(data);
+          return;
+        }
+        const msg = data?.error || (fnError instanceof Error ? fnError.message : "AI analysis failed");
+        throw new Error(msg);
+      }
       setAnalysis(data);
     } catch (e: unknown) {
+      console.error("[AI Analysis]", e);
       setError(e instanceof Error ? e.message : "AI analysis failed");
     } finally {
       setLoading(false);
