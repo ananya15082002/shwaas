@@ -11,14 +11,15 @@ export function useAiAnalysis() {
   const analyze = async (
     station: StationData | StationData[] | null,
     mode: "station" | "city" | "compare" | "ward",
-    ward?: WardFeature["properties"]
+    ward?: WardFeature["properties"],
+    liveIaqi?: Record<string, { v: number }>
   ) => {
     setLoading(true);
     setError(null);
     setAnalysis(null);
     try {
       const { data, error: fnError } = await supabase.functions.invoke("analyze-station", {
-        body: { station, mode, ward },
+        body: { station, mode, ward, liveIaqi },
       });
       if (fnError) throw fnError;
       setAnalysis(data);
