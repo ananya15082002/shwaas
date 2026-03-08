@@ -159,6 +159,10 @@ const Index = () => {
                     <WardDetailPanel ward={selectedWard} onClose={() => { setSelectedWard(null); setActiveTab("intel"); }} />
                   </TabsContent>
                 )}
+
+                <TabsContent value="dictionary" className="flex-1 overflow-hidden">
+                  <DictionaryTab />
+                </TabsContent>
               </Tabs>
             </div>
           </div>
