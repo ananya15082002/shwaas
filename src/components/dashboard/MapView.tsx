@@ -55,6 +55,34 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   const wardLayerRef = useRef<L.GeoJSON | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showWards, setShowWards] = useState(true);
+  const [wardSearch, setWardSearch] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const wardList = useMemo(() => {
+    if (!enrichedWards) return [];
+    return enrichedWards.features.map((f) => f.properties);
+  }, [enrichedWards]);
+
+  const filteredWards = useMemo(() => {
+    if (!wardSearch.trim()) return wardList.slice(0, 8);
+    const q = wardSearch.toLowerCase();
+    return wardList.filter(
+      (w) => w.ward_name.toLowerCase().includes(q) || String(w.ward_no).includes(q) || w.ac_name.toLowerCase().includes(q)
+    ).slice(0, 8);
+  }, [wardList, wardSearch]);
+
+  const zoomToWard = useCallback((wardProps: typeof wardList[0]) => {
+    const map = mapRef.current;
+    if (!map || !enrichedWards) return;
+    const feature = enrichedWards.features.find((f) => f.properties.ward_no === wardProps.ward_no);
+    if (feature) {
+      const layer = L.geoJSON(feature as any);
+      map.fitBounds(layer.getBounds(), { padding: [40, 40], maxZoom: 14 });
+    }
+    onWardSelect?.(wardProps);
+    setSearchOpen(false);
+    setWardSearch("");
+  }, [enrichedWards, onWardSelect]);
 
   const { wardsGeoJSON } = useDelhiWards();
 
