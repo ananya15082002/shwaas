@@ -60,7 +60,6 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [wardSearch, setWardSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
 
   const { wardsGeoJSON } = useDelhiWards();
 
