@@ -54,9 +54,10 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
   const wardLayerRef = useRef<L.GeoJSON | null>(null);
+  const heatLayerRef = useRef<L.Layer | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showWards, setShowWards] = useState(true);
-  const [wardSearch, setWardSearch] = useState("");
+  const [showHeatmap, setShowHeatmap] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
   const { wardsGeoJSON } = useDelhiWards();
