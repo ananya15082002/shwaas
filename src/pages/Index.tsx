@@ -2,16 +2,18 @@ import { useState } from "react";
 import { useAqiData } from "@/hooks/useAqiData";
 import { useIntroSequence } from "@/hooks/useIntroSequence";
 import { StationData } from "@/lib/aqi";
+import { WardFeature } from "@/hooks/useDelhiWards";
 import { Navbar } from "@/components/dashboard/Navbar";
 import { MapView } from "@/components/dashboard/MapView";
 import { StationIntelTab } from "@/components/dashboard/StationIntelTab";
 import { CityOverviewTab } from "@/components/dashboard/CityOverviewTab";
 import { CompareTab } from "@/components/dashboard/CompareTab";
+import { WardDetailPanel } from "@/components/dashboard/WardDetailPanel";
 import { HeroSkeleton } from "@/components/dashboard/LoadingSkeleton";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { IntroSequence } from "@/components/intro/IntroSequence";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { MapPin, Brain, BarChart3, GitCompareArrows } from "lucide-react";
+import { MapPin, Brain, BarChart3, GitCompareArrows, Map } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Index = () => {
