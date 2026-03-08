@@ -1,9 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useAiAnalysis } from "@/hooks/useAiAnalysis";
+import { useDelhiWards } from "@/hooks/useDelhiWards";
+import { assignAQIToWards, aqiToBorderColor, getAQICategory } from "@/lib/wardAqi";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from "recharts";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Brain, Loader2, TrendingUp } from "lucide-react";
+import { Brain, Loader2, TrendingUp, AlertTriangle } from "lucide-react";
 
 interface CityOverviewTabProps {
   stations: StationData[];
