@@ -2,21 +2,24 @@ import { useState } from "react";
 import { useAqiData } from "@/hooks/useAqiData";
 import { useIntroSequence } from "@/hooks/useIntroSequence";
 import { StationData } from "@/lib/aqi";
+import { WardFeature } from "@/hooks/useDelhiWards";
 import { Navbar } from "@/components/dashboard/Navbar";
 import { MapView } from "@/components/dashboard/MapView";
 import { StationIntelTab } from "@/components/dashboard/StationIntelTab";
 import { CityOverviewTab } from "@/components/dashboard/CityOverviewTab";
 import { CompareTab } from "@/components/dashboard/CompareTab";
+import { WardDetailPanel } from "@/components/dashboard/WardDetailPanel";
 import { HeroSkeleton } from "@/components/dashboard/LoadingSkeleton";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { IntroSequence } from "@/components/intro/IntroSequence";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { MapPin, Brain, BarChart3, GitCompareArrows } from "lucide-react";
+import { MapPin, Brain, BarChart3, GitCompareArrows, Map } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Index = () => {
   const { stations, loading, error, lastUpdated, cityAqi, refresh } = useAqiData();
   const [selectedStation, setSelectedStation] = useState<StationData | null>(null);
+  const [selectedWard, setSelectedWard] = useState<WardFeature["properties"] | null>(null);
   const [activeTab, setActiveTab] = useState("intel");
   const { stage, introDone, skip } = useIntroSequence();
 
@@ -54,7 +57,12 @@ const Index = () => {
                 selectedStation={effectiveStation}
                 onSelectStation={(s) => {
                   setSelectedStation(s);
+                  setSelectedWard(null);
                   setActiveTab("intel");
+                }}
+                onWardSelect={(w) => {
+                  setSelectedWard(w);
+                  setActiveTab("ward");
                 }}
               />
             </div>
@@ -69,7 +77,12 @@ const Index = () => {
                     selectedStation={effectiveStation}
                     onSelectStation={(s) => {
                       setSelectedStation(s);
+                      setSelectedWard(null);
                       setActiveTab("intel");
+                    }}
+                    onWardSelect={(w) => {
+                      setSelectedWard(w);
+                      setActiveTab("ward");
                     }}
                   />
                 </div>
@@ -112,6 +125,11 @@ const Index = () => {
                   <TabsTrigger value="compare" className="gap-1.5 font-mono text-[10px]">
                     <GitCompareArrows className="h-3 w-3" /> COMPARE
                   </TabsTrigger>
+                  {selectedWard && (
+                    <TabsTrigger value="ward" className="gap-1.5 font-mono text-[10px]">
+                      <Map className="h-3 w-3" /> WARD
+                    </TabsTrigger>
+                  )}
                 </TabsList>
 
                 <TabsContent value="intel" className="flex-1 overflow-hidden">
@@ -131,6 +149,12 @@ const Index = () => {
                 <TabsContent value="compare" className="flex-1 overflow-hidden">
                   <CompareTab stations={stations} />
                 </TabsContent>
+
+                {selectedWard && (
+                  <TabsContent value="ward" className="flex-1 overflow-hidden">
+                    <WardDetailPanel ward={selectedWard} onClose={() => { setSelectedWard(null); setActiveTab("intel"); }} />
+                  </TabsContent>
+                )}
               </Tabs>
             </div>
           </div>
