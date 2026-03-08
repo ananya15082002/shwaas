@@ -201,6 +201,54 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
             </ResponsiveContainer>
           </div>
         </div>
+        {/* Top 10 Most Polluted Wards */}
+        {top10Polluted.length > 0 && (
+          <div>
+            <h4 className="flex items-center gap-2 font-display text-xs font-bold tracking-widest text-primary">
+              <AlertTriangle className="h-4 w-4" /> TOP 10 MOST POLLUTED WARDS
+            </h4>
+            <div className="mt-2 space-y-1">
+              {top10Polluted.map((w) => {
+                const aqi = w.interpolated_aqi ?? 0;
+                const barWidth = Math.min((aqi / 500) * 100, 100);
+                const color = aqiToBorderColor(aqi).replace("0.7", "1").replace("0.75", "1").replace("0.8", "1").replace("0.85", "1");
+                return (
+                  <div
+                    key={w.ward_no}
+                    className="group relative flex items-center gap-3 rounded-md border border-border bg-secondary/20 px-3 py-2 transition-colors hover:bg-secondary/40"
+                  >
+                    <span
+                      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-display text-[10px] font-black"
+                      style={{ backgroundColor: `${color}20`, color }}
+                    >
+                      {w.rank}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="truncate font-mono text-[11px] font-semibold text-foreground">{w.ward_name}</span>
+                        <span className="ml-2 shrink-0 font-display text-sm font-black" style={{ color }}>
+                          {aqi}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex items-center gap-2">
+                        <div className="h-1 flex-1 rounded-full bg-secondary/50 overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all"
+                            style={{ width: `${barWidth}%`, background: color }}
+                          />
+                        </div>
+                        <span className="shrink-0 font-mono text-[8px] text-muted-foreground">{getAQICategory(aqi)}</span>
+                      </div>
+                      <span className="font-mono text-[9px] text-muted-foreground">
+                        Ward {w.ward_no} · {w.ac_name} · Pop: {w.total_pop?.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </ScrollArea>
   );
