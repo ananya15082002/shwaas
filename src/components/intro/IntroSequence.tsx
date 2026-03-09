@@ -465,24 +465,6 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
         )}
       </AnimatePresence>
 
-      {/* Stage 5: System Online */}
-      <AnimatePresence>
-        {stage === 5 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center"
-          >
-            <p className="font-display text-lg sm:text-2xl tracking-[0.2em] text-primary text-glow-primary mb-2">
-              {systemText}
-            </p>
-            <p className="font-mono text-xs tracking-widest text-muted-foreground">
-              REAL-TIME AIR QUALITY MONITORING: DELHI NCR
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Vignette */}
       {(stage === 3 || stage === 4) && (

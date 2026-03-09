@@ -1,13 +1,12 @@
 import { useState, useCallback, useEffect } from "react";
 
-export type IntroStage = 1 | 2 | 3 | 4 | 5 | "done";
+export type IntroStage = 1 | 2 | 3 | 4 | "done";
 
 const STAGE_DURATIONS: Record<number, number> = {
-  1: 3000,
-  2: 4000,
-  3: 3000,
-  4: 3000,
-  5: 4000,
+  1: 3000,  // Planet Earth loading
+  2: 4000,  // Earth rises
+  3: 3000,  // India searching
+  4: 3000,  // Delhi loading
 };
 
 export function useIntroSequence() {
@@ -30,7 +29,7 @@ export function useIntroSequence() {
     if (!duration) return;
 
     const timer = setTimeout(() => {
-      if (currentStage < 5) {
+      if (currentStage < 4) {
         setStage((currentStage + 1) as IntroStage);
       } else {
         skip();

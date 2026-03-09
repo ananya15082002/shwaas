@@ -244,34 +244,6 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     heatLayerRef.current = heat;
   }, [enrichedWards, showHeatmap]);
 
-  // Station markers
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    markersRef.current.forEach((m) => m.remove());
-    markersRef.current = [];
-
-    stations.forEach((station) => {
-      const coords = STATION_COORDS[station.stationId];
-      if (!coords) return;
-
-      const isSelected = selectedStation?.stationId === station.stationId;
-      const marker = L.marker(coords, {
-        icon: createMarkerIcon(station.aqi, isSelected),
-        zIndexOffset: isSelected ? 1000 : 100,
-      })
-        .addTo(map)
-        .bindTooltip(
-          `<div style="font-family:'Orbitron',monospace;font-size:10px;font-weight:600;">${station.name}</div>
-           <div style="font-family:'JetBrains Mono',monospace;font-size:9px;">AQI: ${station.aqi} • ${station.area}</div>`,
-          { className: "custom-tooltip", direction: "top", offset: [0, -15] }
-        );
-
-      marker.on("click", () => onSelectStation(station));
-      markersRef.current.push(marker);
-    });
-  }, [stations, selectedStation, onSelectStation]);
 
   return (
     <>

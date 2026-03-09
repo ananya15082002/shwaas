@@ -85,29 +85,6 @@ const Index = () => {
                 </div>
               </div>
 
-              <div className="flex gap-2 overflow-x-auto border-b border-border bg-card/50 px-3 py-2">
-                {stations.map((s) => {
-                  const isActive = effectiveStation?.stationId === s.stationId;
-                  return (
-                    <button
-                      key={s.stationId}
-                      onClick={() => {
-                        setSelectedStation(s);
-                        setActiveTab("intel");
-                      }}
-                      className={`flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1 font-mono text-[10px] transition-all ${
-                        isActive
-                          ? "bg-primary/10 text-primary border border-primary/30"
-                          : "text-muted-foreground hover:text-foreground border border-transparent"
-                      }`}
-                    >
-                      <MapPin className="h-2.5 w-2.5" />
-                      {s.name}
-                      <span className="font-display font-bold">{s.aqi}</span>
-                    </button>
-                  );
-                })}
-              </div>
 
               <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col overflow-hidden">
                 <TabsList className="mx-3 mt-3 w-fit bg-secondary/50">
