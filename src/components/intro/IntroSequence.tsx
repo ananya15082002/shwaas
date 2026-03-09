@@ -50,7 +50,7 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
   const [sensorText, setSensorText] = useState("");
   const [locatingText, setLocatingText] = useState("");
   const [delhiText, setDelhiText] = useState("");
-  const [systemText, setSystemText] = useState("");
+  
   const [showGlitch, setShowGlitch] = useState(false);
 
   useEffect(() => {
@@ -109,17 +109,6 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
     return () => { clearInterval(t); clearTimeout(g); };
   }, [stage]);
 
-  // Stage 5: system text
-  useEffect(() => {
-    if (stage !== 5) return;
-    setSystemText("");
-    const full = "SYSTEM ONLINE — 8 STATIONS ACTIVE";
-    let i = 0;
-    const t = setInterval(() => {
-      if (i <= full.length) { setSystemText(full.slice(0, i)); i++; } else clearInterval(t);
-    }, 50);
-    return () => clearInterval(t);
-  }, [stage]);
 
   // Three.js scene
   useEffect(() => {
@@ -375,10 +364,13 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
     gsap.to(stars.material as THREE.PointsMaterial, { opacity: 0, duration: 1.5 });
   }, [stage]);
 
-  // Stage 5: Fade out
+  // Stage 4 end: Fade out
   useEffect(() => {
-    if (stage !== 5 || !containerRef.current) return;
-    gsap.to(containerRef.current, { opacity: 0, scale: 0.5, duration: 2, ease: "power2.in" });
+    if (stage !== 4 || !containerRef.current) return;
+    const t = setTimeout(() => {
+      gsap.to(containerRef.current, { opacity: 0, scale: 0.5, duration: 1.5, ease: "power2.in" });
+    }, 1500);
+    return () => clearTimeout(t);
   }, [stage]);
 
   if (stage === "done") return null;
@@ -473,24 +465,6 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
         )}
       </AnimatePresence>
 
-      {/* Stage 5: System Online */}
-      <AnimatePresence>
-        {stage === 5 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center"
-          >
-            <p className="font-display text-lg sm:text-2xl tracking-[0.2em] text-primary text-glow-primary mb-2">
-              {systemText}
-            </p>
-            <p className="font-mono text-xs tracking-widest text-muted-foreground">
-              REAL-TIME AIR QUALITY MONITORING: DELHI NCR
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Vignette */}
       {(stage === 3 || stage === 4) && (
