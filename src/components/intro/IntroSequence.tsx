@@ -364,10 +364,13 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
     gsap.to(stars.material as THREE.PointsMaterial, { opacity: 0, duration: 1.5 });
   }, [stage]);
 
-  // Stage 5: Fade out
+  // Stage 4 end: Fade out
   useEffect(() => {
-    if (stage !== 5 || !containerRef.current) return;
-    gsap.to(containerRef.current, { opacity: 0, scale: 0.5, duration: 2, ease: "power2.in" });
+    if (stage !== 4 || !containerRef.current) return;
+    const t = setTimeout(() => {
+      gsap.to(containerRef.current, { opacity: 0, scale: 0.5, duration: 1.5, ease: "power2.in" });
+    }, 1500);
+    return () => clearTimeout(t);
   }, [stage]);
 
   if (stage === "done") return null;
