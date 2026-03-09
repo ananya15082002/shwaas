@@ -58,6 +58,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   const containerRef = useRef<HTMLDivElement>(null);
   const [showWards, setShowWards] = useState(true);
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showLegend, setShowLegend] = useState(false);
   const [wardSearch, setWardSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
 
