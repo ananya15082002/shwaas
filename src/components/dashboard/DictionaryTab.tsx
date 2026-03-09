@@ -101,7 +101,7 @@ export function DictionaryTab() {
   const { t, lang } = useLanguage();
 
   return (
-    <ScrollArea className="h-[calc(100vh-12rem)]">
+    <ScrollArea className="h-full">
       <div className="space-y-3 p-4">
         <div className="flex items-center gap-2">
           <BookOpen className="h-5 w-5 text-primary" />

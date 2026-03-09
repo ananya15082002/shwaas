@@ -48,7 +48,7 @@ export function CompareTab({ stations }: CompareTabProps) {
   const colors = ["hsl(180, 100%, 45%)", "hsl(260, 80%, 60%)", "hsl(30, 100%, 55%)", "hsl(145, 100%, 45%)"];
 
   return (
-    <ScrollArea className="h-[calc(100vh-12rem)]">
+    <ScrollArea className="h-full">
       <div className="space-y-5 p-4">
         <div>
           <h4 className="font-display text-xs font-bold tracking-widest text-primary">

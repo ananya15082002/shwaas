@@ -46,12 +46,12 @@ export function assignAQIToWards(
 
 export function aqiToFillColor(aqi: number): string {
   if (!aqi || aqi === 0) return "rgba(100,100,100,0.3)";
-  if (aqi <= 50) return "rgba(0,229,160,0.35)";
-  if (aqi <= 100) return "rgba(255,214,0,0.35)";
-  if (aqi <= 150) return "rgba(255,140,0,0.35)";
-  if (aqi <= 200) return "rgba(255,61,61,0.38)";
-  if (aqi <= 300) return "rgba(198,43,255,0.4)";
-  return "rgba(255,0,51,0.45)";
+  if (aqi <= 50) return "rgba(0,229,160,0.45)";
+  if (aqi <= 100) return "rgba(255,214,0,0.45)";
+  if (aqi <= 150) return "rgba(255,140,0,0.45)";
+  if (aqi <= 200) return "rgba(255,61,61,0.5)";
+  if (aqi <= 300) return "rgba(198,43,255,0.5)";
+  return "rgba(255,0,51,0.55)";
 }
 
 export function aqiToBorderColor(aqi: number): string {

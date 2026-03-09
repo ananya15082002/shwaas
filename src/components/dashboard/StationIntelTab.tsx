@@ -39,7 +39,7 @@ export function StationIntelTab({ station }: StationIntelTabProps) {
   } | null;
 
   return (
-    <ScrollArea className="h-[calc(100vh-12rem)]">
+    <ScrollArea className="h-full">
       <div className="space-y-5 p-4">
         <div className="flex flex-col items-center gap-4 sm:flex-row">
           <AqiGauge aqi={station.aqi} size={140} />
