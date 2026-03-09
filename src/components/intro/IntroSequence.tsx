@@ -22,7 +22,7 @@ function latLonToVector3(lat: number, lon: number, radius: number): THREE.Vector
 
 // Calculate earth Y-rotation to face a given longitude toward camera (+Z)
 function lonToEarthRotationY(lon: number): number {
-  return -Math.PI * (lon / 180) + Math.PI * 0.5;
+  return -Math.PI * (lon / 180) - Math.PI * 0.5;
 }
 
 const INDIA_LAT = 20.5936;
