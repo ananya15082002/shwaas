@@ -109,17 +109,6 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
     return () => { clearInterval(t); clearTimeout(g); };
   }, [stage]);
 
-  // Stage 5: system text
-  useEffect(() => {
-    if (stage !== 5) return;
-    setSystemText("");
-    const full = "SYSTEM ONLINE — 8 STATIONS ACTIVE";
-    let i = 0;
-    const t = setInterval(() => {
-      if (i <= full.length) { setSystemText(full.slice(0, i)); i++; } else clearInterval(t);
-    }, 50);
-    return () => clearInterval(t);
-  }, [stage]);
 
   // Three.js scene
   useEffect(() => {
