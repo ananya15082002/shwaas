@@ -89,7 +89,7 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
   });
 
   return (
-    <ScrollArea className="h-[calc(100vh-12rem)]">
+    <ScrollArea className="h-full">
       <div className="space-y-5 p-4">
         <div className="cyber-border rounded-lg p-4 text-center">
           <span className="font-mono text-[10px] text-muted-foreground">{t("city.average")}</span>
