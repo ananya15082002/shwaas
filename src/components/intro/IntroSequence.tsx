@@ -50,7 +50,7 @@ export function IntroSequence({ stage, onSkip }: IntroSequenceProps) {
   const [sensorText, setSensorText] = useState("");
   const [locatingText, setLocatingText] = useState("");
   const [delhiText, setDelhiText] = useState("");
-  const [systemText, setSystemText] = useState("");
+  
   const [showGlitch, setShowGlitch] = useState(false);
 
   useEffect(() => {
