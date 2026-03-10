@@ -46,8 +46,13 @@ export function Navbar({ lastUpdated, onRefresh, loading, onLogoClick }: NavbarP
             </span>
           </div>
 
-          <div className="font-mono text-sm font-semibold tabular-nums text-primary text-glow-primary">
-            {time.toLocaleTimeString("en-IN", { hour12: false })}
+          <div className="flex flex-col items-end font-mono tabular-nums">
+            <span className="text-sm font-semibold text-primary text-glow-primary">
+              {time.toLocaleTimeString("en-IN", { hour12: false })}
+            </span>
+            <span className="text-[9px] text-muted-foreground">
+              {time.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+            </span>
           </div>
 
           {/* Language Toggle */}
