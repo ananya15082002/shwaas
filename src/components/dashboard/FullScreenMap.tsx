@@ -34,17 +34,6 @@ const DELHI_BOUNDARY_COORDS: [number, number][] = [
   [28.8600, 77.0850], [28.8833, 77.0983],
 ];
 
-const STATION_COORDS: Record<string, [number, number]> = {
-  "delhi/ito": [28.6289, 77.2414],
-  "delhi/anand-vihar": [28.6468, 77.316],
-  "delhi/rk-puram": [28.5633, 77.1725],
-  "delhi/punjabi-bagh": [28.6682, 77.1313],
-  "delhi/dwarka-sector-8": [28.5708, 77.0711],
-  "delhi/chandni-chowk": [28.6506, 77.2302],
-  "delhi/rohini": [28.7329, 77.1166],
-  "delhi/shadipur": [28.6514, 77.1594],
-};
-
 export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScreenMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -64,11 +53,8 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
 
   const stationsWithCoords = useMemo(
     () => stations
-      .map((s) => {
-        const c = STATION_COORDS[s.stationId];
-        return c ? { lat: c[0], lon: c[1], aqi: s.aqi } : null;
-      })
-      .filter(Boolean) as { lat: number; lon: number; aqi: number }[],
+      .filter((s) => s.lat != null && s.lon != null)
+      .map((s) => ({ lat: s.lat!, lon: s.lon!, aqi: s.aqi })),
     [stations]
   );
 

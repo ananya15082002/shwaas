@@ -21,17 +21,6 @@ interface MapViewProps {
 const DELHI_CENTER: [number, number] = [28.6139, 77.209];
 const DELHI_BOUNDS: L.LatLngBoundsExpression = [[28.40, 76.84], [28.88, 77.35]];
 
-const STATION_COORDS: Record<string, [number, number]> = {
-  "delhi/ito": [28.6289, 77.2414],
-  "delhi/anand-vihar": [28.6468, 77.316],
-  "delhi/rk-puram": [28.5633, 77.1725],
-  "delhi/punjabi-bagh": [28.6682, 77.1313],
-  "delhi/dwarka-sector-8": [28.5708, 77.0711],
-  "delhi/chandni-chowk": [28.6506, 77.2302],
-  "delhi/rohini": [28.7329, 77.1166],
-  "delhi/shadipur": [28.6514, 77.1594],
-};
-
 function createMarkerIcon(aqi: number, isSelected: boolean) {
   const level = getAqiLevel(aqi);
   const size = isSelected ? 40 : 30;
@@ -94,13 +83,9 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   const { wardsGeoJSON } = useDelhiWards();
 
   const stationsWithCoords = useMemo(
-    () =>
-      stations
-        .map((s) => {
-          const c = STATION_COORDS[s.stationId];
-          return c ? { lat: c[0], lon: c[1], aqi: s.aqi } : null;
-        })
-        .filter(Boolean) as { lat: number; lon: number; aqi: number }[],
+    () => stations
+      .filter((s) => s.lat != null && s.lon != null)
+      .map((s) => ({ lat: s.lat!, lon: s.lon!, aqi: s.aqi })),
     [stations]
   );
 

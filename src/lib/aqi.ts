@@ -1,14 +1,15 @@
 export const WAQI_TOKEN = "9fc975c6d3b1d5c5376f3b846bf4d8495c4f8758";
 export const WAQI_BASE = "https://api.waqi.info/feed";
+export const WAQI_MAP_BASE = "https://api.waqi.info/v2/map/bounds";
 
+// Delhi bounding box (lat1,lng1,lat2,lng2)
+const DELHI_BOUNDS = "28.40,76.84,28.88,77.35";
+
+// Fallback stations if map API fails
 export const STATIONS = [
   { id: "delhi/ito", name: "ITO", area: "Central Delhi" },
   { id: "delhi/anand-vihar", name: "Anand Vihar", area: "East Delhi" },
-  { id: "delhi/rk-puram", name: "RK Puram", area: "South Delhi" },
   { id: "delhi/punjabi-bagh", name: "Punjabi Bagh", area: "West Delhi" },
-  { id: "delhi/dwarka-sector-8", name: "Dwarka Sec-8", area: "South-West Delhi" },
-  { id: "delhi/chandni-chowk", name: "Chandni Chowk", area: "Old Delhi" },
-  { id: "delhi/rohini", name: "Rohini", area: "North Delhi" },
   { id: "delhi/shadipur", name: "Shadipur", area: "Central-West Delhi" },
 ] as const;
 
@@ -26,6 +27,8 @@ export interface StationData {
     };
   };
   time: { s: string; iso: string };
+  lat?: number;
+  lon?: number;
 }
 
 export interface AqiLevel {
@@ -85,22 +88,78 @@ export async function fetchStationData(stationId: string): Promise<StationData |
     const json = await res.json();
     if (json.status !== "ok") return null;
     const d = json.data;
-    const station = STATIONS.find(s => s.id === stationId);
     return {
       stationId,
-      name: station?.name ?? stationId,
-      area: station?.area ?? "",
+      name: d.city?.name?.split(",")[0]?.trim() ?? stationId,
+      area: d.city?.name?.split(",").slice(1).join(",").trim() ?? "",
       aqi: d.aqi,
       dominantPollutant: d.dominentpol ?? "pm25",
       iaqi: d.iaqi ?? {},
       forecast: d.forecast,
       time: d.time,
+      lat: d.city?.geo?.[0],
+      lon: d.city?.geo?.[1],
     };
   } catch {
     return null;
   }
 }
 
+/**
+ * Dynamically discover ALL active monitoring stations in Delhi using the map bounds API.
+ * Falls back to hardcoded station list if map API fails.
+ */
 export async function fetchAllStations(): Promise<(StationData | null)[]> {
+  try {
+    // Use WAQI map bounds API to discover all stations in Delhi region
+    const res = await fetch(`${WAQI_MAP_BASE}?latlng=${DELHI_BOUNDS}&networks=all&token=${WAQI_TOKEN}`);
+    const json = await res.json();
+
+    if (json.status === "ok" && Array.isArray(json.data) && json.data.length > 0) {
+      // Filter to only Delhi stations (within NCT Delhi bounds more strictly)
+      const delhiStations = json.data.filter((s: any) => {
+        const lat = s.lat;
+        const lon = s.lon;
+        // Tighter Delhi NCT bounds
+        return lat >= 28.40 && lat <= 28.88 && lon >= 76.84 && lon <= 77.35 && typeof s.aqi === "number" && s.aqi > 0;
+      });
+
+      if (delhiStations.length > 0) {
+        console.log(`[WAQI] Discovered ${delhiStations.length} active stations in Delhi via map API`);
+        
+        // Fetch detailed data for each discovered station
+        const detailedPromises = delhiStations.map(async (s: any) => {
+          try {
+            const detail = await fetchStationData(`@${s.uid}`);
+            if (detail) {
+              detail.lat = s.lat;
+              detail.lon = s.lon;
+              return detail;
+            }
+            // If detailed fetch fails, create from map data
+            return {
+              stationId: `@${s.uid}`,
+              name: s.station?.name?.split(",")[0]?.trim() ?? `Station ${s.uid}`,
+              area: s.station?.name?.split(",").slice(1).join(",").trim() ?? "Delhi",
+              aqi: Number(s.aqi),
+              dominantPollutant: "pm25",
+              iaqi: {},
+              time: { s: "", iso: "" },
+              lat: s.lat,
+              lon: s.lon,
+            } as StationData;
+          } catch {
+            return null;
+          }
+        });
+
+        return Promise.all(detailedPromises);
+      }
+    }
+  } catch (err) {
+    console.warn("[WAQI] Map bounds API failed, falling back to hardcoded stations:", err);
+  }
+
+  // Fallback to hardcoded stations
   return Promise.all(STATIONS.map(s => fetchStationData(s.id)));
 }
