@@ -317,7 +317,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     heatLayerRef.current = heat;
   }, [enrichedWards, showHeatmap]);
 
-  // Active ward pin marker
+  // Active ward pin marker with label
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -332,33 +332,52 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     const [cLon, cLat] = activeWard.centroid;
     const aqi = activeWard.interpolated_aqi ?? 0;
     const level = getAqiLevel(aqi);
+    const wardName = activeWard.ward_name || "Ward";
 
     const pinIcon = L.divIcon({
       className: "active-ward-pin",
       html: `<div style="
         display:flex;flex-direction:column;align-items:center;
-        filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+        filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));
         animation:wardPinBounce 0.5s ease-out;
+        pointer-events:none;
       ">
         <div style="
-          width:36px;height:36px;border-radius:50%;
-          background:${level.color};
-          border:3px solid #fff;
-          display:flex;align-items:center;justify-content:center;
-          font-family:'Orbitron',monospace;font-size:10px;font-weight:800;color:#000;
-          box-shadow:0 0 15px ${level.color}80;
-        ">${aqi || "?"}</div>
+          background:rgba(4,8,16,0.92);
+          border:1px solid ${level.color}80;
+          border-radius:8px;
+          padding:4px 10px;
+          margin-bottom:4px;
+          white-space:nowrap;
+          backdrop-filter:blur(8px);
+        ">
+          <div style="
+            font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;
+            color:#fff;text-align:center;letter-spacing:0.5px;
+          ">${wardName}</div>
+          <div style="
+            font-family:'Orbitron',monospace;font-size:16px;font-weight:900;
+            color:${level.color};text-align:center;
+            text-shadow:0 0 12px ${level.color}60;
+            line-height:1.1;
+          ">${aqi || "—"}</div>
+        </div>
         <div style="
-          width:3px;height:12px;background:#fff;
-          border-radius:0 0 2px 2px;
+          width:0;height:0;
+          border-left:6px solid transparent;
+          border-right:6px solid transparent;
+          border-top:8px solid rgba(4,8,16,0.92);
+          margin-bottom:-1px;
         "></div>
         <div style="
-          width:8px;height:4px;border-radius:50%;
-          background:rgba(255,255,255,0.4);
+          width:4px;height:4px;border-radius:50%;
+          background:${level.color};
+          box-shadow:0 0 8px ${level.color}, 0 0 20px ${level.color}40;
+          animation:wardPinPulse 2s ease-in-out infinite;
         "></div>
       </div>`,
-      iconSize: [36, 56],
-      iconAnchor: [18, 56],
+      iconSize: [120, 80],
+      iconAnchor: [60, 80],
     });
 
     const marker = L.marker([cLat, cLon], { icon: pinIcon, zIndexOffset: 1000 });
