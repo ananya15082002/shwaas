@@ -376,7 +376,76 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     wardLayerRef.current = wardLayer;
   }, [enrichedWards, showWards, onWardSelect]);
 
-  // Heatmap layer
+  // Special zones layer (Airport, Cantonment, Yamuna, etc.)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (specialZoneLayerRef.current) {
+      specialZoneLayerRef.current.remove();
+      specialZoneLayerRef.current = null;
+    }
+
+    if (!showWards) return;
+
+    const group = L.layerGroup();
+
+    DELHI_SPECIAL_ZONES.forEach((zone) => {
+      const poly = L.polygon(zone.polygon, {
+        fillColor: "rgba(0,229,160,0.08)",
+        fillOpacity: 1,
+        color: "rgba(0,229,160,0.35)",
+        weight: 1.5,
+        dashArray: "4,4",
+        interactive: true,
+      });
+
+      poly.bindTooltip(
+        `<div style="
+          background:rgba(4,8,16,0.92);
+          border:1px solid rgba(0,229,160,0.3);
+          border-radius:8px;
+          padding:10px 14px;
+          font-family:'JetBrains Mono',monospace;
+          min-width:140px;
+        ">
+          <div style="font-size:16px;margin-bottom:4px">${zone.emoji} <span style="color:#fff;font-weight:700;font-size:12px">${zone.name}</span></div>
+          <div style="color:rgba(255,255,255,0.45);font-size:9px;margin-bottom:6px">${zone.description}</div>
+          <div style="color:rgba(0,229,160,0.8);font-size:10px;font-weight:600">Click for live AQI data →</div>
+        </div>`,
+        { permanent: false, sticky: true, className: "ward-tooltip" }
+      );
+
+      poly.on("click", () => {
+        // Create a fake ward properties object for the detail panel
+        const fakeWard: WardFeature["properties"] = {
+          ward_no: -1,
+          ward_name: zone.name,
+          ac_name: zone.description,
+          ac_no: 0,
+          total_pop: 0,
+          sc_pop: 0,
+          nw2022: "",
+          centroid: zone.centroid,
+        };
+        onWardSelect?.(fakeWard);
+      });
+
+      poly.on("mouseover", () => {
+        poly.setStyle({ fillColor: "rgba(0,229,160,0.18)", color: "rgba(0,229,160,0.6)", weight: 2 });
+      });
+      poly.on("mouseout", () => {
+        poly.setStyle({ fillColor: "rgba(0,229,160,0.08)", color: "rgba(0,229,160,0.35)", weight: 1.5 });
+      });
+
+      poly.addTo(group);
+    });
+
+    group.addTo(map);
+    specialZoneLayerRef.current = group;
+  }, [showWards, onWardSelect]);
+
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
