@@ -336,6 +336,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         }
         .leaflet-control-zoom { display: none !important; }
         .place-pin-marker { background: none !important; border: none !important; }
+        .landmark-marker { background: none !important; border: none !important; }
       `}</style>
 
       {/* Map container */}
