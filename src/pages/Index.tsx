@@ -19,6 +19,8 @@ import { BarChart3, GitCompareArrows, Map, BookOpen, Trophy } from "lucide-react
 import { DictionaryTab } from "@/components/dashboard/DictionaryTab";
 import { WardRankings } from "@/components/dashboard/WardRankings";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAmbientMusic } from "@/hooks/useAmbientMusic";
+import { MusicControl } from "@/components/dashboard/MusicControl";
 
 const Index = () => {
   const { stations, loading, error, lastUpdated, cityAqi, refresh } = useAqiData();
