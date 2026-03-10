@@ -22,7 +22,7 @@ export function Navbar({ lastUpdated, onRefresh, loading, onLogoClick }: NavbarP
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
       <div className="container mx-auto flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={onLogoClick} title="Replay intro">
           <Wind className="h-6 w-6 text-primary" />
           <div>
             <h1 className="font-display text-sm font-bold tracking-wider text-primary sm:text-base">

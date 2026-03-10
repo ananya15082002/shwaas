@@ -51,5 +51,5 @@ export function useIntroSequence() {
     return () => clearTimeout(timer);
   }, [stage]);
 
-  return { stage, introDone, skip, advanceToNext };
+  return { stage, introDone, skip, advanceToNext, replay };
 }
