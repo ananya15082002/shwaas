@@ -4,9 +4,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import {
   BookOpen, Wind, Thermometer, Activity, Shield, AlertTriangle,
   TrendingUp, Factory, Users, ChevronDown, ChevronRight,
-  Droplets, Eye, HeartPulse, Lung, Brain, Baby,
+  Droplets, Eye, HeartPulse, Brain, Baby,
   Car, Flame, Building2, Leaf, Truck, Cigarette,
-  Ruler, Info, Skull, Zap, CloudRain, Sun,
+  Ruler, Info, Skull, Zap, CloudRain, Sun, Stethoscope,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
