@@ -13,6 +13,7 @@ import { WardDetailPanel } from "@/components/dashboard/WardDetailPanel";
 import { HeroSkeleton } from "@/components/dashboard/LoadingSkeleton";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { IntroSequence } from "@/components/intro/IntroSequence";
+import { FullScreenMap } from "@/components/dashboard/FullScreenMap";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { BarChart3, GitCompareArrows, Map, BookOpen, Trophy } from "lucide-react";
 import { DictionaryTab } from "@/components/dashboard/DictionaryTab";
@@ -27,6 +28,8 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("ward");
   const { stage, introDone, skip, advanceToNext, replay } = useIntroSequence();
   const { t } = useLanguage();
+  const [showFullMap, setShowFullMap] = useState(false);
+  const [dashboardReady, setDashboardReady] = useState(false);
 
   const defaultWard = useMemo(() => {
     if (!wardsGeoJSON) return null;
@@ -34,24 +37,63 @@ const Index = () => {
   }, [wardsGeoJSON]);
 
   const displayWard = selectedWard || defaultWard;
-
   const effectiveStation = selectedStation || stations[0] || null;
+
+  // When intro finishes (advanceToNext from stage 3), show full-screen map
+  const handleIntroComplete = () => {
+    advanceToNext();
+    setShowFullMap(true);
+  };
+
+  const handleEnterDashboard = (ward?: WardFeature["properties"]) => {
+    if (ward) {
+      setSelectedWard(ward);
+      setActiveTab("ward");
+    }
+    setShowFullMap(false);
+    setDashboardReady(true);
+  };
+
+  const handleReplay = () => {
+    replay();
+    setShowFullMap(false);
+    setDashboardReady(false);
+  };
+
+  // For skip: go straight to full map
+  const handleSkip = () => {
+    skip();
+    setShowFullMap(true);
+  };
+
+  const showDashboard = introDone && !showFullMap;
 
   return (
     <>
       <AnimatePresence>
         {!introDone && (
-          <IntroSequence stage={stage} onSkip={skip} onDelhiClick={advanceToNext} />
+          <IntroSequence stage={stage} onSkip={handleSkip} onDelhiClick={handleIntroComplete} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showFullMap && (
+          <FullScreenMap
+            stations={stations}
+            cityAqi={cityAqi}
+            onEnterDashboard={handleEnterDashboard}
+          />
         )}
       </AnimatePresence>
 
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: introDone ? 1 : 0 }}
+        animate={{ opacity: showDashboard ? 1 : 0 }}
         transition={{ duration: 0.8 }}
         className="flex h-screen flex-col bg-background"
+        style={{ pointerEvents: showDashboard ? "auto" : "none" }}
       >
-        <Navbar lastUpdated={lastUpdated} onRefresh={refresh} loading={loading} onLogoClick={replay} />
+        <Navbar lastUpdated={lastUpdated} onRefresh={refresh} loading={loading} onLogoClick={handleReplay} />
 
         {error ? (
           <ErrorState message={error} onRetry={refresh} />
