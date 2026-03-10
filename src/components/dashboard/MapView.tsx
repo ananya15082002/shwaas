@@ -16,6 +16,7 @@ interface MapViewProps {
 }
 
 const DELHI_CENTER: [number, number] = [28.6139, 77.209];
+const DELHI_BOUNDS: L.LatLngBoundsExpression = [[28.40, 76.84], [28.88, 77.35]];
 
 const STATION_COORDS: Record<string, [number, number]> = {
   "delhi/ito": [28.6289, 77.2414],
@@ -56,6 +57,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   const wardLayerRef = useRef<L.GeoJSON | null>(null);
   const heatLayerRef = useRef<L.Layer | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const selectedWardRef = useRef<L.Layer | null>(null);
   const [showWards, setShowWards] = useState(true);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
@@ -115,6 +117,9 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
       zoom: 11,
       zoomControl: false,
       attributionControl: false,
+      minZoom: 10,
+      maxBounds: DELHI_BOUNDS,
+      maxBoundsViscosity: 0.8,
     });
 
     L.control.zoom({ position: "bottomright" }).addTo(map);
@@ -122,6 +127,9 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
       maxZoom: 19,
     }).addTo(map);
+
+    // Fit to show all of Delhi
+    map.fitBounds(DELHI_BOUNDS, { padding: [10, 10] });
 
     map.on("moveend", () => {
       const b = map.getBounds();
@@ -146,7 +154,6 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     const map = mapRef.current;
     if (!map) return;
 
-    // Remove old ward layer
     if (wardLayerRef.current) {
       wardLayerRef.current.remove();
       wardLayerRef.current = null;
@@ -161,7 +168,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
           fillColor: aqiToFillColor(aqi),
           fillOpacity: 1,
           color: aqiToBorderColor(aqi),
-          weight: 0.8,
+          weight: 1,
           opacity: 0.9,
         };
       },
@@ -191,15 +198,35 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
           { permanent: false, sticky: true, className: "ward-tooltip" }
         );
 
-        layer.on("click", () => onWardSelect?.(p));
-        layer.on("mouseover", () => (layer as any).setStyle({ weight: 2, fillOpacity: 0.95 }));
-        layer.on("mouseout", () =>
-          (layer as any).setStyle({
-            weight: 0.8,
-            fillOpacity: 1,
-            fillColor: aqiToFillColor(aqi),
-          })
-        );
+        layer.on("click", () => {
+          // Reset previously selected ward
+          if (selectedWardRef.current) {
+            const prevAqi = (selectedWardRef.current as any).feature?.properties?.interpolated_aqi ?? 0;
+            (selectedWardRef.current as any).setStyle({
+              weight: 1,
+              fillOpacity: 1,
+              color: aqiToBorderColor(prevAqi),
+            });
+          }
+          // Highlight selected ward
+          (layer as any).setStyle({ weight: 3, color: "#fff", fillOpacity: 0.9 });
+          selectedWardRef.current = layer;
+          onWardSelect?.(p);
+        });
+        layer.on("mouseover", () => {
+          if (selectedWardRef.current !== layer) {
+            (layer as any).setStyle({ weight: 2, fillOpacity: 0.85 });
+          }
+        });
+        layer.on("mouseout", () => {
+          if (selectedWardRef.current !== layer) {
+            (layer as any).setStyle({
+              weight: 1,
+              fillOpacity: 1,
+              color: aqiToBorderColor(aqi),
+            });
+          }
+        });
       },
     });
 
