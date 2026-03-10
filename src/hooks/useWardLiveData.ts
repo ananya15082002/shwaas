@@ -7,6 +7,7 @@ interface WaqiGeoData {
   iaqi: Record<string, { v: number }>;
   time?: { s: string };
   dominentpol?: string;
+  stationGeo?: [number, number]; // [lat, lon]
 }
 
 export function useWardLiveData(centroid: [number, number] | null) {
@@ -23,12 +24,14 @@ export function useWardLiveData(centroid: [number, number] | null) {
       .then((r) => r.json())
       .then((json) => {
         if (json.status === "ok") {
+          const geo = json.data.city?.geo;
           setData({
             aqi: json.data.aqi,
             station: json.data.city?.name ?? "Unknown",
             iaqi: json.data.iaqi ?? {},
             time: json.data.time,
             dominentpol: json.data.dominentpol,
+            stationGeo: geo ? [geo[0], geo[1]] : undefined,
           });
         }
       })

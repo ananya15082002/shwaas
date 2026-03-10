@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import L from "leaflet";
 import "leaflet.heat";
-import { Search, X, Flame } from "lucide-react";
+import { Search, X, Flame, MapPin } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
@@ -83,6 +83,9 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   const [showLegend, setShowLegend] = useState(false);
   const [wardSearch, setWardSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [placeResults, setPlaceResults] = useState<{ name: string; lat: number; lon: number }[]>([]);
+  const [searchingPlaces, setSearchingPlaces] = useState(false);
+  const placeSearchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { wardsGeoJSON } = useDelhiWards();
 
@@ -128,6 +131,46 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     setWardSearch("");
   }, [enrichedWards, onWardSelect]);
 
+  const findNearestWard = useCallback((lat: number, lon: number) => {
+    if (!wardList.length) return null;
+    let nearest = wardList[0];
+    let minDist = Infinity;
+    for (const w of wardList) {
+      if (!w.centroid) continue;
+      const [cLon, cLat] = w.centroid;
+      const d = Math.pow(lat - cLat, 2) + Math.pow(lon - cLon, 2);
+      if (d < minDist) { minDist = d; nearest = w; }
+    }
+    return nearest;
+  }, [wardList]);
+
+  const searchPlaces = useCallback((query: string) => {
+    if (placeSearchTimeout.current) clearTimeout(placeSearchTimeout.current);
+    if (query.trim().length < 2) { setPlaceResults([]); return; }
+    placeSearchTimeout.current = setTimeout(async () => {
+      setSearchingPlaces(true);
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + " Delhi India")}&bounded=1&viewbox=76.84,28.40,77.35,28.88&limit=5`,
+          { headers: { "Accept-Language": "en" } }
+        );
+        const data = await res.json();
+        setPlaceResults(data.map((d: any) => ({ name: d.display_name.split(",").slice(0, 2).join(","), lat: parseFloat(d.lat), lon: parseFloat(d.lon) })));
+      } catch { setPlaceResults([]); }
+      setSearchingPlaces(false);
+    }, 400);
+  }, []);
+
+  const handlePlaceSelect = useCallback((place: { lat: number; lon: number; name: string }) => {
+    const nearest = findNearestWard(place.lat, place.lon);
+    if (nearest) {
+      zoomToWard(nearest);
+      mapRef.current?.setView([place.lat, place.lon], 14);
+    }
+    setSearchOpen(false);
+    setWardSearch("");
+    setPlaceResults([]);
+  }, [findNearestWard, zoomToWard]);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -446,39 +489,63 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
         {showWards && (
           <div className="absolute left-3 top-3 z-[1000]">
             {searchOpen ? (
-              <div className="w-56 rounded-lg border border-border bg-card/95 backdrop-blur-sm">
+              <div className="w-64 rounded-lg border border-border bg-card/95 backdrop-blur-sm">
                 <div className="flex items-center gap-2 border-b border-border px-3 py-2">
                   <Search className="h-3.5 w-3.5 text-muted-foreground" />
                   <input
                     autoFocus
                     value={wardSearch}
-                    onChange={(e) => setWardSearch(e.target.value)}
-                    placeholder="Search wards..."
+                    onChange={(e) => { setWardSearch(e.target.value); searchPlaces(e.target.value); }}
+                    placeholder="Search ward or place (India Gate...)"
                     className="flex-1 bg-transparent font-mono text-[11px] text-foreground placeholder:text-muted-foreground focus:outline-none"
                   />
-                  <button onClick={() => { setSearchOpen(false); setWardSearch(""); }} className="text-muted-foreground hover:text-foreground">
+                  <button onClick={() => { setSearchOpen(false); setWardSearch(""); setPlaceResults([]); }} className="text-muted-foreground hover:text-foreground">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
-                <div className="max-h-48 overflow-y-auto p-1">
-                  {filteredWards.length === 0 ? (
-                    <p className="px-2 py-3 text-center font-mono text-[10px] text-muted-foreground">No wards found</p>
-                  ) : (
-                    filteredWards.map((w) => (
-                      <button
-                        key={w.ward_no}
-                        onClick={() => zoomToWard(w)}
-                        className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left transition-colors hover:bg-secondary/50"
-                      >
-                        <div>
-                          <span className="block font-mono text-[10px] font-semibold text-foreground">{w.ward_name}</span>
-                          <span className="font-mono text-[9px] text-muted-foreground">Ward {w.ward_no} · {w.ac_name}</span>
-                        </div>
-                        <span className="font-display text-xs font-bold" style={{ color: aqiToBorderColor(w.interpolated_aqi ?? 0).replace("0.7", "1") }}>
-                          {w.interpolated_aqi ?? "—"}
-                        </span>
-                      </button>
-                    ))
+                <div className="max-h-56 overflow-y-auto p-1">
+                  {/* Ward results */}
+                  {filteredWards.length > 0 && (
+                    <>
+                      <p className="px-2 py-1 font-mono text-[9px] tracking-widest text-muted-foreground">WARDS</p>
+                      {filteredWards.map((w) => (
+                        <button
+                          key={w.ward_no}
+                          onClick={() => zoomToWard(w)}
+                          className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left transition-colors hover:bg-secondary/50"
+                        >
+                          <div>
+                            <span className="block font-mono text-[10px] font-semibold text-foreground">{w.ward_name}</span>
+                            <span className="font-mono text-[9px] text-muted-foreground">Ward {w.ward_no} · {w.ac_name}</span>
+                          </div>
+                          <span className="font-display text-xs font-bold" style={{ color: aqiToBorderColor(w.interpolated_aqi ?? 0).replace("0.7", "1") }}>
+                            {w.interpolated_aqi ?? "—"}
+                          </span>
+                        </button>
+                      ))}
+                    </>
+                  )}
+                  {/* Place results */}
+                  {placeResults.length > 0 && (
+                    <>
+                      <p className="px-2 py-1 font-mono text-[9px] tracking-widest text-muted-foreground mt-1 border-t border-border pt-1.5">PLACES</p>
+                      {placeResults.map((p, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handlePlaceSelect(p)}
+                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-secondary/50"
+                        >
+                          <MapPin className="h-3 w-3 shrink-0 text-primary" />
+                          <span className="font-mono text-[10px] text-foreground truncate">{p.name}</span>
+                        </button>
+                      ))}
+                    </>
+                  )}
+                  {searchingPlaces && (
+                    <p className="px-2 py-2 text-center font-mono text-[10px] text-muted-foreground">Searching places...</p>
+                  )}
+                  {filteredWards.length === 0 && placeResults.length === 0 && !searchingPlaces && wardSearch.trim() && (
+                    <p className="px-2 py-3 text-center font-mono text-[10px] text-muted-foreground">No results found</p>
                   )}
                 </div>
               </div>
@@ -487,7 +554,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
                 onClick={() => setSearchOpen(true)}
                 className="flex items-center gap-1.5 rounded-full border border-border bg-card/90 px-3 py-1.5 font-mono text-[11px] text-muted-foreground backdrop-blur-sm transition-colors hover:text-foreground"
               >
-                <Search className="h-3 w-3" /> FIND WARD
+                <Search className="h-3 w-3" /> FIND WARD / PLACE
               </button>
             )}
           </div>

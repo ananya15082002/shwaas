@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, Layers, Navigation, ZoomIn, ZoomOut, Locate } from "lucide-react";
+import { Search, X, Layers, Navigation, ZoomIn, ZoomOut, Locate, MapPin } from "lucide-react";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
 import { assignAQIToWards, aqiToFillColor, aqiToBorderColor } from "@/lib/wardAqi";
@@ -54,6 +54,9 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   const [searchOpen, setSearchOpen] = useState(false);
   const [showUI, setShowUI] = useState(false);
   const [hoveredWard, setHoveredWard] = useState<string | null>(null);
+  const [placeResults, setPlaceResults] = useState<{ name: string; lat: number; lon: number }[]>([]);
+  const [searchingPlaces, setSearchingPlaces] = useState(false);
+  const placeSearchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { wardsGeoJSON } = useDelhiWards();
 
@@ -102,7 +105,49 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     setSelectedWard(wardProps);
     setSearchOpen(false);
     setWardSearch("");
+    setPlaceResults([]);
   }, [enrichedWards]);
+
+  const findNearestWard = useCallback((lat: number, lon: number) => {
+    if (!wardList.length) return null;
+    let nearest = wardList[0];
+    let minDist = Infinity;
+    for (const w of wardList) {
+      if (!w.centroid) continue;
+      const [cLon, cLat] = w.centroid;
+      const d = Math.pow(lat - cLat, 2) + Math.pow(lon - cLon, 2);
+      if (d < minDist) { minDist = d; nearest = w; }
+    }
+    return nearest;
+  }, [wardList]);
+
+  const searchPlaces = useCallback((query: string) => {
+    if (placeSearchTimeout.current) clearTimeout(placeSearchTimeout.current);
+    if (query.trim().length < 2) { setPlaceResults([]); return; }
+    placeSearchTimeout.current = setTimeout(async () => {
+      setSearchingPlaces(true);
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + " Delhi India")}&bounded=1&viewbox=76.84,28.40,77.35,28.88&limit=5`,
+          { headers: { "Accept-Language": "en" } }
+        );
+        const data = await res.json();
+        setPlaceResults(data.map((d: any) => ({ name: d.display_name.split(",").slice(0, 2).join(","), lat: parseFloat(d.lat), lon: parseFloat(d.lon) })));
+      } catch { setPlaceResults([]); }
+      setSearchingPlaces(false);
+    }, 400);
+  }, []);
+
+  const handlePlaceSelect = useCallback((place: { lat: number; lon: number; name: string }) => {
+    const nearest = findNearestWard(place.lat, place.lon);
+    if (nearest) {
+      setSelectedWard(nearest);
+      mapRef.current?.setView([place.lat, place.lon], 14);
+    }
+    setSearchOpen(false);
+    setWardSearch("");
+    setPlaceResults([]);
+  }, [findNearestWard]);
 
   // Initialize map
   useEffect(() => {
@@ -306,39 +351,61 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
             className="absolute left-4 top-20 z-20"
           >
             {searchOpen ? (
-              <div className="w-64 rounded-xl border border-border/50 bg-card/95 backdrop-blur-md shadow-2xl">
+              <div className="w-72 rounded-xl border border-border/50 bg-card/95 backdrop-blur-md shadow-2xl">
                 <div className="flex items-center gap-2 border-b border-border/30 px-4 py-3">
                   <Search className="h-4 w-4 text-primary" />
                   <input
                     autoFocus
                     value={wardSearch}
-                    onChange={(e) => setWardSearch(e.target.value)}
-                    placeholder="Search ward name, number..."
+                    onChange={(e) => { setWardSearch(e.target.value); searchPlaces(e.target.value); }}
+                    placeholder="Ward or place (India Gate...)"
                     className="flex-1 bg-transparent font-mono text-xs text-foreground placeholder:text-muted-foreground focus:outline-none"
                   />
-                  <button onClick={() => { setSearchOpen(false); setWardSearch(""); }} className="text-muted-foreground hover:text-foreground transition-colors">
+                  <button onClick={() => { setSearchOpen(false); setWardSearch(""); setPlaceResults([]); }} className="text-muted-foreground hover:text-foreground transition-colors">
                     <X className="h-4 w-4" />
                   </button>
                 </div>
                 <div className="max-h-64 overflow-y-auto p-1.5">
-                  {filteredWards.length === 0 ? (
-                    <p className="px-3 py-4 text-center font-mono text-[10px] text-muted-foreground">No wards found</p>
-                  ) : (
-                    filteredWards.map((w) => (
-                      <button
-                        key={w.ward_no}
-                        onClick={() => zoomToWard(w)}
-                        className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition-all hover:bg-primary/10"
-                      >
-                        <div>
-                          <span className="block font-mono text-[11px] font-semibold text-foreground">{w.ward_name}</span>
-                          <span className="font-mono text-[9px] text-muted-foreground">Ward {w.ward_no} · {w.ac_name}</span>
-                        </div>
-                        <span className="font-display text-sm font-bold" style={{ color: aqiToBorderColor(w.interpolated_aqi ?? 0).replace("0.7", "1") }}>
-                          {w.interpolated_aqi ?? "—"}
-                        </span>
-                      </button>
-                    ))
+                  {filteredWards.length > 0 && (
+                    <>
+                      <p className="px-3 py-1 font-mono text-[9px] tracking-widest text-muted-foreground">WARDS</p>
+                      {filteredWards.map((w) => (
+                        <button
+                          key={w.ward_no}
+                          onClick={() => zoomToWard(w)}
+                          className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition-all hover:bg-primary/10"
+                        >
+                          <div>
+                            <span className="block font-mono text-[11px] font-semibold text-foreground">{w.ward_name}</span>
+                            <span className="font-mono text-[9px] text-muted-foreground">Ward {w.ward_no} · {w.ac_name}</span>
+                          </div>
+                          <span className="font-display text-sm font-bold" style={{ color: aqiToBorderColor(w.interpolated_aqi ?? 0).replace("0.7", "1") }}>
+                            {w.interpolated_aqi ?? "—"}
+                          </span>
+                        </button>
+                      ))}
+                    </>
+                  )}
+                  {placeResults.length > 0 && (
+                    <>
+                      <p className="px-3 py-1 font-mono text-[9px] tracking-widest text-muted-foreground mt-1 border-t border-border/30 pt-1.5">PLACES</p>
+                      {placeResults.map((p, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handlePlaceSelect(p)}
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition-all hover:bg-primary/10"
+                        >
+                          <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
+                          <span className="font-mono text-[11px] text-foreground truncate">{p.name}</span>
+                        </button>
+                      ))}
+                    </>
+                  )}
+                  {searchingPlaces && (
+                    <p className="px-3 py-3 text-center font-mono text-[10px] text-muted-foreground">Searching places...</p>
+                  )}
+                  {filteredWards.length === 0 && placeResults.length === 0 && !searchingPlaces && wardSearch.trim() && (
+                    <p className="px-3 py-4 text-center font-mono text-[10px] text-muted-foreground">No results found</p>
                   )}
                 </div>
               </div>
@@ -347,7 +414,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
                 onClick={() => setSearchOpen(true)}
                 className="flex items-center gap-2 rounded-full border border-border/50 bg-card/80 px-4 py-2 font-mono text-[11px] text-muted-foreground backdrop-blur-md transition-all hover:text-foreground hover:border-primary/50 hover:bg-card/95"
               >
-                <Search className="h-3.5 w-3.5" /> FIND WARD
+                <Search className="h-3.5 w-3.5" /> FIND WARD / PLACE
               </button>
             )}
           </motion.div>
