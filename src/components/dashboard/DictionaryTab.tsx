@@ -137,7 +137,7 @@ const POLLUTANTS: PollutantEntry[] = [
       { icon: <Factory className="h-4 w-4" />, label: "Industrial Boilers", labelHi: "औद्योगिक बॉयलर", desc: "High-temperature combustion processes", descHi: "उच्च-तापमान दहन प्रक्रियाएँ" },
     ],
     healthImpacts: [
-      { icon: <Lung className="h-4 w-4" />, label: "Airway Inflammation", labelHi: "श्वसन मार्ग सूजन", type: "short" },
+      { icon: <Stethoscope className="h-4 w-4" />, label: "Airway Inflammation", labelHi: "श्वसन मार्ग सूजन", type: "short" },
       { icon: <AlertTriangle className="h-4 w-4" />, label: "Worsens Asthma", labelHi: "अस्थमा बिगड़ना", type: "short" },
       { icon: <HeartPulse className="h-4 w-4" />, label: "Cardiovascular Risk", labelHi: "हृदय रोग जोखिम", type: "long" },
     ],
