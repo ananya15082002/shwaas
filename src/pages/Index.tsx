@@ -32,6 +32,7 @@ const Index = () => {
   const { t } = useLanguage();
   const [showFullMap, setShowFullMap] = useState(false);
   const [dashboardReady, setDashboardReady] = useState(false);
+  const music = useAmbientMusic();
 
   const defaultWard = useMemo(() => {
     if (!wardsGeoJSON) return null;
