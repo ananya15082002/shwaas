@@ -390,6 +390,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     <>
       <style>{`
         .custom-aqi-marker { background: none !important; border: none !important; }
+        .active-ward-pin { background: none !important; border: none !important; }
         .custom-tooltip, .ward-tooltip .leaflet-tooltip {
           background: hsl(220, 18%, 10%) !important;
           border: 1px solid hsl(220, 15%, 18%) !important;
@@ -409,6 +410,9 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
           background: hsl(220, 18%, 10%) !important;
           color: hsl(180, 100%, 45%) !important;
           border-color: hsl(220, 15%, 18%) !important;
+        }
+        .leaflet-control-zoom a:hover {
+          background: hsl(220, 18%, 15%) !important;
         }
       `}</style>
       <div className="relative h-full w-full">
