@@ -6,6 +6,7 @@ import { Search, X, Layers, Navigation, ZoomIn, ZoomOut, Locate, MapPin } from "
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
 import { assignAQIToWards, aqiToFillColor, aqiToBorderColor } from "@/lib/wardAqi";
+import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
 
 interface FullScreenMapProps {
   stations: StationData[];
@@ -196,6 +197,28 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     };
   }, []);
 
+  // Landmark markers
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const markers: L.Marker[] = [];
+    DELHI_LANDMARKS.forEach((lm) => {
+      const icon = L.divIcon({
+        className: "landmark-marker",
+        html: `<div style="display:flex;flex-direction:column;align-items:center;pointer-events:auto;cursor:default;">
+          <span style="font-size:18px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));line-height:1;">${lm.emoji}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.55);white-space:nowrap;margin-top:2px;text-shadow:0 1px 4px rgba(0,0,0,0.9);letter-spacing:0.3px;">${lm.name}</span>
+        </div>`,
+        iconSize: [100, 35],
+        iconAnchor: [50, 17],
+      });
+      const m = L.marker([lm.lat, lm.lon], { icon, interactive: false, zIndexOffset: 500 });
+      m.addTo(map);
+      markers.push(m);
+    });
+    return () => markers.forEach((m) => m.remove());
+  }, []);
+
   // Boundary layer
   useEffect(() => {
     const map = mapRef.current;
@@ -313,6 +336,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         }
         .leaflet-control-zoom { display: none !important; }
         .place-pin-marker { background: none !important; border: none !important; }
+        .landmark-marker { background: none !important; border: none !important; }
       `}</style>
 
       {/* Map container */}

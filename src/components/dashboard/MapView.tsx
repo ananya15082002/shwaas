@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
 import { assignAQIToWards, aqiToFillColor, aqiToBorderColor } from "@/lib/wardAqi";
+import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
 
 interface MapViewProps {
   stations: StationData[];
@@ -237,7 +238,29 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     };
   }, []);
 
-  // Delhi boundary fill layer (renders below wards to fill gaps)
+  // Landmark markers
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const markers: L.Marker[] = [];
+    DELHI_LANDMARKS.forEach((lm) => {
+      const icon = L.divIcon({
+        className: "landmark-marker",
+        html: `<div style="display:flex;flex-direction:column;align-items:center;pointer-events:auto;cursor:default;">
+          <span style="font-size:16px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6));line-height:1;">${lm.emoji}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.6);white-space:nowrap;margin-top:1px;text-shadow:0 1px 3px rgba(0,0,0,0.8);">${lm.name}</span>
+        </div>`,
+        iconSize: [80, 30],
+        iconAnchor: [40, 15],
+      });
+      const m = L.marker([lm.lat, lm.lon], { icon, interactive: false, zIndexOffset: 500 });
+      m.addTo(map);
+      markers.push(m);
+    });
+    return () => markers.forEach((m) => m.remove());
+  }, []);
+
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -460,6 +483,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
         .custom-aqi-marker { background: none !important; border: none !important; }
         .active-ward-pin { background: none !important; border: none !important; }
         .place-pin-marker { background: none !important; border: none !important; }
+        .landmark-marker { background: none !important; border: none !important; }
         .custom-tooltip, .ward-tooltip .leaflet-tooltip {
           background: hsl(220, 18%, 10%) !important;
           border: 1px solid hsl(220, 15%, 18%) !important;
