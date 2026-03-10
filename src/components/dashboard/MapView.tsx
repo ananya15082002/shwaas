@@ -77,6 +77,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   const wardLayerRef = useRef<L.GeoJSON | null>(null);
   const boundaryLayerRef = useRef<L.Polygon | null>(null);
   const heatLayerRef = useRef<L.Layer | null>(null);
+  const specialZoneLayerRef = useRef<L.LayerGroup | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const selectedWardRef = useRef<L.Layer | null>(null);
   const activeWardMarkerRef = useRef<L.Marker | null>(null);
