@@ -76,8 +76,24 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
         .sort((a, b) => (b.properties.interpolated_aqi ?? 0) - (a.properties.interpolated_aqi ?? 0))
         .slice(0, 20)
         .map((f) => ({ name: f.properties.ward_name, aqi: f.properties.interpolated_aqi, pop: f.properties.total_pop, ac: f.properties.ac_name }));
+      const allWardsSorted = enrichedWards.features
+        .filter((f) => (f.properties.interpolated_aqi ?? 0) > 0)
+        .sort((a, b) => (b.properties.interpolated_aqi ?? 0) - (a.properties.interpolated_aqi ?? 0));
+      const totalWardCount = allWardsSorted.length;
+      const worstWards = allWardsSorted.slice(0, 30).map((f) => ({ name: f.properties.ward_name, aqi: f.properties.interpolated_aqi, pop: f.properties.total_pop, ac: f.properties.ac_name }));
+      const bestWards = allWardsSorted.slice(-10).map((f) => ({ name: f.properties.ward_name, aqi: f.properties.interpolated_aqi, pop: f.properties.total_pop, ac: f.properties.ac_name }));
+      const aqiBands = { good: 0, moderate: 0, sensitive: 0, unhealthy: 0, veryUnhealthy: 0, hazardous: 0 };
+      allWardsSorted.forEach((f) => {
+        const a = f.properties.interpolated_aqi ?? 0;
+        if (a <= 50) aqiBands.good++;
+        else if (a <= 100) aqiBands.moderate++;
+        else if (a <= 150) aqiBands.sensitive++;
+        else if (a <= 200) aqiBands.unhealthy++;
+        else if (a <= 300) aqiBands.veryUnhealthy++;
+        else aqiBands.hazardous++;
+      });
       analyze(
-        [{ name: "Delhi City (251 Wards)", aqi: mlCityAqi, area: "NCT Delhi", dominantPollutant: "pm25", iaqi: {}, wardSummary, totalWards: enrichedWards.features.length }] as unknown as StationData[],
+        [{ name: "Delhi City (251 Wards)", aqi: mlCityAqi, area: "NCT Delhi", dominantPollutant: "pm25", iaqi: {}, wardSummary: worstWards, bestWards, aqiBands, totalWards: totalWardCount, stationCount: stations.length }] as unknown as StationData[],
         "city",
         undefined,
         undefined,
@@ -95,11 +111,20 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
     outlook?: string;
   } | null;
 
-  const barData = stations.map((s) => ({
-    name: s.name,
-    aqi: s.aqi,
-    color: getAqiLevel(s.aqi).color,
-  }));
+  // Use all enriched wards for the bar chart — top 15 most polluted
+  const barData = useMemo(() => {
+    if (!enrichedWards) return [];
+    return [...enrichedWards.features]
+      .filter((f) => (f.properties.interpolated_aqi ?? 0) > 0)
+      .sort((a, b) => (b.properties.interpolated_aqi ?? 0) - (a.properties.interpolated_aqi ?? 0))
+      .slice(0, 15)
+      .map((f) => ({
+        name: f.properties.ward_name,
+        aqi: f.properties.interpolated_aqi ?? 0,
+        color: getAqiLevel(f.properties.interpolated_aqi ?? 0).color,
+        pop: f.properties.total_pop,
+      }));
+  }, [enrichedWards]);
 
   const pollutantKeys = ["pm25", "pm10", "no2", "so2", "o3", "co"];
   const radarData = pollutantKeys.map((key) => {
@@ -154,7 +179,7 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
 
         <div>
           <h4 className="flex items-center gap-2 font-display text-xs font-bold tracking-widest text-primary">
-            <TrendingUp className="h-4 w-4" /> {t("city.stationComparison")}
+            <TrendingUp className="h-4 w-4" /> {t("city.top10")} — TOP 15 WARDS
           </h4>
           <div className="mt-2 h-52">
             <ResponsiveContainer width="100%" height="100%">
