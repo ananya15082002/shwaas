@@ -6,6 +6,7 @@ import { Search, X, Layers, Navigation, ZoomIn, ZoomOut, Locate, MapPin } from "
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
 import { assignAQIToWards, aqiToFillColor, aqiToBorderColor } from "@/lib/wardAqi";
+import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
 
 interface FullScreenMapProps {
   stations: StationData[];
