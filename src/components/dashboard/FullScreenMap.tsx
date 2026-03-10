@@ -312,6 +312,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
           padding: 0 !important;
         }
         .leaflet-control-zoom { display: none !important; }
+        .place-pin-marker { background: none !important; border: none !important; }
       `}</style>
 
       {/* Map container */}
