@@ -13,6 +13,7 @@ interface MapViewProps {
   onSelectStation: (station: StationData) => void;
   onBoundsChange?: (bounds: { lat1: number; lng1: number; lat2: number; lng2: number }) => void;
   onWardSelect?: (ward: WardFeature["properties"]) => void;
+  activeWard?: WardFeature["properties"] | null;
 }
 
 const DELHI_CENTER: [number, number] = [28.6139, 77.209];
