@@ -35,9 +35,13 @@ export function AqiCalendar({ history }: AqiCalendarProps) {
 
   const dailyAqi = useMemo(() => {
     const map: Record<string, number> = {};
-    history.forEach((h) => {
-      const d = h.time.split("T")[0] || h.time.split(" ")[0];
-      if (!map[d] || h.aqi > map[d]) map[d] = h.aqi;
+    if (!history) return map;
+    // Use pm25 forecast data as the calendar source
+    history.pm25.forEach((h) => {
+      const d = h.day;
+      // Convert PM2.5 µg/m³ to approximate AQI
+      const aqi = Math.round(h.avg * 1.5); // rough PM2.5 to AQI approximation
+      if (!map[d] || aqi > map[d]) map[d] = aqi;
     });
     return map;
   }, [history]);
