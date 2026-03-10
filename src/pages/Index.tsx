@@ -135,6 +135,10 @@ const Index = () => {
                   </TabsContent>
                 )}
 
+                <TabsContent value="rankings" className="flex-1 overflow-hidden">
+                  <WardRankings stations={stations} />
+                </TabsContent>
+
                 <TabsContent value="dictionary" className="flex-1 overflow-hidden">
                   <DictionaryTab />
                 </TabsContent>
