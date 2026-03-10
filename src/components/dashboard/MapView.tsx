@@ -459,6 +459,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
       <style>{`
         .custom-aqi-marker { background: none !important; border: none !important; }
         .active-ward-pin { background: none !important; border: none !important; }
+        .place-pin-marker { background: none !important; border: none !important; }
         .custom-tooltip, .ward-tooltip .leaflet-tooltip {
           background: hsl(220, 18%, 10%) !important;
           border: 1px solid hsl(220, 15%, 18%) !important;
