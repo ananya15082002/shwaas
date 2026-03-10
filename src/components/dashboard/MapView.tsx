@@ -69,7 +69,7 @@ const DELHI_BOUNDARY_COORDS: [number, number][] = [
   [28.8600, 77.0850], [28.8833, 77.0983],
 ];
 
-export function MapView({ stations, selectedStation, onSelectStation, onBoundsChange, onWardSelect }: MapViewProps) {
+export function MapView({ stations, selectedStation, onSelectStation, onBoundsChange, onWardSelect, activeWard }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
   const wardLayerRef = useRef<L.GeoJSON | null>(null);
