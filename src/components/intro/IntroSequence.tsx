@@ -268,8 +268,8 @@ export function IntroSequence({ stage, onSkip, onDelhiClick }: IntroSequenceProp
 
     // Fine-tune rotation to Delhi longitude
     const delhiTargetY = lonToEarthRotationY(DELHI_LON);
-    gsap.to(earth.rotation, { y: delhiTargetY, duration: 2, ease: "power2.inOut" });
-    gsap.to(camera.position, { z: 3.5, y: 0.2, duration: 2.5, ease: "power2.inOut" });
+    gsap.to(earth.rotation, { y: delhiTargetY, x: 0.35, duration: 2, ease: "power2.inOut" });
+    gsap.to(camera.position, { z: 4.8, y: 1.2, duration: 2.5, ease: "power2.inOut" });
     gsap.to(stars.material as THREE.PointsMaterial, { opacity: 0.2, duration: 2 });
   }, [stage]);
 
