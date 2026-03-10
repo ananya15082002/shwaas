@@ -140,16 +140,11 @@ Return ONLY valid JSON, no markdown.`;
         status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
-    if (response.status === 402) {
-      return new Response(JSON.stringify({ error: 'AI credits exhausted. Please add credits.' }), {
-        status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
 
     const data = await response.json();
     
     if (!response.ok) {
-      return new Response(JSON.stringify({ error: data.error?.message || 'AI Gateway error' }), {
+      return new Response(JSON.stringify({ error: data.error?.message || JSON.stringify(data.error) || 'Gemini API error' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
