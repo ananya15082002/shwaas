@@ -15,9 +15,9 @@ Deno.serve(async (req) => {
       ? '\n\nIMPORTANT: Respond ENTIRELY in Hindi (Devanagari script). All text values in the JSON must be in Hindi.'
       : '';
 
-    const apiKey = Deno.env.get('GEMINI_API_KEY');
+    const apiKey = Deno.env.get('GROQ_API_KEY');
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'GEMINI_API_KEY not configured' }), {
+      return new Response(JSON.stringify({ error: 'GROQ_API_KEY not configured' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
@@ -124,29 +124,21 @@ Provide your analysis in this JSON format:
 Return ONLY valid JSON, no markdown.`;
     }
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-    const geminiBody = JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: 1024 },
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1024,
+        temperature: 0.7,
+      }),
     });
 
-    let response: Response | null = null;
-    let lastError = '';
-    for (let attempt = 0; attempt < 2; attempt++) {
-      response = await fetch(geminiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: geminiBody,
-      });
-      if (response.status !== 429) break;
-      const errBody = await response.text();
-      lastError = errBody;
-      console.log(`Gemini 429 attempt ${attempt + 1}: ${errBody}`);
-      await new Promise(r => setTimeout(r, 3000));
-    }
-
-    if (!response || response.status === 429) {
-      console.error('Gemini rate limit final:', lastError);
+    if (response.status === 429) {
       return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }), {
         status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -155,13 +147,13 @@ Return ONLY valid JSON, no markdown.`;
     const data = await response.json();
     
     if (!response.ok) {
-      console.error('Gemini error:', response.status, JSON.stringify(data));
-      return new Response(JSON.stringify({ error: data.error?.message || JSON.stringify(data.error) || 'Gemini API error' }), {
+      console.error('Groq error:', response.status, JSON.stringify(data));
+      return new Response(JSON.stringify({ error: data.error?.message || 'Groq API error' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+    const text = data.choices?.[0]?.message?.content || '{}';
     const cleaned = text.replace(/^```json?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
     let parsed;
     try {
