@@ -149,7 +149,7 @@ Return ONLY valid JSON, no markdown.`;
       });
     }
 
-    const text = data.choices?.[0]?.message?.content || '{}';
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
     const cleaned = text.replace(/^```json?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
     let parsed;
     try {
