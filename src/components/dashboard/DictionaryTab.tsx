@@ -79,7 +79,7 @@ const POLLUTANTS: PollutantEntry[] = [
       { icon: <Cigarette className="h-4 w-4" />, label: "Biomass & Cooking", labelHi: "बायोमास और खाना पकाना", desc: "Burning wood, dung cakes for cooking", descHi: "लकड़ी, उपले जलाकर खाना पकाना" },
     ],
     healthImpacts: [
-      { icon: <Lung className="h-4 w-4" />, label: "Asthma & Bronchitis", labelHi: "अस्थमा और ब्रोंकाइटिस", type: "short" },
+      { icon: <Stethoscope className="h-4 w-4" />, label: "Asthma & Bronchitis", labelHi: "अस्थमा और ब्रोंकाइटिस", type: "short" },
       { icon: <HeartPulse className="h-4 w-4" />, label: "Heart Attacks", labelHi: "हृदय रोग", type: "long" },
       { icon: <Brain className="h-4 w-4" />, label: "Cognitive Decline", labelHi: "संज्ञानात्मक गिरावट", type: "long" },
       { icon: <Baby className="h-4 w-4" />, label: "Low Birth Weight", labelHi: "कम जन्म वजन", type: "long" },
