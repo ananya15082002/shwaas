@@ -103,6 +103,9 @@ const Index = () => {
                       <Map className="h-3 w-3" /> {t("tab.ward")}
                     </TabsTrigger>
                   )}
+                  <TabsTrigger value="rankings" className="gap-1.5 font-mono text-[10px]">
+                    <Trophy className="h-3 w-3" /> {t("tab.rankings")}
+                  </TabsTrigger>
                   <TabsTrigger value="dictionary" className="gap-1.5 font-mono text-[10px]">
                     <BookOpen className="h-3 w-3" /> {t("tab.dictionary")}
                   </TabsTrigger>
