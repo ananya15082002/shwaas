@@ -78,7 +78,10 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
           <div>
             <h2 className="font-display text-lg font-bold text-foreground">{ward.ward_name}</h2>
             <p className="font-mono text-[10px] text-muted-foreground">
-              Ward {ward.ward_no} · {ward.ac_name} · {ward.total_pop?.toLocaleString()} {t("ward.residents")}
+              {isSpecialZone
+                ? ward.ac_name
+                : `Ward ${ward.ward_no} · ${ward.ac_name} · ${ward.total_pop?.toLocaleString()} ${t("ward.residents")}`
+              }
             </p>
           </div>
           <div className="flex items-center gap-3">
