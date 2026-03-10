@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import L from "leaflet";
 import "leaflet.heat";
-import { Search, X, Flame } from "lucide-react";
+import { Search, X, Flame, MapPin } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
