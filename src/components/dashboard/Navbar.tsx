@@ -10,7 +10,7 @@ interface NavbarProps {
   onLogoClick?: () => void;
 }
 
-export function Navbar({ lastUpdated, onRefresh, loading }: NavbarProps) {
+export function Navbar({ lastUpdated, onRefresh, loading, onLogoClick }: NavbarProps) {
   const [time, setTime] = useState(new Date());
   const { t, toggleLang, lang } = useLanguage();
 
