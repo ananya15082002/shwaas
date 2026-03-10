@@ -21,11 +21,19 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const Index = () => {
   const { stations, loading, error, lastUpdated, cityAqi, refresh } = useAqiData();
+  const { wardsGeoJSON } = useDelhiWards();
   const [selectedStation, setSelectedStation] = useState<StationData | null>(null);
   const [selectedWard, setSelectedWard] = useState<WardFeature["properties"] | null>(null);
   const [activeTab, setActiveTab] = useState("ward");
   const { stage, introDone, skip, advanceToNext, replay } = useIntroSequence();
   const { t } = useLanguage();
+
+  const defaultWard = useMemo(() => {
+    if (!wardsGeoJSON) return null;
+    return wardsGeoJSON.features.find(f => f.properties.ward_no === 1)?.properties || wardsGeoJSON.features[0]?.properties || null;
+  }, [wardsGeoJSON]);
+
+  const displayWard = selectedWard || defaultWard;
 
   const effectiveStation = selectedStation || stations[0] || null;
 
