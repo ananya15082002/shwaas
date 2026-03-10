@@ -24,7 +24,7 @@ const Index = () => {
   const [selectedStation, setSelectedStation] = useState<StationData | null>(null);
   const [selectedWard, setSelectedWard] = useState<WardFeature["properties"] | null>(null);
   const [activeTab, setActiveTab] = useState("intel");
-  const { stage, introDone, skip } = useIntroSequence();
+  const { stage, introDone, skip, advanceToNext } = useIntroSequence();
   const { t } = useLanguage();
 
   const effectiveStation = selectedStation || stations[0] || null;
