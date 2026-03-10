@@ -376,7 +376,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     wardLayerRef.current = wardLayer;
   }, [enrichedWards, showWards, onWardSelect]);
 
-  // Special zones layer (Airport, Cantonment, Yamuna, etc.)
+  // Special zones layer (Airport, Cantonment, Yamuna, etc.) — AQI color-coded
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -391,10 +391,27 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     const group = L.layerGroup();
 
     DELHI_SPECIAL_ZONES.forEach((zone) => {
+      // IDW interpolation for zone centroid using station data
+      const [cLon, cLat] = zone.centroid;
+      let zoneAqi = 0;
+      if (stationsWithCoords.length > 0) {
+        const nearby = stationsWithCoords
+          .map((s) => ({ ...s, dist: Math.sqrt(Math.pow(s.lat - cLat, 2) + Math.pow(s.lon - cLon, 2)) }))
+          .sort((a, b) => a.dist - b.dist)
+          .slice(0, 3);
+        if (nearby.length === 1) {
+          zoneAqi = nearby[0].aqi;
+        } else {
+          const weights = nearby.map((s) => 1 / (s.dist + 0.001));
+          const totalWeight = weights.reduce((a, b) => a + b, 0);
+          zoneAqi = Math.round(nearby.reduce((sum, s, i) => sum + s.aqi * weights[i], 0) / totalWeight);
+        }
+      }
+
       const poly = L.polygon(zone.polygon, {
-        fillColor: "rgba(0,229,160,0.08)",
+        fillColor: aqiToFillColor(zoneAqi),
         fillOpacity: 1,
-        color: "rgba(0,229,160,0.35)",
+        color: aqiToBorderColor(zoneAqi),
         weight: 1.5,
         dashArray: "4,4",
         interactive: true,
@@ -403,21 +420,24 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
       poly.bindTooltip(
         `<div style="
           background:rgba(4,8,16,0.92);
-          border:1px solid rgba(0,229,160,0.3);
+          border:1px solid rgba(255,255,255,0.15);
           border-radius:8px;
           padding:10px 14px;
           font-family:'JetBrains Mono',monospace;
-          min-width:140px;
+          min-width:160px;
         ">
-          <div style="font-size:16px;margin-bottom:4px">${zone.emoji} <span style="color:#fff;font-weight:700;font-size:12px">${zone.name}</span></div>
-          <div style="color:rgba(255,255,255,0.45);font-size:9px;margin-bottom:6px">${zone.description}</div>
-          <div style="color:rgba(0,229,160,0.8);font-size:10px;font-weight:600">Click for live AQI data →</div>
+          <div style="color:#fff;font-weight:700;font-size:13px;margin-bottom:4px">${zone.emoji} ${zone.name}</div>
+          <div style="color:rgba(255,255,255,0.45);font-size:9px;margin-bottom:8px">${zone.description}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="color:rgba(255,255,255,0.6);font-size:11px">AQI</span>
+            <span style="color:${aqiToBorderColor(zoneAqi).replace("0.7", "1")};font-size:18px;font-weight:800;font-family:'Orbitron',monospace">${zoneAqi || "—"}</span>
+          </div>
+          <div style="color:rgba(0,229,160,0.7);font-size:9px;margin-top:6px">CLICK TO EXPLORE →</div>
         </div>`,
         { permanent: false, sticky: true, className: "ward-tooltip" }
       );
 
       poly.on("click", () => {
-        // Create a fake ward properties object for the detail panel
         const fakeWard: WardFeature["properties"] = {
           ward_no: -1,
           ward_name: zone.name,
@@ -427,15 +447,16 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
           sc_pop: 0,
           nw2022: "",
           centroid: zone.centroid,
+          interpolated_aqi: zoneAqi,
         };
         onWardSelect?.(fakeWard);
       });
 
       poly.on("mouseover", () => {
-        poly.setStyle({ fillColor: "rgba(0,229,160,0.18)", color: "rgba(0,229,160,0.6)", weight: 2 });
+        (poly as any).setStyle({ weight: 2, fillOpacity: 0.85 });
       });
       poly.on("mouseout", () => {
-        poly.setStyle({ fillColor: "rgba(0,229,160,0.08)", color: "rgba(0,229,160,0.35)", weight: 1.5 });
+        (poly as any).setStyle({ weight: 1.5, fillOpacity: 1, color: aqiToBorderColor(zoneAqi) });
       });
 
       poly.addTo(group);
@@ -443,7 +464,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
 
     group.addTo(map);
     specialZoneLayerRef.current = group;
-  }, [showWards, onWardSelect]);
+  }, [showWards, onWardSelect, stationsWithCoords]);
 
 
   useEffect(() => {
