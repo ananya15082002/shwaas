@@ -161,7 +161,7 @@ const POLLUTANTS: PollutantEntry[] = [
       { icon: <Factory className="h-4 w-4" />, label: "Industrial VOCs", labelHi: "औद्योगिक VOC", desc: "Volatile organic compounds from factories", descHi: "कारखानों से वाष्पशील कार्बनिक यौगिक" },
     ],
     healthImpacts: [
-      { icon: <Lung className="h-4 w-4" />, label: "Chest Pain & Cough", labelHi: "सीने में दर्द और खाँसी", type: "short" },
+      { icon: <Stethoscope className="h-4 w-4" />, label: "Chest Pain & Cough", labelHi: "सीने में दर्द और खाँसी", type: "short" },
       { icon: <AlertTriangle className="h-4 w-4" />, label: "Breathing Difficulty", labelHi: "साँस लेने में कठिनाई", type: "short" },
       { icon: <Leaf className="h-4 w-4" />, label: "Crop Damage", labelHi: "फसल नुकसान", type: "long" },
     ],
