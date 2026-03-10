@@ -83,6 +83,9 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   const [showLegend, setShowLegend] = useState(false);
   const [wardSearch, setWardSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [placeResults, setPlaceResults] = useState<{ name: string; lat: number; lon: number }[]>([]);
+  const [searchingPlaces, setSearchingPlaces] = useState(false);
+  const placeSearchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { wardsGeoJSON } = useDelhiWards();
 
