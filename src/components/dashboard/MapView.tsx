@@ -259,12 +259,15 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
       m.on("click", () => {
         const el = m.getElement()?.querySelector(".lm-label") as HTMLElement;
         if (el) el.style.display = el.style.display === "none" ? "block" : "none";
+        // Also show nearest ward analytics
+        const nearest = findNearestWard(lm.lat, lm.lon);
+        if (nearest) onWardSelect?.(nearest);
       });
       m.addTo(map);
       markers.push(m);
     });
     return () => markers.forEach((m) => m.remove());
-  }, []);
+  }, [findNearestWard, onWardSelect]);
 
 
   useEffect(() => {

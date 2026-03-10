@@ -217,12 +217,17 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       m.on("click", () => {
         const el = m.getElement()?.querySelector(".lm-label") as HTMLElement;
         if (el) el.style.display = el.style.display === "none" ? "block" : "none";
+        const nearest = findNearestWard(lm.lat, lm.lon);
+        if (nearest) {
+          setSelectedWard(nearest);
+          onEnterDashboard(nearest);
+        }
       });
       m.addTo(map);
       markers.push(m);
     });
     return () => markers.forEach((m) => m.remove());
-  }, []);
+  }, [findNearestWard, onEnterDashboard]);
 
   // Boundary layer
   useEffect(() => {
