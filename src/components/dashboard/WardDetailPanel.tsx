@@ -143,10 +143,10 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-2">
-          <StatCard icon={<Users className="h-3.5 w-3.5" />} label={t("ward.population")} value={ward.total_pop?.toLocaleString() ?? "—"} />
+        <div className={`grid ${isSpecialZone ? "grid-cols-2" : "grid-cols-2"} gap-2`}>
+          {!isSpecialZone && <StatCard icon={<Users className="h-3.5 w-3.5" />} label={t("ward.population")} value={ward.total_pop?.toLocaleString() ?? "—"} />}
           <StatCard icon={<Activity className="h-3.5 w-3.5" />} label={t("ward.aqiCategory")} value={getAQICategory(displayAqi)} />
-          <StatCard icon={<MapPin className="h-3.5 w-3.5" />} label={t("ward.assembly")} value={`${ward.ac_name} (#${ward.ac_no})`} />
+          {!isSpecialZone && <StatCard icon={<MapPin className="h-3.5 w-3.5" />} label={t("ward.assembly")} value={`${ward.ac_name} (#${ward.ac_no})`} />}
         </div>
 
         <div className="cyber-border rounded-lg p-4">
