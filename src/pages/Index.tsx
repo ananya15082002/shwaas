@@ -62,6 +62,7 @@ const Index = () => {
     replay();
     setShowFullMap(false);
     setDashboardReady(false);
+    music.changeMode("intro");
   };
 
   // For skip: go straight to full map
