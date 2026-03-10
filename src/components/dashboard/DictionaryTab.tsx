@@ -112,7 +112,7 @@ const POLLUTANTS: PollutantEntry[] = [
     healthImpacts: [
       { icon: <Eye className="h-4 w-4" />, label: "Eye Irritation", labelHi: "आँखों में जलन", type: "short" },
       { icon: <Droplets className="h-4 w-4" />, label: "Runny Nose & Cough", labelHi: "बहती नाक और खाँसी", type: "short" },
-      { icon: <Lung className="h-4 w-4" />, label: "Breathing Difficulty", labelHi: "साँस लेने में कठिनाई", type: "short" },
+      { icon: <Stethoscope className="h-4 w-4" />, label: "Breathing Difficulty", labelHi: "साँस लेने में कठिनाई", type: "short" },
       { icon: <AlertTriangle className="h-4 w-4" />, label: "Allergies", labelHi: "एलर्जी", type: "short" },
       { icon: <HeartPulse className="h-4 w-4" />, label: "Chest Tightness", labelHi: "सीने में जकड़न", type: "short" },
     ],
