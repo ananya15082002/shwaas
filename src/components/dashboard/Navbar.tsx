@@ -7,6 +7,7 @@ interface NavbarProps {
   lastUpdated: Date | null;
   onRefresh: () => void;
   loading: boolean;
+  onLogoClick?: () => void;
 }
 
 export function Navbar({ lastUpdated, onRefresh, loading }: NavbarProps) {
