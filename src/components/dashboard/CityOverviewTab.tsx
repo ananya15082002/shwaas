@@ -95,11 +95,20 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
     outlook?: string;
   } | null;
 
-  const barData = stations.map((s) => ({
-    name: s.name,
-    aqi: s.aqi,
-    color: getAqiLevel(s.aqi).color,
-  }));
+  // Use all enriched wards for the bar chart — top 15 most polluted
+  const barData = useMemo(() => {
+    if (!enrichedWards) return [];
+    return [...enrichedWards.features]
+      .filter((f) => (f.properties.interpolated_aqi ?? 0) > 0)
+      .sort((a, b) => (b.properties.interpolated_aqi ?? 0) - (a.properties.interpolated_aqi ?? 0))
+      .slice(0, 15)
+      .map((f) => ({
+        name: f.properties.ward_name,
+        aqi: f.properties.interpolated_aqi ?? 0,
+        color: getAqiLevel(f.properties.interpolated_aqi ?? 0).color,
+        pop: f.properties.total_pop,
+      }));
+  }, [enrichedWards]);
 
   const pollutantKeys = ["pm25", "pm10", "no2", "so2", "o3", "co"];
   const radarData = pollutantKeys.map((key) => {
