@@ -22,6 +22,7 @@ interface WardDetailPanelProps {
 }
 
 export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
+  const isSpecialZone = ward.ward_no === -1;
   const rawAqi = ward.interpolated_aqi ?? 0;
   const { analyze, analysis, loading: aiLoading, error: aiError } = useAiAnalysis();
   const { t, lang } = useLanguage();
