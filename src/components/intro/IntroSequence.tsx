@@ -56,6 +56,19 @@ export function IntroSequence({ stage, onSkip, onDelhiClick }: IntroSequenceProp
     return () => clearTimeout(t);
   }, []);
 
+  // Play cinematic intro sound on stage 1
+  const introSoundPlayed = useRef(false);
+  useEffect(() => {
+    if (stage === 1 && !introSoundPlayed.current) {
+      introSoundPlayed.current = true;
+      // Small delay so user has interacted with page first
+      const t = setTimeout(() => {
+        try { playIntroSound(); } catch {}
+      }, 300);
+      return () => clearTimeout(t);
+    }
+  }, [stage]);
+
   // Stage 1: "PLANET EARTH" typed + loading bar
   useEffect(() => {
     if (stage !== 1) return;
