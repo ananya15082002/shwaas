@@ -266,10 +266,11 @@ export function IntroSequence({ stage, onSkip, onDelhiClick }: IntroSequenceProp
 
     delhiMarker.visible = true;
 
-    // Fine-tune rotation to Delhi longitude
-    const delhiTargetY = lonToEarthRotationY(DELHI_LON);
-    gsap.to(earth.rotation, { y: delhiTargetY, x: 0.35, duration: 2, ease: "power2.inOut" });
-    gsap.to(camera.position, { z: 4.8, y: 1.2, duration: 2.5, ease: "power2.inOut" });
+    // Rotate earth to center India (tilt forward to show from above)
+    const indiaTargetY = lonToEarthRotationY((DELHI_LON + INDIA_LON) / 2);
+    gsap.to(earth.rotation, { y: indiaTargetY, x: 0.55, duration: 2, ease: "power2.inOut" });
+    gsap.to(camera.position, { z: 5.5, y: 2.0, duration: 2.5, ease: "power2.inOut" });
+    gsap.to(camera.rotation, { x: -0.25, duration: 2.5, ease: "power2.inOut" });
     gsap.to(stars.material as THREE.PointsMaterial, { opacity: 0.2, duration: 2 });
   }, [stage]);
 
