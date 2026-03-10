@@ -22,18 +22,18 @@ interface WardDetailPanelProps {
 }
 
 export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
-  const aqi = ward.interpolated_aqi ?? 0;
-  const category = getAQICategory(aqi);
+  const rawAqi = ward.interpolated_aqi ?? 0;
+  const category = getAQICategory(rawAqi);
   const { analyze, analysis, loading: aiLoading, error: aiError } = useAiAnalysis();
   const { t, lang } = useLanguage();
   const { data: liveData, loading: liveLoading } = useWardLiveData(ward.centroid ?? null);
   const { history, loading: historyLoading } = useWardHistory(ward.centroid ?? null);
 
-  // Use interpolated AQI as primary (matches map color) 
-  const displayAqi = aqi;
+  // Use interpolated AQI if available, otherwise fall back to live station AQI
+  const liveStationAqi = liveData?.aqi ?? null;
+  const displayAqi = rawAqi > 0 ? rawAqi : (liveStationAqi ?? 0);
   const displayLevel = getAqiLevel(displayAqi);
   const iaqi = liveData?.iaqi ?? {};
-  const liveStationAqi = liveData?.aqi ?? null;
 
   useEffect(() => {
     if (liveLoading) return;
