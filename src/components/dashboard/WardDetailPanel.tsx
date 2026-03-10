@@ -100,6 +100,11 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
           <div className="flex items-center gap-1.5 font-mono text-[9px] text-muted-foreground">
             <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
             {t("ward.live")} {liveData.station} · {liveData.dominentpol?.toUpperCase()} {t("ward.dominant")}
+            {liveStationAqi !== null && (
+              <span className="ml-auto font-bold" style={{ color: getAqiLevel(liveStationAqi).color }}>
+                Station AQI: {liveStationAqi}
+              </span>
+            )}
           </div>
         )}
 
