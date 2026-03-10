@@ -12,7 +12,7 @@ import { WeatherInfo } from "@/components/dashboard/WeatherInfo";
 import { AqiCalendar } from "@/components/dashboard/AqiCalendar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  X, Users, MapPin, Activity, Shield, Brain, ShieldAlert, Loader2,
+  X, Users, MapPin, Activity, Brain, ShieldAlert, Loader2,
   Lightbulb, TrendingUp, TrendingDown, Minus, AlertTriangle, Building2, User,
 } from "lucide-react";
 
@@ -141,7 +141,6 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
 
         <div className="grid grid-cols-2 gap-2">
           <StatCard icon={<Users className="h-3.5 w-3.5" />} label={t("ward.population")} value={ward.total_pop?.toLocaleString() ?? "—"} />
-          <StatCard icon={<Shield className="h-3.5 w-3.5" />} label={t("ward.scPopulation")} value={ward.sc_pop?.toLocaleString() ?? "—"} />
           <StatCard icon={<Activity className="h-3.5 w-3.5" />} label={t("ward.aqiCategory")} value={getAQICategory(displayAqi)} />
           <StatCard icon={<MapPin className="h-3.5 w-3.5" />} label={t("ward.assembly")} value={`${ward.ac_name} (#${ward.ac_no})`} />
         </div>
