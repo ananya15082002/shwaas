@@ -71,6 +71,7 @@ const Index = () => {
                   setSelectedWard(w);
                   setActiveTab("ward");
                 }}
+                activeWard={displayWard}
               />
             </div>
 
@@ -88,6 +89,7 @@ const Index = () => {
                       setSelectedWard(w);
                       setActiveTab("ward");
                     }}
+                    activeWard={displayWard}
                   />
                 </div>
               </div>
