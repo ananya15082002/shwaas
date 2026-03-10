@@ -154,7 +154,6 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     const map = mapRef.current;
     if (!map) return;
 
-    // Remove old ward layer
     if (wardLayerRef.current) {
       wardLayerRef.current.remove();
       wardLayerRef.current = null;
@@ -169,7 +168,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
           fillColor: aqiToFillColor(aqi),
           fillOpacity: 1,
           color: aqiToBorderColor(aqi),
-          weight: 0.8,
+          weight: 1,
           opacity: 0.9,
         };
       },
@@ -199,15 +198,35 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
           { permanent: false, sticky: true, className: "ward-tooltip" }
         );
 
-        layer.on("click", () => onWardSelect?.(p));
-        layer.on("mouseover", () => (layer as any).setStyle({ weight: 2, fillOpacity: 0.95 }));
-        layer.on("mouseout", () =>
-          (layer as any).setStyle({
-            weight: 0.8,
-            fillOpacity: 1,
-            fillColor: aqiToFillColor(aqi),
-          })
-        );
+        layer.on("click", () => {
+          // Reset previously selected ward
+          if (selectedWardRef.current) {
+            const prevAqi = (selectedWardRef.current as any).feature?.properties?.interpolated_aqi ?? 0;
+            (selectedWardRef.current as any).setStyle({
+              weight: 1,
+              fillOpacity: 1,
+              color: aqiToBorderColor(prevAqi),
+            });
+          }
+          // Highlight selected ward
+          (layer as any).setStyle({ weight: 3, color: "#fff", fillOpacity: 0.9 });
+          selectedWardRef.current = layer;
+          onWardSelect?.(p);
+        });
+        layer.on("mouseover", () => {
+          if (selectedWardRef.current !== layer) {
+            (layer as any).setStyle({ weight: 2, fillOpacity: 0.85 });
+          }
+        });
+        layer.on("mouseout", () => {
+          if (selectedWardRef.current !== layer) {
+            (layer as any).setStyle({
+              weight: 1,
+              fillOpacity: 1,
+              color: aqiToBorderColor(aqi),
+            });
+          }
+        });
       },
     });
 
