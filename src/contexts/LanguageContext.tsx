@@ -13,8 +13,8 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 // --------------- TRANSLATIONS ---------------
 const translations: Record<string, Record<Language, string>> = {
   // Navbar
-  "nav.title": { en: "DELHI AQI COMMAND CENTER", hi: "दिल्ली AQI कमांड सेंटर" },
-  "nav.subtitle": { en: "REAL-TIME AIR QUALITY INTELLIGENCE", hi: "रीयल-टाइम वायु गुणवत्ता इंटेलिजेंस" },
+  "nav.title": { en: "SHWAAS", hi: "श्वास" },
+  "nav.subtitle": { en: "DELHI AIR QUALITY INTELLIGENCE", hi: "दिल्ली वायु गुणवत्ता इंटेलिजेंस" },
   "nav.live": { en: "LIVE", hi: "लाइव" },
   "nav.updated": { en: "Updated", hi: "अपडेट" },
   "nav.loading": { en: "Loading...", hi: "लोड हो रहा है..." },
