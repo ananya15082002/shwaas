@@ -112,14 +112,14 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
     <ScrollArea className="h-full">
       <div className="space-y-5 p-4">
         <div className="cyber-border rounded-lg p-4 text-center">
-          <span className="font-mono text-[10px] text-muted-foreground">{t("city.average")}</span>
-          <div className="mt-1 font-display text-4xl font-black" style={{ color: level.color, textShadow: `0 0 20px ${level.color}60` }}>
-            {cityAqi}
+          <span className="font-mono text-[10px] text-muted-foreground">CITY AQI (POPULATION-WEIGHTED · 251 WARDS)</span>
+          <div className="mt-1 font-display text-4xl font-black" style={{ color: mlLevel.color, textShadow: `0 0 20px ${mlLevel.color}60` }}>
+            {mlCityAqi}
           </div>
-          <span className="mt-1 inline-block rounded-full px-2.5 py-0.5 font-display text-[10px] font-bold" style={{ backgroundColor: `${level.color}20`, color: level.color }}>
-            {level.label.toUpperCase()}
+          <span className="mt-1 inline-block rounded-full px-2.5 py-0.5 font-display text-[10px] font-bold" style={{ backgroundColor: `${mlLevel.color}20`, color: mlLevel.color }}>
+            {mlLevel.label.toUpperCase()}
           </span>
-          <p className="mt-2 font-mono text-[10px] text-muted-foreground">{stations.length} {t("city.stationsReporting")}</p>
+          <p className="mt-2 font-mono text-[10px] text-muted-foreground">{enrichedWards?.features.length ?? 0} wards · {stations.length} {t("city.stationsReporting")}</p>
         </div>
 
         <div className="cyber-border rounded-lg p-4">
