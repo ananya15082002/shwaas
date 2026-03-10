@@ -96,14 +96,34 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
         </div>
 
         {liveData && (
-          <div className="flex items-center gap-1.5 font-mono text-[9px] text-muted-foreground">
-            <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
-            {t("ward.live")} {liveData.station} · {liveData.dominentpol?.toUpperCase()} {t("ward.dominant")}
-            {liveStationAqi !== null && (
-              <span className="ml-auto font-bold" style={{ color: getAqiLevel(liveStationAqi).color }}>
-                Station AQI: {liveStationAqi}
+          <div className="rounded-lg border border-border bg-secondary/20 p-3">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+              <span className="font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
+                {lang === "hi" ? "डेटा स्रोत स्टेशन" : "Data Source Station"}
               </span>
-            )}
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-mono text-xs font-semibold text-foreground">{liveData.station.split(",")[0]}</p>
+                {liveData.stationGeo && ward.centroid && (
+                  <p className="font-mono text-[9px] text-muted-foreground mt-0.5">
+                    {(() => {
+                      const [lon, lat] = ward.centroid;
+                      const [sLat, sLon] = liveData.stationGeo;
+                      const distM = Math.round(Math.sqrt(Math.pow((lat - sLat) * 111000, 2) + Math.pow((lon - sLon) * 111000 * Math.cos(lat * Math.PI / 180), 2)));
+                      return distM >= 1000 ? `${(distM / 1000).toFixed(1)} km away` : `${distM}m away`;
+                    })()}
+                  </p>
+                )}
+              </div>
+              <div className="text-right">
+                <span className="font-display text-lg font-black" style={{ color: getAqiLevel(liveStationAqi ?? 0).color }}>
+                  {liveStationAqi ?? "—"}
+                </span>
+                <p className="font-mono text-[8px] text-muted-foreground">{liveData.dominentpol?.toUpperCase()} {t("ward.dominant")}</p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -122,18 +142,8 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
         <div className="grid grid-cols-2 gap-2">
           <StatCard icon={<Users className="h-3.5 w-3.5" />} label={t("ward.population")} value={ward.total_pop?.toLocaleString() ?? "—"} />
           <StatCard icon={<Shield className="h-3.5 w-3.5" />} label={t("ward.scPopulation")} value={ward.sc_pop?.toLocaleString() ?? "—"} />
-          <StatCard icon={<MapPin className="h-3.5 w-3.5" />} label={t("ward.nearestStation")} value={(() => {
-            const stationName = liveData?.station ? liveData.station.split(",")[0] : "—";
-            let distStr = "";
-            if (liveData?.stationGeo && ward.centroid) {
-              const [lon, lat] = ward.centroid;
-              const [sLat, sLon] = liveData.stationGeo;
-              const distM = Math.round(Math.sqrt(Math.pow((lat - sLat) * 111000, 2) + Math.pow((lon - sLon) * 111000 * Math.cos(lat * Math.PI / 180), 2)));
-              distStr = distM >= 1000 ? ` · ${(distM / 1000).toFixed(1)} km` : ` · ${distM}m`;
-            }
-            return `${stationName}${distStr}`;
-          })()} />
           <StatCard icon={<Activity className="h-3.5 w-3.5" />} label={t("ward.aqiCategory")} value={getAQICategory(displayAqi)} />
+          <StatCard icon={<MapPin className="h-3.5 w-3.5" />} label={t("ward.assembly")} value={`${ward.ac_name} (#${ward.ac_no})`} />
         </div>
 
         <div className="cyber-border rounded-lg p-4">

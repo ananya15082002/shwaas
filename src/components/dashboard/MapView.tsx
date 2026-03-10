@@ -78,6 +78,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   const containerRef = useRef<HTMLDivElement>(null);
   const selectedWardRef = useRef<L.Layer | null>(null);
   const activeWardMarkerRef = useRef<L.Marker | null>(null);
+  const placeMarkerRef = useRef<L.Marker | null>(null);
   const [showWards, setShowWards] = useState(true);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
@@ -162,15 +163,39 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   }, []);
 
   const handlePlaceSelect = useCallback((place: { lat: number; lon: number; name: string }) => {
+    const map = mapRef.current;
+    // Remove old place marker
+    if (placeMarkerRef.current) { placeMarkerRef.current.remove(); placeMarkerRef.current = null; }
+
     const nearest = findNearestWard(place.lat, place.lon);
     if (nearest) {
-      zoomToWard(nearest);
-      mapRef.current?.setView([place.lat, place.lon], 14);
+      onWardSelect?.(nearest);
     }
+
+    // Add pin marker at searched place
+    if (map) {
+      const pinIcon = L.divIcon({
+        className: "place-pin-marker",
+        html: `<div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 3px 8px rgba(0,0,0,0.5));">
+          <div style="background:hsl(var(--primary));color:#000;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:4px 8px;border-radius:6px;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;">${place.name.split(",")[0]}</div>
+          <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid hsl(var(--primary));"></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:hsl(var(--primary));box-shadow:0 0 8px hsl(var(--primary)),0 0 20px hsl(var(--primary)/0.4);margin-top:-1px;"></div>
+        </div>`,
+        iconSize: [120, 50],
+        iconAnchor: [60, 50],
+      });
+      const marker = L.marker([place.lat, place.lon], { icon: pinIcon, zIndexOffset: 2000 });
+      marker.addTo(map);
+      placeMarkerRef.current = marker;
+      map.setView([place.lat, place.lon], 14);
+      // Auto-remove after 10s
+      setTimeout(() => { if (placeMarkerRef.current === marker) { marker.remove(); placeMarkerRef.current = null; } }, 10000);
+    }
+
     setSearchOpen(false);
     setWardSearch("");
     setPlaceResults([]);
-  }, [findNearestWard, zoomToWard]);
+  }, [findNearestWard, onWardSelect]);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -434,6 +459,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
       <style>{`
         .custom-aqi-marker { background: none !important; border: none !important; }
         .active-ward-pin { background: none !important; border: none !important; }
+        .place-pin-marker { background: none !important; border: none !important; }
         .custom-tooltip, .ward-tooltip .leaflet-tooltip {
           background: hsl(220, 18%, 10%) !important;
           border: 1px solid hsl(220, 15%, 18%) !important;

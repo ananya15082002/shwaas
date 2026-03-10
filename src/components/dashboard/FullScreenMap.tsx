@@ -139,10 +139,29 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   }, []);
 
   const handlePlaceSelect = useCallback((place: { lat: number; lon: number; name: string }) => {
+    const map = mapRef.current;
     const nearest = findNearestWard(place.lat, place.lon);
+
+    // Add pin marker at place
+    if (map) {
+      const pinIcon = L.divIcon({
+        className: "place-pin-marker",
+        html: `<div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 3px 8px rgba(0,0,0,0.5));">
+          <div style="background:hsl(180,100%,45%);color:#000;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:4px 8px;border-radius:6px;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;">${place.name.split(",")[0]}</div>
+          <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid hsl(180,100%,45%);"></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:hsl(180,100%,45%);box-shadow:0 0 8px hsl(180,100%,45%),0 0 20px rgba(0,229,160,0.4);margin-top:-1px;"></div>
+        </div>`,
+        iconSize: [120, 50],
+        iconAnchor: [60, 50],
+      });
+      const marker = L.marker([place.lat, place.lon], { icon: pinIcon, zIndexOffset: 2000 });
+      marker.addTo(map);
+      map.setView([place.lat, place.lon], 14);
+      setTimeout(() => marker.remove(), 10000);
+    }
+
     if (nearest) {
       setSelectedWard(nearest);
-      mapRef.current?.setView([place.lat, place.lon], 14);
     }
     setSearchOpen(false);
     setWardSearch("");
@@ -293,6 +312,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
           padding: 0 !important;
         }
         .leaflet-control-zoom { display: none !important; }
+        .place-pin-marker { background: none !important; border: none !important; }
       `}</style>
 
       {/* Map container */}
