@@ -114,11 +114,6 @@ const Index = () => {
                 <TabsContent value="ward" className="flex-1 overflow-hidden">
                   {displayWard ? (
                     <div className="relative flex-1 h-full">
-                      {!selectedWard && (
-                        <div className="absolute top-2 right-3 z-10 bg-accent/80 backdrop-blur-sm text-accent-foreground px-3 py-1.5 rounded-md font-mono text-[10px] border border-border">
-                          📍 {t("tab.ward.hint") || "Click a ward on map to explore"}
-                        </div>
-                      )}
                       <WardDetailPanel ward={displayWard} onClose={() => { setSelectedWard(null); setActiveTab("city"); }} />
                     </div>
                   ) : (
