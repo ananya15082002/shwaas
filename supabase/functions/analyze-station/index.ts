@@ -124,26 +124,35 @@ Provide your analysis in this JSON format:
 Return ONLY valid JSON, no markdown.`;
     }
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 1024 },
-      }),
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const geminiBody = JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: 1024 },
     });
 
-    if (response.status === 429) {
+    let response: Response | null = null;
+    let data: any = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      response = await fetch(geminiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: geminiBody,
+      });
+      if (response.status !== 429) break;
+      console.log(`Gemini 429, retry ${attempt + 1}/3 after ${(attempt + 1) * 2}s`);
+      await new Promise(r => setTimeout(r, (attempt + 1) * 2000));
+    }
+
+    if (!response || response.status === 429) {
       return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }), {
         status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    const data = await response.json();
+    data = await response.json();
     
     if (!response.ok) {
+      console.error('Gemini API error:', JSON.stringify(data));
       return new Response(JSON.stringify({ error: data.error?.message || JSON.stringify(data.error) || 'Gemini API error' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
