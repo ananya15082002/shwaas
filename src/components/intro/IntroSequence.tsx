@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import gsap from "gsap";
 import { motion, AnimatePresence } from "framer-motion";
+import { playIntroSound } from "@/lib/introSound";
 import type { IntroStage } from "@/hooks/useIntroSequence";
 
 interface IntroSequenceProps {
