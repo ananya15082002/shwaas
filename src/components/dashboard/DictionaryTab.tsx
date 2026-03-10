@@ -207,7 +207,7 @@ const POLLUTANTS: PollutantEntry[] = [
       { icon: <Truck className="h-4 w-4" />, label: "Diesel Vehicles", labelHi: "डीज़ल वाहन", desc: "Old trucks with high-sulphur fuel", descHi: "उच्च-सल्फर ईंधन वाले पुराने ट्रक" },
     ],
     healthImpacts: [
-      { icon: <Lung className="h-4 w-4" />, label: "Airway Irritation", labelHi: "श्वसन मार्ग जलन", type: "short" },
+      { icon: <Stethoscope className="h-4 w-4" />, label: "Airway Irritation", labelHi: "श्वसन मार्ग जलन", type: "short" },
       { icon: <AlertTriangle className="h-4 w-4" />, label: "Triggers Asthma", labelHi: "अस्थमा शुरू करना", type: "short" },
       { icon: <CloudRain className="h-4 w-4" />, label: "Acid Rain → Crops", labelHi: "अम्ल वर्षा → फसलें", type: "long" },
     ],
