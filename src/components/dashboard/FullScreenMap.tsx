@@ -208,15 +208,12 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         className: "landmark-marker",
         html: `<div class="lm-wrap" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
           <span style="font-size:18px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));line-height:1;">${lm.emoji}</span>
-          <span class="lm-label" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.8);white-space:nowrap;margin-top:2px;text-shadow:0 1px 4px rgba(0,0,0,0.9);letter-spacing:0.3px;background:rgba(4,8,16,0.85);padding:2px 6px;border-radius:4px;display:none;">${lm.name}</span>
         </div>`,
-        iconSize: [100, 35],
-        iconAnchor: [50, 17],
+        iconSize: [30, 24],
+        iconAnchor: [15, 12],
       });
       const m = L.marker([lm.lat, lm.lon], { icon, interactive: true, zIndexOffset: 500 });
       m.on("click", () => {
-        const el = m.getElement()?.querySelector(".lm-label") as HTMLElement;
-        if (el) el.style.display = el.style.display === "none" ? "block" : "none";
         const nearest = findNearestWard(lm.lat, lm.lon);
         if (nearest) {
           setSelectedWard(nearest);
