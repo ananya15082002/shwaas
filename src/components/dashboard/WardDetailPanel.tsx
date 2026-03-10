@@ -122,7 +122,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
         <div className="grid grid-cols-2 gap-2">
           <StatCard icon={<Users className="h-3.5 w-3.5" />} label={t("ward.population")} value={ward.total_pop?.toLocaleString() ?? "—"} />
           <StatCard icon={<Shield className="h-3.5 w-3.5" />} label={t("ward.scPopulation")} value={ward.sc_pop?.toLocaleString() ?? "—"} />
-          <StatCard icon={<MapPin className="h-3.5 w-3.5" />} label={t("ward.nearestStation")} value={`${ward.nearest_station_dist ?? "—"}m`} />
+          <StatCard icon={<MapPin className="h-3.5 w-3.5" />} label={t("ward.nearestStation")} value={liveData?.station ? liveData.station.split(",")[0] : `${ward.nearest_station_dist ?? "—"}m`} />
           <StatCard icon={<Activity className="h-3.5 w-3.5" />} label={t("ward.aqiCategory")} value={getAQICategory(displayAqi)} />
         </div>
 
