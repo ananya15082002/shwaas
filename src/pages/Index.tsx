@@ -75,6 +75,12 @@ const Index = () => {
 
   return (
     <>
+      <MusicControl
+        isPlaying={music.isPlaying}
+        volume={music.volume}
+        onToggle={music.toggle}
+        onVolumeChange={music.changeVolume}
+      />
       <AnimatePresence>
         {!introDone && (
           <IntroSequence stage={stage} onSkip={handleSkip} onDelhiClick={handleIntroComplete} />
