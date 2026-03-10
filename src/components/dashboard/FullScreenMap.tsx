@@ -57,7 +57,6 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       .map((s) => ({ lat: s.lat!, lon: s.lon!, aqi: s.aqi })),
     [stations]
   );
-  );
 
   const enrichedWards = useMemo(
     () => assignAQIToWards(wardsGeoJSON, stationsWithCoords),
