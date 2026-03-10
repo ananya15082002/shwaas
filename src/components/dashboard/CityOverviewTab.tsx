@@ -16,7 +16,7 @@ interface CityOverviewTabProps {
 export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
   const { analyze, analysis, loading: aiLoading, error: aiError } = useAiAnalysis();
   const { t, lang } = useLanguage();
-  const level = getAqiLevel(cityAqi);
+  // mlLevel computed later from ward data
   const { wardsGeoJSON } = useDelhiWards();
 
   const STATION_COORDS: { lat: number; lon: number; aqi: number }[] = useMemo(
