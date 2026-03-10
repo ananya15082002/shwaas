@@ -23,7 +23,6 @@ interface WardDetailPanelProps {
 
 export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
   const rawAqi = ward.interpolated_aqi ?? 0;
-  const category = getAQICategory(rawAqi);
   const { analyze, analysis, loading: aiLoading, error: aiError } = useAiAnalysis();
   const { t, lang } = useLanguage();
   const { data: liveData, loading: liveLoading } = useWardLiveData(ward.centroid ?? null);
