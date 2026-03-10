@@ -283,12 +283,14 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
 
         <AqiCalendar history={history} />
 
-        <div className="rounded-lg border border-border bg-card/50 p-3">
-          <p className="font-mono text-[10px] text-muted-foreground">{t("ward.assembly")}</p>
-          <p className="mt-1 font-mono text-xs font-semibold text-foreground">
-            {ward.ac_name} (AC #{ward.ac_no})
-          </p>
-        </div>
+        {!isSpecialZone && (
+          <div className="rounded-lg border border-border bg-card/50 p-3">
+            <p className="font-mono text-[10px] text-muted-foreground">{t("ward.assembly")}</p>
+            <p className="mt-1 font-mono text-xs font-semibold text-foreground">
+              {ward.ac_name} (AC #{ward.ac_no})
+            </p>
+          </div>
+        )}
       </div>
     </ScrollArea>
   );
