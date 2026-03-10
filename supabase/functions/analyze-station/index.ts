@@ -124,35 +124,38 @@ Provide your analysis in this JSON format:
 Return ONLY valid JSON, no markdown.`;
     }
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
     const geminiBody = JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: { maxOutputTokens: 1024 },
     });
 
     let response: Response | null = null;
-    let data: any = null;
-    for (let attempt = 0; attempt < 3; attempt++) {
+    let lastError = '';
+    for (let attempt = 0; attempt < 2; attempt++) {
       response = await fetch(geminiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: geminiBody,
       });
       if (response.status !== 429) break;
-      console.log(`Gemini 429, retry ${attempt + 1}/3 after ${(attempt + 1) * 2}s`);
-      await new Promise(r => setTimeout(r, (attempt + 1) * 2000));
+      const errBody = await response.text();
+      lastError = errBody;
+      console.log(`Gemini 429 attempt ${attempt + 1}: ${errBody}`);
+      await new Promise(r => setTimeout(r, 3000));
     }
 
     if (!response || response.status === 429) {
+      console.error('Gemini rate limit final:', lastError);
       return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }), {
         status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    data = await response.json();
+    const data = await response.json();
     
     if (!response.ok) {
-      console.error('Gemini API error:', JSON.stringify(data));
+      console.error('Gemini error:', response.status, JSON.stringify(data));
       return new Response(JSON.stringify({ error: data.error?.message || JSON.stringify(data.error) || 'Gemini API error' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
