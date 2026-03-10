@@ -77,6 +77,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   const heatLayerRef = useRef<L.Layer | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const selectedWardRef = useRef<L.Layer | null>(null);
+  const activeWardMarkerRef = useRef<L.Marker | null>(null);
   const [showWards, setShowWards] = useState(true);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
