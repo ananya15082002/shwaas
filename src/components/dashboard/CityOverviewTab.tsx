@@ -16,7 +16,7 @@ interface CityOverviewTabProps {
 export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
   const { analyze, analysis, loading: aiLoading, error: aiError } = useAiAnalysis();
   const { t, lang } = useLanguage();
-  const level = getAqiLevel(cityAqi);
+  // mlLevel computed later from ward data
   const { wardsGeoJSON } = useDelhiWards();
 
   const STATION_COORDS: { lat: number; lon: number; aqi: number }[] = useMemo(
@@ -54,17 +54,37 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
       .map((f, i) => ({ rank: i + 1, ...f.properties }));
   }, [enrichedWards]);
 
+  // Use ML-based city AQI from all wards (weighted by population) instead of simple station average
+  const mlCityAqi = useMemo(() => {
+    if (!enrichedWards) return cityAqi;
+    const wards = enrichedWards.features.filter((f) => (f.properties.interpolated_aqi ?? 0) > 0);
+    if (wards.length === 0) return cityAqi;
+    const totalPop = wards.reduce((s, f) => s + (f.properties.total_pop ?? 1), 0);
+    const weightedAqi = wards.reduce((s, f) => {
+      const pop = f.properties.total_pop ?? 1;
+      return s + (f.properties.interpolated_aqi ?? 0) * pop;
+    }, 0);
+    return Math.round(weightedAqi / totalPop);
+  }, [enrichedWards, cityAqi]);
+
+  const mlLevel = getAqiLevel(mlCityAqi);
+
   useEffect(() => {
-    if (stations.length > 0) {
+    if (stations.length > 0 && enrichedWards) {
+      const wardSummary = enrichedWards.features
+        .filter((f) => (f.properties.interpolated_aqi ?? 0) > 0)
+        .sort((a, b) => (b.properties.interpolated_aqi ?? 0) - (a.properties.interpolated_aqi ?? 0))
+        .slice(0, 20)
+        .map((f) => ({ name: f.properties.ward_name, aqi: f.properties.interpolated_aqi, pop: f.properties.total_pop, ac: f.properties.ac_name }));
       analyze(
-        stations.map((s) => ({ name: s.name, area: s.area, aqi: s.aqi, dominantPollutant: s.dominantPollutant, iaqi: s.iaqi })) as unknown as StationData[],
+        [{ name: "Delhi City (251 Wards)", aqi: mlCityAqi, area: "NCT Delhi", dominantPollutant: "pm25", iaqi: {}, wardSummary, totalWards: enrichedWards.features.length }] as unknown as StationData[],
         "city",
         undefined,
         undefined,
         lang
       );
     }
-  }, [stations.length, lang]);
+  }, [stations.length, lang, mlCityAqi]);
 
   const ai = analysis as {
     city_summary?: string;
@@ -92,14 +112,14 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
     <ScrollArea className="h-full">
       <div className="space-y-5 p-4">
         <div className="cyber-border rounded-lg p-4 text-center">
-          <span className="font-mono text-[10px] text-muted-foreground">{t("city.average")}</span>
-          <div className="mt-1 font-display text-4xl font-black" style={{ color: level.color, textShadow: `0 0 20px ${level.color}60` }}>
-            {cityAqi}
+          <span className="font-mono text-[10px] text-muted-foreground">CITY AQI (POPULATION-WEIGHTED · 251 WARDS)</span>
+          <div className="mt-1 font-display text-4xl font-black" style={{ color: mlLevel.color, textShadow: `0 0 20px ${mlLevel.color}60` }}>
+            {mlCityAqi}
           </div>
-          <span className="mt-1 inline-block rounded-full px-2.5 py-0.5 font-display text-[10px] font-bold" style={{ backgroundColor: `${level.color}20`, color: level.color }}>
-            {level.label.toUpperCase()}
+          <span className="mt-1 inline-block rounded-full px-2.5 py-0.5 font-display text-[10px] font-bold" style={{ backgroundColor: `${mlLevel.color}20`, color: mlLevel.color }}>
+            {mlLevel.label.toUpperCase()}
           </span>
-          <p className="mt-2 font-mono text-[10px] text-muted-foreground">{stations.length} {t("city.stationsReporting")}</p>
+          <p className="mt-2 font-mono text-[10px] text-muted-foreground">{enrichedWards?.features.length ?? 0} wards · {stations.length} {t("city.stationsReporting")}</p>
         </div>
 
         <div className="cyber-border rounded-lg p-4">
