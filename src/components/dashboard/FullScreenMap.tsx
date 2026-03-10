@@ -196,15 +196,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         );
 
         layer.on("click", () => {
-          if (selectedWardRef.current) {
-            const prevAqi = (selectedWardRef.current as any).feature?.properties?.interpolated_aqi ?? 0;
-            (selectedWardRef.current as any).setStyle({
-              weight: 1, fillOpacity: 1, color: aqiToBorderColor(prevAqi),
-            });
-          }
-          (layer as any).setStyle({ weight: 3, color: "#fff", fillOpacity: 0.9 });
-          selectedWardRef.current = layer;
-          setSelectedWard(p);
+          onEnterDashboard(p);
         });
         layer.on("mouseover", () => {
           if (selectedWardRef.current !== layer) {
