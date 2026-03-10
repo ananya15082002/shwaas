@@ -12,7 +12,7 @@ import { WeatherInfo } from "@/components/dashboard/WeatherInfo";
 import { AqiCalendar } from "@/components/dashboard/AqiCalendar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  X, Users, MapPin, Activity, Shield, Brain, ShieldAlert, Loader2,
+  X, Users, MapPin, Activity, Brain, ShieldAlert, Loader2,
   Lightbulb, TrendingUp, TrendingDown, Minus, AlertTriangle, Building2, User,
 } from "lucide-react";
 
