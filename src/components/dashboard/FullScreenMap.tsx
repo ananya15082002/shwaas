@@ -7,6 +7,7 @@ import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
 import { assignAQIToWards, aqiToFillColor, aqiToBorderColor } from "@/lib/wardAqi";
 import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
+import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
 
 interface FullScreenMapProps {
   stations: StationData[];
@@ -307,6 +308,39 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     wardLayer.addTo(map);
     wardLayerRef.current = wardLayer;
   }, [enrichedWards]);
+
+  // Special zones layer
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const polys: L.Polygon[] = [];
+    DELHI_SPECIAL_ZONES.forEach((zone) => {
+      const poly = L.polygon(zone.polygon, {
+        fillColor: "rgba(0,229,160,0.08)", fillOpacity: 1,
+        color: "rgba(0,229,160,0.35)", weight: 1.5, dashArray: "4,4", interactive: true,
+      });
+      poly.bindTooltip(
+        `<div style="background:rgba(4,8,16,0.95);border:1px solid rgba(0,229,160,0.3);border-radius:10px;padding:12px 16px;font-family:'JetBrains Mono',monospace;min-width:160px;backdrop-filter:blur(12px);">
+          <div style="font-size:16px;margin-bottom:4px">${zone.emoji} <span style="color:#fff;font-weight:700;font-size:13px">${zone.name}</span></div>
+          <div style="color:rgba(255,255,255,0.4);font-size:9px;margin-bottom:8px">${zone.description}</div>
+          <div style="color:rgba(0,229,160,0.7);font-size:9px">CLICK FOR LIVE AQI →</div>
+        </div>`,
+        { permanent: false, sticky: true, className: "ward-tooltip" }
+      );
+      poly.on("click", () => {
+        const fakeWard: WardFeature["properties"] = {
+          ward_no: -1, ward_name: zone.name, ac_name: zone.description,
+          ac_no: 0, total_pop: 0, sc_pop: 0, nw2022: "", centroid: zone.centroid,
+        };
+        onEnterDashboard(fakeWard);
+      });
+      poly.on("mouseover", () => poly.setStyle({ fillColor: "rgba(0,229,160,0.18)", color: "rgba(0,229,160,0.6)", weight: 2 }));
+      poly.on("mouseout", () => poly.setStyle({ fillColor: "rgba(0,229,160,0.08)", color: "rgba(0,229,160,0.35)", weight: 1.5 }));
+      poly.addTo(map);
+      polys.push(poly);
+    });
+    return () => polys.forEach((p) => p.remove());
+  }, [onEnterDashboard]);
 
   const resetView = () => {
     mapRef.current?.fitBounds(DELHI_BOUNDS, { padding: [30, 30] });

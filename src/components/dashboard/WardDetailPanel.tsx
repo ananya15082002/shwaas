@@ -22,6 +22,7 @@ interface WardDetailPanelProps {
 }
 
 export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
+  const isSpecialZone = ward.ward_no === -1;
   const rawAqi = ward.interpolated_aqi ?? 0;
   const { analyze, analysis, loading: aiLoading, error: aiError } = useAiAnalysis();
   const { t, lang } = useLanguage();
@@ -77,7 +78,10 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
           <div>
             <h2 className="font-display text-lg font-bold text-foreground">{ward.ward_name}</h2>
             <p className="font-mono text-[10px] text-muted-foreground">
-              Ward {ward.ward_no} · {ward.ac_name} · {ward.total_pop?.toLocaleString()} {t("ward.residents")}
+              {isSpecialZone
+                ? ward.ac_name
+                : `Ward ${ward.ward_no} · ${ward.ac_name} · ${ward.total_pop?.toLocaleString()} ${t("ward.residents")}`
+              }
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -139,10 +143,10 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-2">
-          <StatCard icon={<Users className="h-3.5 w-3.5" />} label={t("ward.population")} value={ward.total_pop?.toLocaleString() ?? "—"} />
+        <div className={`grid ${isSpecialZone ? "grid-cols-2" : "grid-cols-2"} gap-2`}>
+          {!isSpecialZone && <StatCard icon={<Users className="h-3.5 w-3.5" />} label={t("ward.population")} value={ward.total_pop?.toLocaleString() ?? "—"} />}
           <StatCard icon={<Activity className="h-3.5 w-3.5" />} label={t("ward.aqiCategory")} value={getAQICategory(displayAqi)} />
-          <StatCard icon={<MapPin className="h-3.5 w-3.5" />} label={t("ward.assembly")} value={`${ward.ac_name} (#${ward.ac_no})`} />
+          {!isSpecialZone && <StatCard icon={<MapPin className="h-3.5 w-3.5" />} label={t("ward.assembly")} value={`${ward.ac_name} (#${ward.ac_no})`} />}
         </div>
 
         <div className="cyber-border rounded-lg p-4">
@@ -279,12 +283,14 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
 
         <AqiCalendar history={history} />
 
-        <div className="rounded-lg border border-border bg-card/50 p-3">
-          <p className="font-mono text-[10px] text-muted-foreground">{t("ward.assembly")}</p>
-          <p className="mt-1 font-mono text-xs font-semibold text-foreground">
-            {ward.ac_name} (AC #{ward.ac_no})
-          </p>
-        </div>
+        {!isSpecialZone && (
+          <div className="rounded-lg border border-border bg-card/50 p-3">
+            <p className="font-mono text-[10px] text-muted-foreground">{t("ward.assembly")}</p>
+            <p className="mt-1 font-mono text-xs font-semibold text-foreground">
+              {ward.ac_name} (AC #{ward.ac_no})
+            </p>
+          </div>
+        )}
       </div>
     </ScrollArea>
   );
