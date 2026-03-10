@@ -247,7 +247,13 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
           ) : null}
         </div>
 
+        <WeatherInfo iaqi={iaqi} />
+
+        <HealthAdvisoryCards aqi={displayAqi} />
+
         <WardTrendChart history={history} loading={historyLoading} />
+
+        <AqiCalendar history={history} />
 
         <div className="rounded-lg border border-border bg-card/50 p-3">
           <p className="font-mono text-[10px] text-muted-foreground">{t("ward.assembly")}</p>
