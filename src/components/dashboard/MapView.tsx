@@ -317,6 +317,55 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     heatLayerRef.current = heat;
   }, [enrichedWards, showHeatmap]);
 
+  // Active ward pin marker
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (activeWardMarkerRef.current) {
+      activeWardMarkerRef.current.remove();
+      activeWardMarkerRef.current = null;
+    }
+
+    if (!activeWard?.centroid) return;
+
+    const [cLon, cLat] = activeWard.centroid;
+    const aqi = activeWard.interpolated_aqi ?? 0;
+    const level = getAqiLevel(aqi);
+
+    const pinIcon = L.divIcon({
+      className: "active-ward-pin",
+      html: `<div style="
+        display:flex;flex-direction:column;align-items:center;
+        filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+        animation:wardPinBounce 0.5s ease-out;
+      ">
+        <div style="
+          width:36px;height:36px;border-radius:50%;
+          background:${level.color};
+          border:3px solid #fff;
+          display:flex;align-items:center;justify-content:center;
+          font-family:'Orbitron',monospace;font-size:10px;font-weight:800;color:#000;
+          box-shadow:0 0 15px ${level.color}80;
+        ">${aqi || "?"}</div>
+        <div style="
+          width:3px;height:12px;background:#fff;
+          border-radius:0 0 2px 2px;
+        "></div>
+        <div style="
+          width:8px;height:4px;border-radius:50%;
+          background:rgba(255,255,255,0.4);
+        "></div>
+      </div>`,
+      iconSize: [36, 56],
+      iconAnchor: [18, 56],
+    });
+
+    const marker = L.marker([cLat, cLon], { icon: pinIcon, zIndexOffset: 1000 });
+    marker.addTo(map);
+    activeWardMarkerRef.current = marker;
+  }, [activeWard]);
+
 
   return (
     <>
