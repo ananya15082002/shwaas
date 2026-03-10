@@ -246,14 +246,18 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     DELHI_LANDMARKS.forEach((lm) => {
       const icon = L.divIcon({
         className: "landmark-marker",
-        html: `<div style="display:flex;flex-direction:column;align-items:center;pointer-events:auto;cursor:default;">
+        html: `<div class="lm-wrap" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
           <span style="font-size:16px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6));line-height:1;">${lm.emoji}</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.6);white-space:nowrap;margin-top:1px;text-shadow:0 1px 3px rgba(0,0,0,0.8);">${lm.name}</span>
+          <span class="lm-label" style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.8);white-space:nowrap;margin-top:2px;text-shadow:0 1px 3px rgba(0,0,0,0.8);background:rgba(4,8,16,0.85);padding:1px 5px;border-radius:4px;display:none;">${lm.name}</span>
         </div>`,
         iconSize: [80, 30],
         iconAnchor: [40, 15],
       });
-      const m = L.marker([lm.lat, lm.lon], { icon, interactive: false, zIndexOffset: 500 });
+      const m = L.marker([lm.lat, lm.lon], { icon, interactive: true, zIndexOffset: 500 });
+      m.on("click", () => {
+        const el = m.getElement()?.querySelector(".lm-label") as HTMLElement;
+        if (el) el.style.display = el.style.display === "none" ? "block" : "none";
+      });
       m.addTo(map);
       markers.push(m);
     });
