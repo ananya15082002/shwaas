@@ -131,6 +131,46 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     setWardSearch("");
   }, [enrichedWards, onWardSelect]);
 
+  const findNearestWard = useCallback((lat: number, lon: number) => {
+    if (!wardList.length) return null;
+    let nearest = wardList[0];
+    let minDist = Infinity;
+    for (const w of wardList) {
+      if (!w.centroid) continue;
+      const [cLon, cLat] = w.centroid;
+      const d = Math.pow(lat - cLat, 2) + Math.pow(lon - cLon, 2);
+      if (d < minDist) { minDist = d; nearest = w; }
+    }
+    return nearest;
+  }, [wardList]);
+
+  const searchPlaces = useCallback((query: string) => {
+    if (placeSearchTimeout.current) clearTimeout(placeSearchTimeout.current);
+    if (query.trim().length < 2) { setPlaceResults([]); return; }
+    placeSearchTimeout.current = setTimeout(async () => {
+      setSearchingPlaces(true);
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + " Delhi India")}&bounded=1&viewbox=76.84,28.40,77.35,28.88&limit=5`,
+          { headers: { "Accept-Language": "en" } }
+        );
+        const data = await res.json();
+        setPlaceResults(data.map((d: any) => ({ name: d.display_name.split(",").slice(0, 2).join(","), lat: parseFloat(d.lat), lon: parseFloat(d.lon) })));
+      } catch { setPlaceResults([]); }
+      setSearchingPlaces(false);
+    }, 400);
+  }, []);
+
+  const handlePlaceSelect = useCallback((place: { lat: number; lon: number; name: string }) => {
+    const nearest = findNearestWard(place.lat, place.lon);
+    if (nearest) {
+      zoomToWard(nearest);
+      mapRef.current?.setView([place.lat, place.lon], 14);
+    }
+    setSearchOpen(false);
+    setWardSearch("");
+    setPlaceResults([]);
+  }, [findNearestWard, zoomToWard]);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
