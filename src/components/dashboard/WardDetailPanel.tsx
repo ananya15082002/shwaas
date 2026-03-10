@@ -7,6 +7,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useWardLiveData } from "@/hooks/useWardLiveData";
 import { useWardHistory } from "@/hooks/useWardHistory";
 import { WardTrendChart } from "@/components/dashboard/WardTrendChart";
+import { HealthAdvisoryCards } from "@/components/dashboard/HealthAdvisoryCards";
+import { WeatherInfo } from "@/components/dashboard/WeatherInfo";
+import { AqiCalendar } from "@/components/dashboard/AqiCalendar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   X, Users, MapPin, Activity, Shield, Brain, ShieldAlert, Loader2,
@@ -244,7 +247,13 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
           ) : null}
         </div>
 
+        <WeatherInfo iaqi={iaqi} />
+
+        <HealthAdvisoryCards aqi={displayAqi} />
+
         <WardTrendChart history={history} loading={historyLoading} />
+
+        <AqiCalendar history={history} />
 
         <div className="rounded-lg border border-border bg-card/50 p-3">
           <p className="font-mono text-[10px] text-muted-foreground">{t("ward.assembly")}</p>

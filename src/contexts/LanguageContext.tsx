@@ -90,6 +90,27 @@ const translations: Record<string, Record<Language, string>> = {
   "ward.trendTitle": { en: "PM2.5 & PM10 TREND", hi: "PM2.5 और PM10 रुझान" },
   "ward.live": { en: "LIVE from", hi: "लाइव" },
   "ward.dominant": { en: "dominant", hi: "प्रमुख" },
+  "ward.healthAdvisory": { en: "HEALTH ADVISORY", hi: "स्वास्थ्य सलाह" },
+  "ward.aqiCalendar": { en: "AQI CALENDAR", hi: "AQI कैलेंडर" },
+
+  // Weather
+  "weather.title": { en: "WEATHER CONDITIONS", hi: "मौसम की स्थिति" },
+  "weather.temp": { en: "Temperature", hi: "तापमान" },
+  "weather.humidity": { en: "Humidity", hi: "आर्द्रता" },
+  "weather.wind": { en: "Wind Speed", hi: "हवा की गति" },
+  "weather.pressure": { en: "Pressure", hi: "दबाव" },
+
+  // Rankings
+  "ranking.totalWards": { en: "TOTAL WARDS", hi: "कुल वार्ड" },
+  "ranking.avgAqi": { en: "AVG AQI", hi: "औसत AQI" },
+  "ranking.whoExceed": { en: "WHO EXCEED", hi: "WHO से ऊपर" },
+  "ranking.mostPolluted": { en: "MOST POLLUTED WARDS", hi: "सबसे प्रदूषित वार्ड" },
+  "ranking.leastPolluted": { en: "CLEANEST WARDS", hi: "सबसे स्वच्छ वार्ड" },
+  "ranking.distribution": { en: "AQI DISTRIBUTION", hi: "AQI वितरण" },
+  "ranking.aboveStd": { en: "above", hi: "ऊपर" },
+
+  // Tabs
+  "tab.rankings": { en: "RANKINGS", hi: "रैंकिंग" },
 
   // Error
   "error.title": { en: "DATA LINK INTERRUPTED", hi: "डेटा लिंक बाधित" },

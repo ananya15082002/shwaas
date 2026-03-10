@@ -14,8 +14,9 @@ import { HeroSkeleton } from "@/components/dashboard/LoadingSkeleton";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { IntroSequence } from "@/components/intro/IntroSequence";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { MapPin, Brain, BarChart3, GitCompareArrows, Map, BookOpen } from "lucide-react";
+import { MapPin, Brain, BarChart3, GitCompareArrows, Map, BookOpen, Trophy } from "lucide-react";
 import { DictionaryTab } from "@/components/dashboard/DictionaryTab";
+import { WardRankings } from "@/components/dashboard/WardRankings";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Index = () => {
@@ -102,6 +103,9 @@ const Index = () => {
                       <Map className="h-3 w-3" /> {t("tab.ward")}
                     </TabsTrigger>
                   )}
+                  <TabsTrigger value="rankings" className="gap-1.5 font-mono text-[10px]">
+                    <Trophy className="h-3 w-3" /> {t("tab.rankings")}
+                  </TabsTrigger>
                   <TabsTrigger value="dictionary" className="gap-1.5 font-mono text-[10px]">
                     <BookOpen className="h-3 w-3" /> {t("tab.dictionary")}
                   </TabsTrigger>
@@ -130,6 +134,10 @@ const Index = () => {
                     <WardDetailPanel ward={selectedWard} onClose={() => { setSelectedWard(null); setActiveTab("intel"); }} />
                   </TabsContent>
                 )}
+
+                <TabsContent value="rankings" className="flex-1 overflow-hidden">
+                  <WardRankings stations={stations} />
+                </TabsContent>
 
                 <TabsContent value="dictionary" className="flex-1 overflow-hidden">
                   <DictionaryTab />
