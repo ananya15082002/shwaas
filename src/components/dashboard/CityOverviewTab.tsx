@@ -163,7 +163,7 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
 
         <div>
           <h4 className="flex items-center gap-2 font-display text-xs font-bold tracking-widest text-primary">
-            <TrendingUp className="h-4 w-4" /> {t("city.stationComparison")}
+            <TrendingUp className="h-4 w-4" /> {t("city.top10")} — TOP 15 WARDS
           </h4>
           <div className="mt-2 h-52">
             <ResponsiveContainer width="100%" height="100%">
