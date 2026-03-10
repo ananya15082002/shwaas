@@ -167,6 +167,31 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     };
   }, []);
 
+  // Delhi boundary fill layer (renders below wards to fill gaps)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (boundaryLayerRef.current) {
+      boundaryLayerRef.current.remove();
+      boundaryLayerRef.current = null;
+    }
+
+    if (!showWards) return;
+
+    const boundary = L.polygon(DELHI_BOUNDARY_COORDS, {
+      fillColor: "rgba(25,30,40,0.95)",
+      fillOpacity: 1,
+      color: "rgba(0,229,160,0.25)",
+      weight: 1.5,
+      dashArray: "6,4",
+      interactive: false,
+    });
+
+    boundary.addTo(map);
+    boundaryLayerRef.current = boundary;
+  }, [showWards]);
+
   // Ward layer
   useEffect(() => {
     const map = mapRef.current;
