@@ -117,6 +117,9 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
       zoom: 11,
       zoomControl: false,
       attributionControl: false,
+      minZoom: 10,
+      maxBounds: DELHI_BOUNDS,
+      maxBoundsViscosity: 0.8,
     });
 
     L.control.zoom({ position: "bottomright" }).addTo(map);
@@ -124,6 +127,9 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
       maxZoom: 19,
     }).addTo(map);
+
+    // Fit to show all of Delhi
+    map.fitBounds(DELHI_BOUNDS, { padding: [10, 10] });
 
     map.on("moveend", () => {
       const b = map.getBounds();
