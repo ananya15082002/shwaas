@@ -16,6 +16,7 @@ interface MapViewProps {
 }
 
 const DELHI_CENTER: [number, number] = [28.6139, 77.209];
+const DELHI_BOUNDS: L.LatLngBoundsExpression = [[28.40, 76.84], [28.88, 77.35]];
 
 const STATION_COORDS: Record<string, [number, number]> = {
   "delhi/ito": [28.6289, 77.2414],
