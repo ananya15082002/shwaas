@@ -55,6 +55,7 @@ const Index = () => {
     }
     setShowFullMap(false);
     setDashboardReady(true);
+    music.changeMode("dashboard");
   };
 
   const handleReplay = () => {
