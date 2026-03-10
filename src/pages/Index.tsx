@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAqiData } from "@/hooks/useAqiData";
 import { useIntroSequence } from "@/hooks/useIntroSequence";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { StationData } from "@/lib/aqi";
 import { WardFeature } from "@/hooks/useDelhiWards";
+import { useDelhiWards } from "@/hooks/useDelhiWards";
 import { Navbar } from "@/components/dashboard/Navbar";
 import { MapView } from "@/components/dashboard/MapView";
 import { CityOverviewTab } from "@/components/dashboard/CityOverviewTab";
