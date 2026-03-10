@@ -7,6 +7,7 @@ import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
 import { assignAQIToWards, aqiToFillColor, aqiToBorderColor } from "@/lib/wardAqi";
 import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
+import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
 
 interface MapViewProps {
   stations: StationData[];
