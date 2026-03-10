@@ -33,7 +33,7 @@ const Index = () => {
     <>
       <AnimatePresence>
         {!introDone && (
-          <IntroSequence stage={stage} onSkip={skip} />
+          <IntroSequence stage={stage} onSkip={skip} onDelhiClick={advanceToNext} />
         )}
       </AnimatePresence>
 
