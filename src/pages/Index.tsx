@@ -6,7 +6,6 @@ import { StationData } from "@/lib/aqi";
 import { WardFeature } from "@/hooks/useDelhiWards";
 import { Navbar } from "@/components/dashboard/Navbar";
 import { MapView } from "@/components/dashboard/MapView";
-import { StationIntelTab } from "@/components/dashboard/StationIntelTab";
 import { CityOverviewTab } from "@/components/dashboard/CityOverviewTab";
 import { CompareTab } from "@/components/dashboard/CompareTab";
 import { WardDetailPanel } from "@/components/dashboard/WardDetailPanel";
@@ -14,7 +13,7 @@ import { HeroSkeleton } from "@/components/dashboard/LoadingSkeleton";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { IntroSequence } from "@/components/intro/IntroSequence";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { MapPin, Brain, BarChart3, GitCompareArrows, Map, BookOpen, Trophy } from "lucide-react";
+import { BarChart3, GitCompareArrows, Map, BookOpen, Trophy } from "lucide-react";
 import { DictionaryTab } from "@/components/dashboard/DictionaryTab";
 import { WardRankings } from "@/components/dashboard/WardRankings";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,7 +22,7 @@ const Index = () => {
   const { stations, loading, error, lastUpdated, cityAqi, refresh } = useAqiData();
   const [selectedStation, setSelectedStation] = useState<StationData | null>(null);
   const [selectedWard, setSelectedWard] = useState<WardFeature["properties"] | null>(null);
-  const [activeTab, setActiveTab] = useState("intel");
+  const [activeTab, setActiveTab] = useState("ward");
   const { stage, introDone, skip, advanceToNext } = useIntroSequence();
   const { t } = useLanguage();
 
@@ -58,7 +57,6 @@ const Index = () => {
                 onSelectStation={(s) => {
                   setSelectedStation(s);
                   setSelectedWard(null);
-                  setActiveTab("intel");
                 }}
                 onWardSelect={(w) => {
                   setSelectedWard(w);
@@ -76,7 +74,6 @@ const Index = () => {
                     onSelectStation={(s) => {
                       setSelectedStation(s);
                       setSelectedWard(null);
-                      setActiveTab("intel");
                     }}
                     onWardSelect={(w) => {
                       setSelectedWard(w);
@@ -86,57 +83,43 @@ const Index = () => {
                 </div>
               </div>
 
-
               <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col overflow-hidden">
                 <TabsList className="mx-3 mt-3 w-fit bg-secondary/50">
-                  <TabsTrigger value="intel" className="gap-1.5 font-mono text-[10px]">
-                    <Brain className="h-3 w-3" /> {t("tab.intel")}
-                  </TabsTrigger>
-                  <TabsTrigger value="city" className="gap-1.5 font-mono text-[10px]">
-                    <BarChart3 className="h-3 w-3" /> {t("tab.city")}
-                  </TabsTrigger>
-                  <TabsTrigger value="compare" className="gap-1.5 font-mono text-[10px]">
-                    <GitCompareArrows className="h-3 w-3" /> {t("tab.compare")}
-                  </TabsTrigger>
                   {selectedWard && (
                     <TabsTrigger value="ward" className="gap-1.5 font-mono text-[10px]">
                       <Map className="h-3 w-3" /> {t("tab.ward")}
                     </TabsTrigger>
                   )}
+                  <TabsTrigger value="city" className="gap-1.5 font-mono text-[10px]">
+                    <BarChart3 className="h-3 w-3" /> {t("tab.city")}
+                  </TabsTrigger>
                   <TabsTrigger value="rankings" className="gap-1.5 font-mono text-[10px]">
                     <Trophy className="h-3 w-3" /> {t("tab.rankings")}
+                  </TabsTrigger>
+                  <TabsTrigger value="compare" className="gap-1.5 font-mono text-[10px]">
+                    <GitCompareArrows className="h-3 w-3" /> {t("tab.compare")}
                   </TabsTrigger>
                   <TabsTrigger value="dictionary" className="gap-1.5 font-mono text-[10px]">
                     <BookOpen className="h-3 w-3" /> {t("tab.dictionary")}
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="intel" className="flex-1 overflow-hidden">
-                  {effectiveStation ? (
-                    <StationIntelTab station={effectiveStation} />
-                  ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <p className="font-mono text-xs text-muted-foreground">{t("intel.selectStation")}</p>
-                    </div>
-                  )}
-                </TabsContent>
+                {selectedWard && (
+                  <TabsContent value="ward" className="flex-1 overflow-hidden">
+                    <WardDetailPanel ward={selectedWard} onClose={() => { setSelectedWard(null); setActiveTab("city"); }} />
+                  </TabsContent>
+                )}
 
                 <TabsContent value="city" className="flex-1 overflow-hidden">
                   <CityOverviewTab stations={stations} cityAqi={cityAqi} />
                 </TabsContent>
 
-                <TabsContent value="compare" className="flex-1 overflow-hidden">
-                  <CompareTab stations={stations} />
-                </TabsContent>
-
-                {selectedWard && (
-                  <TabsContent value="ward" className="flex-1 overflow-hidden">
-                    <WardDetailPanel ward={selectedWard} onClose={() => { setSelectedWard(null); setActiveTab("intel"); }} />
-                  </TabsContent>
-                )}
-
                 <TabsContent value="rankings" className="flex-1 overflow-hidden">
                   <WardRankings stations={stations} />
+                </TabsContent>
+
+                <TabsContent value="compare" className="flex-1 overflow-hidden">
+                  <CompareTab stations={stations} />
                 </TabsContent>
 
                 <TabsContent value="dictionary" className="flex-1 overflow-hidden">
