@@ -51,10 +51,28 @@ function createMarkerIcon(aqi: number, isSelected: boolean) {
   });
 }
 
+// Approximate Delhi NCT boundary outline to fill gaps (rivers, airport, cantonment, etc.)
+const DELHI_BOUNDARY_COORDS: [number, number][] = [
+  [28.8833, 77.0983], [28.8790, 77.1180], [28.8700, 77.1420], [28.8550, 77.1620],
+  [28.8400, 77.1750], [28.8300, 77.2000], [28.8100, 77.2200], [28.7950, 77.2400],
+  [28.7700, 77.2500], [28.7500, 77.2700], [28.7300, 77.2950], [28.7150, 77.3100],
+  [28.6950, 77.3250], [28.6700, 77.3400], [28.6500, 77.3500], [28.6300, 77.3450],
+  [28.6100, 77.3350], [28.5900, 77.3250], [28.5700, 77.3100], [28.5500, 77.2900],
+  [28.5350, 77.2700], [28.5200, 77.2500], [28.5050, 77.2350], [28.4950, 77.2150],
+  [28.4850, 77.1950], [28.4800, 77.1750], [28.4780, 77.1500], [28.4800, 77.1250],
+  [28.4900, 77.1000], [28.5000, 77.0800], [28.5100, 77.0600], [28.5250, 77.0450],
+  [28.5400, 77.0300], [28.5600, 77.0150], [28.5800, 77.0050], [28.6000, 76.9950],
+  [28.6200, 76.9900], [28.6400, 76.9850], [28.6600, 76.9850], [28.6800, 76.9900],
+  [28.7000, 76.9950], [28.7200, 77.0000], [28.7400, 77.0100], [28.7600, 77.0200],
+  [28.7800, 77.0300], [28.8000, 77.0400], [28.8200, 77.0550], [28.8400, 77.0700],
+  [28.8600, 77.0850], [28.8833, 77.0983],
+];
+
 export function MapView({ stations, selectedStation, onSelectStation, onBoundsChange, onWardSelect }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
   const wardLayerRef = useRef<L.GeoJSON | null>(null);
+  const boundaryLayerRef = useRef<L.Polygon | null>(null);
   const heatLayerRef = useRef<L.Layer | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const selectedWardRef = useRef<L.Layer | null>(null);
