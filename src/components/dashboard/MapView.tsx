@@ -267,7 +267,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
       markers.push(m);
     });
     return () => markers.forEach((m) => m.remove());
-  }, []);
+  }, [findNearestWard, onWardSelect]);
 
 
   useEffect(() => {

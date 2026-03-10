@@ -227,7 +227,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       markers.push(m);
     });
     return () => markers.forEach((m) => m.remove());
-  }, []);
+  }, [findNearestWard, onEnterDashboard]);
 
   // Boundary layer
   useEffect(() => {
