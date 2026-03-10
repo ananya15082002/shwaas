@@ -20,6 +20,11 @@ export function useIntroSequence() {
     localStorage.setItem("delhiaqi_visited", "true");
   }, []);
 
+  const replay = useCallback(() => {
+    setStage(1);
+    setIntroDone(false);
+  }, []);
+
   const advanceToNext = useCallback(() => {
     setStage((prev) => {
       if (prev === "done") return prev;
@@ -46,5 +51,5 @@ export function useIntroSequence() {
     return () => clearTimeout(timer);
   }, [stage]);
 
-  return { stage, introDone, skip, advanceToNext };
+  return { stage, introDone, skip, advanceToNext, replay };
 }
