@@ -1,10 +1,10 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { WardHistory } from "@/hooks/useWardHistory";
 
 interface AqiCalendarProps {
-  history: { time: string; aqi: number }[];
+  history: WardHistory | null;
 }
 
 const aqiColor = (aqi: number) => {
