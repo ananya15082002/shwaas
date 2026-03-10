@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
 import { assignAQIToWards, aqiToFillColor, aqiToBorderColor } from "@/lib/wardAqi";
+import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
 
 interface MapViewProps {
   stations: StationData[];
