@@ -42,7 +42,7 @@ const Index = () => {
         transition={{ duration: 0.8 }}
         className="flex h-screen flex-col bg-background"
       >
-        <Navbar lastUpdated={lastUpdated} onRefresh={refresh} loading={loading} />
+        <Navbar lastUpdated={lastUpdated} onRefresh={refresh} loading={loading} onLogoClick={replay} />
 
         {error ? (
           <ErrorState message={error} onRetry={refresh} />
