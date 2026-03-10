@@ -54,17 +54,37 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
       .map((f, i) => ({ rank: i + 1, ...f.properties }));
   }, [enrichedWards]);
 
+  // Use ML-based city AQI from all wards (weighted by population) instead of simple station average
+  const mlCityAqi = useMemo(() => {
+    if (!enrichedWards) return cityAqi;
+    const wards = enrichedWards.features.filter((f) => (f.properties.interpolated_aqi ?? 0) > 0);
+    if (wards.length === 0) return cityAqi;
+    const totalPop = wards.reduce((s, f) => s + (f.properties.total_pop ?? 1), 0);
+    const weightedAqi = wards.reduce((s, f) => {
+      const pop = f.properties.total_pop ?? 1;
+      return s + (f.properties.interpolated_aqi ?? 0) * pop;
+    }, 0);
+    return Math.round(weightedAqi / totalPop);
+  }, [enrichedWards, cityAqi]);
+
+  const mlLevel = getAqiLevel(mlCityAqi);
+
   useEffect(() => {
-    if (stations.length > 0) {
+    if (stations.length > 0 && enrichedWards) {
+      const wardSummary = enrichedWards.features
+        .filter((f) => (f.properties.interpolated_aqi ?? 0) > 0)
+        .sort((a, b) => (b.properties.interpolated_aqi ?? 0) - (a.properties.interpolated_aqi ?? 0))
+        .slice(0, 20)
+        .map((f) => ({ name: f.properties.ward_name, aqi: f.properties.interpolated_aqi, pop: f.properties.total_pop, ac: f.properties.ac_name }));
       analyze(
-        stations.map((s) => ({ name: s.name, area: s.area, aqi: s.aqi, dominantPollutant: s.dominantPollutant, iaqi: s.iaqi })) as unknown as StationData[],
+        [{ name: "Delhi City (251 Wards)", aqi: mlCityAqi, area: "NCT Delhi", dominantPollutant: "pm25", iaqi: {}, wardSummary, totalWards: enrichedWards.features.length }] as unknown as StationData[],
         "city",
         undefined,
         undefined,
         lang
       );
     }
-  }, [stations.length, lang]);
+  }, [stations.length, lang, mlCityAqi]);
 
   const ai = analysis as {
     city_summary?: string;
