@@ -83,13 +83,14 @@ const Index = () => {
                 </div>
               </div>
 
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col overflow-hidden">
+              <Tabs value={activeTab} onValueChange={(v) => {
+                if (v === "ward" && !selectedWard) return;
+                setActiveTab(v);
+              }} className="flex flex-1 flex-col overflow-hidden">
                 <TabsList className="mx-3 mt-3 w-fit bg-secondary/50">
-                  {selectedWard && (
-                    <TabsTrigger value="ward" className="gap-1.5 font-mono text-[10px]">
-                      <Map className="h-3 w-3" /> {t("tab.ward")}
-                    </TabsTrigger>
-                  )}
+                  <TabsTrigger value="ward" disabled={!selectedWard} className="gap-1.5 font-mono text-[10px] disabled:opacity-40">
+                    <Map className="h-3 w-3" /> {t("tab.ward")}
+                  </TabsTrigger>
                   <TabsTrigger value="city" className="gap-1.5 font-mono text-[10px]">
                     <BarChart3 className="h-3 w-3" /> {t("tab.city")}
                   </TabsTrigger>
@@ -104,11 +105,15 @@ const Index = () => {
                   </TabsTrigger>
                 </TabsList>
 
-                {selectedWard && (
-                  <TabsContent value="ward" className="flex-1 overflow-hidden">
+                <TabsContent value="ward" className="flex-1 overflow-hidden">
+                  {selectedWard ? (
                     <WardDetailPanel ward={selectedWard} onClose={() => { setSelectedWard(null); setActiveTab("city"); }} />
-                  </TabsContent>
-                )}
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-muted-foreground font-mono text-sm">
+                      {t("tab.ward.placeholder") || "Select a ward on the map"}
+                    </div>
+                  )}
+                </TabsContent>
 
                 <TabsContent value="city" className="flex-1 overflow-hidden">
                   <CityOverviewTab stations={stations} cityAqi={cityAqi} />
