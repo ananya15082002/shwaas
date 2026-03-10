@@ -92,12 +92,9 @@ const Index = () => {
                 </div>
               </div>
 
-              <Tabs value={activeTab} onValueChange={(v) => {
-                if (v === "ward" && !selectedWard) return;
-                setActiveTab(v);
-              }} className="flex flex-1 flex-col overflow-hidden">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col overflow-hidden">
                 <TabsList className="mx-3 mt-3 w-fit bg-secondary/50">
-                  <TabsTrigger value="ward" disabled={!selectedWard} className="gap-1.5 font-mono text-[10px] disabled:opacity-40">
+                  <TabsTrigger value="ward" className="gap-1.5 font-mono text-[10px]">
                     <Map className="h-3 w-3" /> {t("tab.ward")}
                   </TabsTrigger>
                   <TabsTrigger value="city" className="gap-1.5 font-mono text-[10px]">
@@ -115,11 +112,18 @@ const Index = () => {
                 </TabsList>
 
                 <TabsContent value="ward" className="flex-1 overflow-hidden">
-                  {selectedWard ? (
-                    <WardDetailPanel ward={selectedWard} onClose={() => { setSelectedWard(null); setActiveTab("city"); }} />
+                  {displayWard ? (
+                    <div className="relative flex-1 h-full">
+                      {!selectedWard && (
+                        <div className="absolute top-2 right-3 z-10 bg-accent/80 backdrop-blur-sm text-accent-foreground px-3 py-1.5 rounded-md font-mono text-[10px] border border-border">
+                          📍 {t("tab.ward.hint") || "Click a ward on map to explore"}
+                        </div>
+                      )}
+                      <WardDetailPanel ward={displayWard} onClose={() => { setSelectedWard(null); setActiveTab("city"); }} />
+                    </div>
                   ) : (
                     <div className="flex h-full items-center justify-center text-muted-foreground font-mono text-sm">
-                      {t("tab.ward.placeholder") || "Select a ward on the map"}
+                      Loading wards...
                     </div>
                   )}
                 </TabsContent>
