@@ -326,7 +326,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
         "fill-color": ["match", ["get", "id"],
           ...features.flatMap((f) => [f.properties.id, aqiToColor(f.properties.interpolated_aqi)]),
           "#282D37"
-        ],
+        ] as any,
         "fill-opacity": 0.5,
       },
     });
