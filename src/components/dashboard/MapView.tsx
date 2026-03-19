@@ -339,7 +339,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
         "line-color": ["match", ["get", "id"],
           ...features.flatMap((f) => [f.properties.id, aqiToColor(f.properties.interpolated_aqi)]),
           "#555"
-        ],
+        ] as any,
         "line-width": 1.5,
         "line-dasharray": [4, 4],
       },

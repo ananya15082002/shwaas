@@ -307,7 +307,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       paint: {
         "line-color": ["match", ["get", "id"],
           ...features.flatMap((f) => [f.properties.id, aqiToColor(f.properties.interpolated_aqi)]),
-          "#555"],
+          "#555"] as any,
         "line-width": 1.5, "line-dasharray": [4, 4],
       },
     });
