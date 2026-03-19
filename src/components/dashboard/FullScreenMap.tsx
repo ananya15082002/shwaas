@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, Layers, Navigation, ZoomIn, ZoomOut, Locate, MapPin } from "lucide-react";
+import { Search, X, Navigation, ZoomIn, ZoomOut, Locate, MapPin } from "lucide-react";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
-import { assignAQIToWards, aqiToFillColor, aqiToBorderColor } from "@/lib/wardAqi";
+import { assignAQIToWards, aqiToBorderColor } from "@/lib/wardAqi";
 import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
 import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
 
@@ -15,31 +15,24 @@ interface FullScreenMapProps {
   onEnterDashboard: (ward?: WardFeature["properties"]) => void;
 }
 
-const DELHI_CENTER: [number, number] = [28.6139, 77.209];
-const DELHI_BOUNDS: L.LatLngBoundsExpression = [[28.40, 76.84], [28.88, 77.35]];
+const DELHI_CENTER: [number, number] = [77.209, 28.6139];
+const DELHI_BOUNDS: maplibregl.LngLatBoundsLike = [[76.84, 28.40], [77.35, 28.88]];
+const DARK_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 
-const DELHI_BOUNDARY_COORDS: [number, number][] = [
-  [28.8833, 77.0983], [28.8790, 77.1180], [28.8700, 77.1420], [28.8550, 77.1620],
-  [28.8400, 77.1750], [28.8300, 77.2000], [28.8100, 77.2200], [28.7950, 77.2400],
-  [28.7700, 77.2500], [28.7500, 77.2700], [28.7300, 77.2950], [28.7150, 77.3100],
-  [28.6950, 77.3250], [28.6700, 77.3400], [28.6500, 77.3500], [28.6300, 77.3450],
-  [28.6100, 77.3350], [28.5900, 77.3250], [28.5700, 77.3100], [28.5500, 77.2900],
-  [28.5350, 77.2700], [28.5200, 77.2500], [28.5050, 77.2350], [28.4950, 77.2150],
-  [28.4850, 77.1950], [28.4800, 77.1750], [28.4780, 77.1500], [28.4800, 77.1250],
-  [28.4900, 77.1000], [28.5000, 77.0800], [28.5100, 77.0600], [28.5250, 77.0450],
-  [28.5400, 77.0300], [28.5600, 77.0150], [28.5800, 77.0050], [28.6000, 76.9950],
-  [28.6200, 76.9900], [28.6400, 76.9850], [28.6600, 76.9850], [28.6800, 76.9900],
-  [28.7000, 76.9950], [28.7200, 77.0000], [28.7400, 77.0100], [28.7600, 77.0200],
-  [28.7800, 77.0300], [28.8000, 77.0400], [28.8200, 77.0550], [28.8400, 77.0700],
-  [28.8600, 77.0850], [28.8833, 77.0983],
-];
+function aqiToColor(aqi: number): string {
+  if (!aqi || aqi === 0) return "#282D37";
+  if (aqi <= 50) return "#00E5A0";
+  if (aqi <= 100) return "#FFD600";
+  if (aqi <= 150) return "#FF8C00";
+  if (aqi <= 200) return "#FF3D3D";
+  if (aqi <= 300) return "#C62BFF";
+  return "#FF0033";
+}
 
 export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScreenMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
-  const wardLayerRef = useRef<L.GeoJSON | null>(null);
-  const boundaryLayerRef = useRef<L.Polygon | null>(null);
-  const selectedWardRef = useRef<L.Layer | null>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const popupRef = useRef<maplibregl.Popup | null>(null);
   const [selectedWard, setSelectedWard] = useState<WardFeature["properties"] | null>(null);
   const [wardSearch, setWardSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -48,13 +41,12 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   const [placeResults, setPlaceResults] = useState<{ name: string; lat: number; lon: number }[]>([]);
   const [searchingPlaces, setSearchingPlaces] = useState(false);
   const placeSearchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   const { wardsGeoJSON } = useDelhiWards();
 
   const stationsWithCoords = useMemo(
-    () => stations
-      .filter((s) => s.lat != null && s.lon != null)
-      .map((s) => ({ lat: s.lat!, lon: s.lon!, aqi: s.aqi })),
+    () => stations.filter((s) => s.lat != null && s.lon != null).map((s) => ({ lat: s.lat!, lon: s.lon!, aqi: s.aqi })),
     [stations]
   );
 
@@ -76,25 +68,10 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     ).slice(0, 10);
   }, [wardList, wardSearch]);
 
-  // Show UI elements with delay for cinematic entrance
   useEffect(() => {
     const t = setTimeout(() => setShowUI(true), 600);
     return () => clearTimeout(t);
   }, []);
-
-  const zoomToWard = useCallback((wardProps: typeof wardList[0]) => {
-    const map = mapRef.current;
-    if (!map || !enrichedWards) return;
-    const feature = enrichedWards.features.find((f) => f.properties.ward_no === wardProps.ward_no);
-    if (feature) {
-      const layer = L.geoJSON(feature as any);
-      map.fitBounds(layer.getBounds(), { padding: [60, 60], maxZoom: 14 });
-    }
-    setSelectedWard(wardProps);
-    setSearchOpen(false);
-    setWardSearch("");
-    setPlaceResults([]);
-  }, [enrichedWards]);
 
   const findNearestWard = useCallback((lat: number, lon: number) => {
     if (!wardList.length) return null;
@@ -108,6 +85,17 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     }
     return nearest;
   }, [wardList]);
+
+  const zoomToWard = useCallback((wardProps: typeof wardList[0]) => {
+    const map = mapRef.current;
+    if (!map) return;
+    const [cLon, cLat] = wardProps.centroid;
+    map.flyTo({ center: [cLon, cLat], zoom: 14, duration: 1500, essential: true });
+    setSelectedWard(wardProps);
+    setSearchOpen(false);
+    setWardSearch("");
+    setPlaceResults([]);
+  }, []);
 
   const searchPlaces = useCallback((query: string) => {
     if (placeSearchTimeout.current) clearTimeout(placeSearchTimeout.current);
@@ -128,238 +116,237 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
 
   const handlePlaceSelect = useCallback((place: { lat: number; lon: number; name: string }) => {
     const map = mapRef.current;
-    const nearest = findNearestWard(place.lat, place.lon);
-
-    // Add pin marker at place
     if (map) {
-      const pinIcon = L.divIcon({
-        className: "place-pin-marker",
-        html: `<div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 3px 8px rgba(0,0,0,0.5));">
-          <div style="background:hsl(180,100%,45%);color:#000;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:4px 8px;border-radius:6px;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;">${place.name.split(",")[0]}</div>
-          <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid hsl(180,100%,45%);"></div>
-          <div style="width:6px;height:6px;border-radius:50%;background:hsl(180,100%,45%);box-shadow:0 0 8px hsl(180,100%,45%),0 0 20px rgba(0,229,160,0.4);margin-top:-1px;"></div>
-        </div>`,
-        iconSize: [120, 50],
-        iconAnchor: [60, 50],
-      });
-      const marker = L.marker([place.lat, place.lon], { icon: pinIcon, zIndexOffset: 2000 });
-      marker.addTo(map);
-      map.setView([place.lat, place.lon], 14);
+      const el = document.createElement("div");
+      el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 3px 8px rgba(0,0,0,0.5));">
+        <div style="background:hsl(180,100%,45%);color:#000;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:4px 8px;border-radius:6px;white-space:nowrap;">${place.name.split(",")[0]}</div>
+        <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid hsl(180,100%,45%);"></div>
+      </div>`;
+      const marker = new maplibregl.Marker({ element: el }).setLngLat([place.lon, place.lat]).addTo(map);
+      map.flyTo({ center: [place.lon, place.lat], zoom: 14, duration: 1200 });
       setTimeout(() => marker.remove(), 10000);
     }
 
-    if (nearest) {
-      setSelectedWard(nearest);
-    }
+    const nearest = findNearestWard(place.lat, place.lon);
+    if (nearest) setSelectedWard(nearest);
     setSearchOpen(false);
     setWardSearch("");
     setPlaceResults([]);
   }, [findNearestWard]);
 
-  // Initialize map
+  // Initialize map with cinematic flyTo
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
-    const map = L.map(containerRef.current, {
+    const map = new maplibregl.Map({
+      container: containerRef.current,
+      style: DARK_STYLE,
       center: DELHI_CENTER,
-      zoom: 11,
-      zoomControl: false,
-      attributionControl: false,
+      zoom: 9,
       minZoom: 10,
       maxZoom: 16,
       maxBounds: DELHI_BOUNDS,
-      maxBoundsViscosity: 0.8,
+      attributionControl: false,
+      pitch: 55,
+      bearing: -15,
+      antialias: true,
     });
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      maxZoom: 19,
-    }).addTo(map);
+    map.on("load", () => {
+      setMapLoaded(true);
+      // Cinematic entrance zoom
+      map.flyTo({
+        center: DELHI_CENTER,
+        zoom: 11,
+        pitch: 50,
+        bearing: -10,
+        duration: 3000,
+        essential: true,
+      });
+    });
 
-    map.fitBounds(DELHI_BOUNDS, { padding: [30, 30] });
     mapRef.current = map;
 
     return () => {
       map.remove();
       mapRef.current = null;
+      setMapLoaded(false);
     };
   }, []);
 
-  // Landmark markers
+  // Ward GeoJSON layer
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
-    const markers: L.Marker[] = [];
-    DELHI_LANDMARKS.forEach((lm) => {
-      const icon = L.divIcon({
-        className: "landmark-marker",
-        html: `<div class="lm-wrap" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
-          <span style="font-size:18px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));line-height:1;">${lm.emoji}</span>
-        </div>`,
-        iconSize: [30, 24],
-        iconAnchor: [15, 12],
-      });
-      const m = L.marker([lm.lat, lm.lon], { icon, interactive: true, zIndexOffset: 500 });
-      m.on("click", () => {
-        const nearest = findNearestWard(lm.lat, lm.lon);
-        if (nearest) {
-          setSelectedWard(nearest);
-          onEnterDashboard(nearest);
-        }
-      });
-      m.addTo(map);
-      markers.push(m);
+    if (!map || !mapLoaded || !enrichedWards) return;
+
+    if (map.getLayer("wards-fill")) map.removeLayer("wards-fill");
+    if (map.getLayer("wards-border")) map.removeLayer("wards-border");
+    if (map.getSource("wards")) map.removeSource("wards");
+
+    const colorExpr: any[] = ["match", ["get", "ward_no"]];
+    enrichedWards.features.forEach((f) => {
+      colorExpr.push(f.properties.ward_no, aqiToColor(f.properties.interpolated_aqi ?? 0));
     });
-    return () => markers.forEach((m) => m.remove());
-  }, [findNearestWard, onEnterDashboard]);
+    colorExpr.push("#282D37");
 
-  // Boundary layer
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-    if (boundaryLayerRef.current) { boundaryLayerRef.current.remove(); boundaryLayerRef.current = null; }
+    map.addSource("wards", { type: "geojson", data: enrichedWards as any });
 
-    const boundary = L.polygon(DELHI_BOUNDARY_COORDS, {
-      fillColor: "rgba(25,30,40,0.95)",
-      fillOpacity: 1,
-      color: "rgba(0,229,160,0.25)",
-      weight: 1.5,
-      dashArray: "6,4",
-      interactive: false,
-    });
-    boundary.addTo(map);
-    boundaryLayerRef.current = boundary;
-  }, []);
-
-  // Ward layer
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !enrichedWards) return;
-    if (wardLayerRef.current) { wardLayerRef.current.remove(); wardLayerRef.current = null; }
-
-    const wardLayer = L.geoJSON(enrichedWards as any, {
-      style: (feature) => {
-        const aqi = feature?.properties?.interpolated_aqi ?? 0;
-        return {
-          fillColor: aqiToFillColor(aqi),
-          fillOpacity: 1,
-          color: aqiToBorderColor(aqi),
-          weight: 1,
-          opacity: 0.9,
-        };
+    map.addLayer({
+      id: "wards-fill",
+      type: "fill",
+      source: "wards",
+      paint: {
+        "fill-color": colorExpr as any,
+        "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false], 0.75, 0.55],
       },
-      onEachFeature: (feature, layer) => {
-        const p = feature.properties;
+    });
+
+    map.addLayer({
+      id: "wards-border",
+      type: "line",
+      source: "wards",
+      paint: {
+        "line-color": colorExpr as any,
+        "line-width": ["case", ["boolean", ["feature-state", "hover"], false], 2.5, 0.8],
+        "line-opacity": 0.85,
+      },
+    });
+
+    let hoveredId: number | null = null;
+
+    map.on("mousemove", "wards-fill", (e) => {
+      map.getCanvas().style.cursor = "pointer";
+      if (e.features && e.features.length > 0) {
+        if (hoveredId !== null) map.setFeatureState({ source: "wards", id: hoveredId }, { hover: false });
+        hoveredId = e.features[0].properties.ward_no;
+        map.setFeatureState({ source: "wards", id: hoveredId! }, { hover: true });
+        setHoveredWard(e.features[0].properties.ward_name);
+
+        const p = e.features[0].properties;
         const aqi = p.interpolated_aqi ?? 0;
-
-        layer.bindTooltip(
-          `<div style="
-            background:rgba(4,8,16,0.95);
-            border:1px solid rgba(255,255,255,0.12);
-            border-radius:10px;
-            padding:12px 16px;
-            font-family:'JetBrains Mono',monospace;
-            min-width:180px;
-            backdrop-filter:blur(12px);
-          ">
-            <div style="color:#fff;font-weight:700;font-size:14px;margin-bottom:2px;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px">${p.ward_name}</div>
-            <div style="color:rgba(255,255,255,0.45);font-size:10px;margin-bottom:10px;letter-spacing:1px">
-              WARD ${p.ward_no} · ${p.ac_name}
+        if (popupRef.current) popupRef.current.remove();
+        popupRef.current = new maplibregl.Popup({ closeButton: false, closeOnClick: false, className: "ward-popup", maxWidth: "240px" })
+          .setLngLat(e.lngLat)
+          .setHTML(`
+            <div style="background:rgba(4,8,16,0.95);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 16px;font-family:'JetBrains Mono',monospace;backdrop-filter:blur(12px);">
+              <div style="color:#fff;font-weight:700;font-size:14px;margin-bottom:2px;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px">${p.ward_name}</div>
+              <div style="color:rgba(255,255,255,0.45);font-size:10px;margin-bottom:10px;letter-spacing:1px">WARD ${p.ward_no} · ${p.ac_name}</div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px">
+                <span style="color:rgba(255,255,255,0.5);font-size:10px;letter-spacing:2px">AQI</span>
+                <span style="color:${aqiToColor(aqi)};font-size:22px;font-weight:900;font-family:'Orbitron',monospace">${aqi || "—"}</span>
+              </div>
+              <div style="color:rgba(255,255,255,0.35);font-size:9px;margin-top:4px">POP: ${p.total_pop?.toLocaleString?.() || "—"}</div>
+              <div style="color:rgba(0,229,160,0.6);font-size:9px;margin-top:4px;letter-spacing:1.5px">CLICK TO EXPLORE →</div>
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px">
-              <span style="color:rgba(255,255,255,0.5);font-size:10px;letter-spacing:2px">AQI</span>
-              <span style="color:${aqiToBorderColor(aqi).replace("0.7", "1")};font-size:22px;font-weight:900;font-family:'Orbitron',monospace">${aqi || "—"}</span>
-            </div>
-            <div style="color:rgba(255,255,255,0.35);font-size:9px;margin-top:6px;letter-spacing:1px">POP: ${p.total_pop?.toLocaleString() || "—"}</div>
-            <div style="color:rgba(0,229,160,0.6);font-size:9px;margin-top:4px;letter-spacing:1.5px">CLICK TO EXPLORE →</div>
-          </div>`,
-          { permanent: false, sticky: true, className: "ward-tooltip" }
-        );
-
-        layer.on("click", () => {
-          onEnterDashboard(p);
-        });
-        layer.on("mouseover", () => {
-          if (selectedWardRef.current !== layer) {
-            (layer as any).setStyle({ weight: 2, fillOpacity: 0.85 });
-          }
-          setHoveredWard(p.ward_name);
-        });
-        layer.on("mouseout", () => {
-          if (selectedWardRef.current !== layer) {
-            (layer as any).setStyle({ weight: 1, fillOpacity: 1, color: aqiToBorderColor(aqi) });
-          }
-          setHoveredWard(null);
-        });
-      },
+          `)
+          .addTo(map);
+      }
     });
 
-    wardLayer.addTo(map);
-    wardLayerRef.current = wardLayer;
-  }, [enrichedWards]);
+    map.on("mouseleave", "wards-fill", () => {
+      map.getCanvas().style.cursor = "";
+      if (hoveredId !== null) map.setFeatureState({ source: "wards", id: hoveredId }, { hover: false });
+      hoveredId = null;
+      setHoveredWard(null);
+      if (popupRef.current) { popupRef.current.remove(); popupRef.current = null; }
+    });
 
-  // Special zones layer — AQI color-coded
+    map.on("click", "wards-fill", (e) => {
+      if (e.features && e.features.length > 0) {
+        const p = e.features[0].properties;
+        const centroid = typeof p.centroid === "string" ? JSON.parse(p.centroid) : p.centroid;
+        onEnterDashboard({ ...p, centroid } as WardFeature["properties"]);
+      }
+    });
+  }, [enrichedWards, mapLoaded]);
+
+  // Special zones
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
-    const polys: L.Polygon[] = [];
-    DELHI_SPECIAL_ZONES.forEach((zone) => {
+    if (!map || !mapLoaded) return;
+
+    if (map.getLayer("szones-fill")) map.removeLayer("szones-fill");
+    if (map.getLayer("szones-border")) map.removeLayer("szones-border");
+    if (map.getSource("szones")) map.removeSource("szones");
+
+    const features = DELHI_SPECIAL_ZONES.map((zone) => {
       const [cLon, cLat] = zone.centroid;
       let zoneAqi = 0;
       if (stationsWithCoords.length > 0) {
         const nearby = stationsWithCoords
           .map((s) => ({ ...s, dist: Math.sqrt(Math.pow(s.lat - cLat, 2) + Math.pow(s.lon - cLon, 2)) }))
-          .sort((a, b) => a.dist - b.dist)
-          .slice(0, 3);
-        if (nearby.length === 1) {
-          zoneAqi = nearby[0].aqi;
-        } else {
+          .sort((a, b) => a.dist - b.dist).slice(0, 3);
+        if (nearby.length === 1) zoneAqi = nearby[0].aqi;
+        else {
           const weights = nearby.map((s) => 1 / (s.dist + 0.001));
-          const totalWeight = weights.reduce((a, b) => a + b, 0);
-          zoneAqi = Math.round(nearby.reduce((sum, s, i) => sum + s.aqi * weights[i], 0) / totalWeight);
+          const tw = weights.reduce((a, b) => a + b, 0);
+          zoneAqi = Math.round(nearby.reduce((sum, s, i) => sum + s.aqi * weights[i], 0) / tw);
         }
       }
-      const poly = L.polygon(zone.polygon, {
-        fillColor: aqiToFillColor(zoneAqi), fillOpacity: 1,
-        color: aqiToBorderColor(zoneAqi), weight: 1.5, dashArray: "4,4", interactive: true,
-      });
-      poly.bindTooltip(
-        `<div style="background:rgba(4,8,16,0.95);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 16px;font-family:'JetBrains Mono',monospace;min-width:160px;backdrop-filter:blur(12px);">
-          <div style="color:#fff;font-weight:700;font-size:14px;margin-bottom:2px;font-family:'Rajdhani',sans-serif">${zone.emoji} ${zone.name}</div>
-          <div style="color:rgba(255,255,255,0.4);font-size:9px;margin-bottom:10px">${zone.description}</div>
-          <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px">
-            <span style="color:rgba(255,255,255,0.5);font-size:10px;letter-spacing:2px">AQI</span>
-            <span style="color:${aqiToBorderColor(zoneAqi).replace("0.7", "1")};font-size:22px;font-weight:900;font-family:'Orbitron',monospace">${zoneAqi || "—"}</span>
-          </div>
-          <div style="color:rgba(0,229,160,0.6);font-size:9px;margin-top:6px;letter-spacing:1.5px">CLICK TO EXPLORE →</div>
-        </div>`,
-        { permanent: false, sticky: true, className: "ward-tooltip" }
-      );
-      poly.on("click", () => {
-        const fakeWard: WardFeature["properties"] = {
-          ward_no: -1, ward_name: zone.name, ac_name: zone.description,
-          ac_no: 0, total_pop: 0, sc_pop: 0, nw2022: "", centroid: zone.centroid,
-          interpolated_aqi: zoneAqi,
-        };
-        onEnterDashboard(fakeWard);
-      });
-      poly.on("mouseover", () => poly.setStyle({ weight: 2, fillOpacity: 0.85 }));
-      poly.on("mouseout", () => poly.setStyle({ weight: 1.5, fillOpacity: 1, color: aqiToBorderColor(zoneAqi) }));
-      poly.addTo(map);
-      polys.push(poly);
+      return {
+        type: "Feature" as const,
+        properties: { ...zone, interpolated_aqi: zoneAqi },
+        geometry: { type: "Polygon" as const, coordinates: [zone.polygon.map(([lat, lon]) => [lon, lat])] },
+      };
     });
-    return () => polys.forEach((p) => p.remove());
-  }, [onEnterDashboard, stationsWithCoords]);
+
+    map.addSource("szones", { type: "geojson", data: { type: "FeatureCollection", features } });
+
+    map.addLayer({
+      id: "szones-fill", type: "fill", source: "szones",
+      paint: {
+        "fill-color": ["match", ["get", "id"],
+          ...features.flatMap((f) => [f.properties.id, aqiToColor(f.properties.interpolated_aqi)]),
+          "#282D37"],
+        "fill-opacity": 0.5,
+      },
+    });
+
+    map.addLayer({
+      id: "szones-border", type: "line", source: "szones",
+      paint: {
+        "line-color": ["match", ["get", "id"],
+          ...features.flatMap((f) => [f.properties.id, aqiToColor(f.properties.interpolated_aqi)]),
+          "#555"],
+        "line-width": 1.5, "line-dasharray": [4, 4],
+      },
+    });
+
+    map.on("click", "szones-fill", (e) => {
+      if (e.features && e.features.length > 0) {
+        const p = e.features[0].properties;
+        const centroid = typeof p.centroid === "string" ? JSON.parse(p.centroid) : p.centroid;
+        onEnterDashboard({
+          ward_no: -1, ward_name: p.name, ac_name: p.description,
+          ac_no: 0, total_pop: 0, sc_pop: 0, nw2022: "", centroid,
+          interpolated_aqi: p.interpolated_aqi,
+        });
+      }
+    });
+  }, [mapLoaded, stationsWithCoords, onEnterDashboard]);
+
+  // Landmark markers
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded) return;
+    const markers: maplibregl.Marker[] = [];
+    DELHI_LANDMARKS.forEach((lm) => {
+      const el = document.createElement("div");
+      el.style.cssText = "cursor:pointer;font-size:18px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));";
+      el.textContent = lm.emoji;
+      el.addEventListener("click", () => {
+        const nearest = findNearestWard(lm.lat, lm.lon);
+        if (nearest) onEnterDashboard(nearest);
+      });
+      const m = new maplibregl.Marker({ element: el }).setLngLat([lm.lon, lm.lat]).addTo(map);
+      markers.push(m);
+    });
+    return () => markers.forEach((m) => m.remove());
+  }, [mapLoaded, findNearestWard, onEnterDashboard]);
 
   const resetView = () => {
-    mapRef.current?.fitBounds(DELHI_BOUNDS, { padding: [30, 30] });
+    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 11, pitch: 50, bearing: -10, duration: 1500 });
     setSelectedWard(null);
-    if (selectedWardRef.current) {
-      const prevAqi = (selectedWardRef.current as any).feature?.properties?.interpolated_aqi ?? 0;
-      (selectedWardRef.current as any).setStyle({
-        weight: 1, fillOpacity: 1, color: aqiToBorderColor(prevAqi),
-      });
-      selectedWardRef.current = null;
-    }
   };
 
   const aqiLevel = getAqiLevel(cityAqi);
@@ -372,60 +359,32 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       transition={{ duration: 0.8 }}
       className="fixed inset-0 z-[90] bg-background"
     >
-      {/* Map styles */}
       <style>{`
-        .fullmap-tooltip, .ward-tooltip {
-          background: transparent !important;
-          border: none !important;
-          box-shadow: none !important;
-          padding: 0 !important;
-        }
-        .leaflet-control-zoom { display: none !important; }
-        .place-pin-marker { background: none !important; border: none !important; }
-        .landmark-marker { background: none !important; border: none !important; }
+        .ward-popup .maplibregl-popup-content { background: transparent !important; box-shadow: none !important; padding: 0 !important; }
+        .ward-popup .maplibregl-popup-tip { display: none !important; }
+        .maplibregl-ctrl-attrib { display: none !important; }
       `}</style>
 
-      {/* Map container */}
       <div ref={containerRef} className="absolute inset-0" />
 
-      {/* Top gradient overlay */}
-      <div className="absolute inset-x-0 top-0 z-10 h-32 pointer-events-none" style={{
-        background: "linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)"
-      }} />
-
-      {/* Bottom gradient overlay */}
-      <div className="absolute inset-x-0 bottom-0 z-10 h-40 pointer-events-none" style={{
-        background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)"
-      }} />
+      {/* Top gradient */}
+      <div className="absolute inset-x-0 top-0 z-10 h-32 pointer-events-none" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)" }} />
+      {/* Bottom gradient */}
+      <div className="absolute inset-x-0 bottom-0 z-10 h-40 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)" }} />
 
       {/* Header */}
       <AnimatePresence>
         {showUI && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="absolute top-0 inset-x-0 z-20 flex items-center justify-between px-6 py-4"
-          >
-            <div className="flex items-center gap-4">
-              <div>
-                <h1 className="font-display text-lg font-bold tracking-[0.15em] text-foreground">
-                  DELHI <span className="text-primary">AIR QUALITY</span>
-                </h1>
-                <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground mt-0.5">
-                  251 WARDS · REAL-TIME MONITORING
-                </p>
-              </div>
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="absolute top-0 inset-x-0 z-20 flex items-center justify-between px-6 py-4">
+            <div>
+              <h1 className="font-display text-lg font-bold tracking-[0.15em] text-foreground">
+                DELHI <span className="text-primary">AIR QUALITY</span>
+              </h1>
+              <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground mt-0.5">251 WARDS · REAL-TIME MONITORING</p>
             </div>
-
-            {/* City AQI badge */}
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg border border-border/50 bg-card/80 backdrop-blur-md px-4 py-2 flex items-center gap-3">
-                <span className="font-mono text-[10px] tracking-widest text-muted-foreground">CITY AQI</span>
-                <span className="font-display text-2xl font-black" style={{ color: aqiLevel.color }}>
-                  {cityAqi || "—"}
-                </span>
-              </div>
+            <div className="rounded-lg border border-border/50 bg-card/80 backdrop-blur-md px-4 py-2 flex items-center gap-3">
+              <span className="font-mono text-[10px] tracking-widest text-muted-foreground">CITY AQI</span>
+              <span className="font-display text-2xl font-black" style={{ color: aqiLevel.color }}>{cityAqi || "—"}</span>
             </div>
           </motion.div>
         )}
@@ -434,44 +393,25 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       {/* Search */}
       <AnimatePresence>
         {showUI && (
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="absolute left-4 top-20 z-20"
-          >
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="absolute left-4 top-20 z-20">
             {searchOpen ? (
               <div className="w-72 rounded-xl border border-border/50 bg-card/95 backdrop-blur-md shadow-2xl">
                 <div className="flex items-center gap-2 border-b border-border/30 px-4 py-3">
                   <Search className="h-4 w-4 text-primary" />
-                  <input
-                    autoFocus
-                    value={wardSearch}
-                    onChange={(e) => { setWardSearch(e.target.value); searchPlaces(e.target.value); }}
-                    placeholder="Ward or place (India Gate...)"
-                    className="flex-1 bg-transparent font-mono text-xs text-foreground placeholder:text-muted-foreground focus:outline-none"
-                  />
-                  <button onClick={() => { setSearchOpen(false); setWardSearch(""); setPlaceResults([]); }} className="text-muted-foreground hover:text-foreground transition-colors">
-                    <X className="h-4 w-4" />
-                  </button>
+                  <input autoFocus value={wardSearch} onChange={(e) => { setWardSearch(e.target.value); searchPlaces(e.target.value); }} placeholder="Ward or place..." className="flex-1 bg-transparent font-mono text-xs text-foreground placeholder:text-muted-foreground focus:outline-none" />
+                  <button onClick={() => { setSearchOpen(false); setWardSearch(""); setPlaceResults([]); }} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
                 </div>
                 <div className="max-h-64 overflow-y-auto p-1.5">
                   {filteredWards.length > 0 && (
                     <>
                       <p className="px-3 py-1 font-mono text-[9px] tracking-widest text-muted-foreground">WARDS</p>
                       {filteredWards.map((w) => (
-                        <button
-                          key={w.ward_no}
-                          onClick={() => zoomToWard(w)}
-                          className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition-all hover:bg-primary/10"
-                        >
+                        <button key={w.ward_no} onClick={() => zoomToWard(w)} className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition-all hover:bg-primary/10">
                           <div>
                             <span className="block font-mono text-[11px] font-semibold text-foreground">{w.ward_name}</span>
                             <span className="font-mono text-[9px] text-muted-foreground">Ward {w.ward_no} · {w.ac_name}</span>
                           </div>
-                          <span className="font-display text-sm font-bold" style={{ color: aqiToBorderColor(w.interpolated_aqi ?? 0).replace("0.7", "1") }}>
-                            {w.interpolated_aqi ?? "—"}
-                          </span>
+                          <span className="font-display text-sm font-bold" style={{ color: aqiToColor(w.interpolated_aqi ?? 0) }}>{w.interpolated_aqi ?? "—"}</span>
                         </button>
                       ))}
                     </>
@@ -480,30 +420,21 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
                     <>
                       <p className="px-3 py-1 font-mono text-[9px] tracking-widest text-muted-foreground mt-1 border-t border-border/30 pt-1.5">PLACES</p>
                       {placeResults.map((p, i) => (
-                        <button
-                          key={i}
-                          onClick={() => handlePlaceSelect(p)}
-                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition-all hover:bg-primary/10"
-                        >
+                        <button key={i} onClick={() => handlePlaceSelect(p)} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition-all hover:bg-primary/10">
                           <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
                           <span className="font-mono text-[11px] text-foreground truncate">{p.name}</span>
                         </button>
                       ))}
                     </>
                   )}
-                  {searchingPlaces && (
-                    <p className="px-3 py-3 text-center font-mono text-[10px] text-muted-foreground">Searching places...</p>
-                  )}
+                  {searchingPlaces && <p className="px-3 py-3 text-center font-mono text-[10px] text-muted-foreground">Searching places...</p>}
                   {filteredWards.length === 0 && placeResults.length === 0 && !searchingPlaces && wardSearch.trim() && (
                     <p className="px-3 py-4 text-center font-mono text-[10px] text-muted-foreground">No results found</p>
                   )}
                 </div>
               </div>
             ) : (
-              <button
-                onClick={() => setSearchOpen(true)}
-                className="flex items-center gap-2 rounded-full border border-border/50 bg-card/80 px-4 py-2 font-mono text-[11px] text-muted-foreground backdrop-blur-md transition-all hover:text-foreground hover:border-primary/50 hover:bg-card/95"
-              >
+              <button onClick={() => setSearchOpen(true)} className="flex items-center gap-2 rounded-full border border-border/50 bg-card/80 px-4 py-2 font-mono text-[11px] text-muted-foreground backdrop-blur-md transition-all hover:text-foreground hover:border-primary/50">
                 <Search className="h-3.5 w-3.5" /> FIND WARD / PLACE
               </button>
             )}
@@ -511,26 +442,16 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         )}
       </AnimatePresence>
 
-      {/* Map controls - right side */}
+      {/* Map controls */}
       <AnimatePresence>
         {showUI && (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-2"
-          >
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.5 }} className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-2">
             {[
               { icon: ZoomIn, action: () => mapRef.current?.zoomIn(), label: "Zoom in" },
               { icon: ZoomOut, action: () => mapRef.current?.zoomOut(), label: "Zoom out" },
               { icon: Locate, action: resetView, label: "Reset view" },
             ].map(({ icon: Icon, action, label }) => (
-              <button
-                key={label}
-                onClick={action}
-                title={label}
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-border/50 bg-card/80 text-muted-foreground backdrop-blur-md transition-all hover:text-foreground hover:border-primary/50 hover:bg-card/95"
-              >
+              <button key={label} onClick={action} title={label} className="flex h-10 w-10 items-center justify-center rounded-lg border border-border/50 bg-card/80 text-muted-foreground backdrop-blur-md transition-all hover:text-foreground hover:border-primary/50">
                 <Icon className="h-4 w-4" />
               </button>
             ))}
@@ -538,43 +459,26 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         )}
       </AnimatePresence>
 
-      {/* Selected ward info card */}
+      {/* Selected ward card */}
       <AnimatePresence>
         {selectedWard && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.3 }}
-            className="absolute bottom-28 left-4 z-20 w-72"
-          >
+          <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} transition={{ duration: 0.3 }} className="absolute bottom-28 left-4 z-20 w-72">
             <div className="rounded-xl border border-border/50 bg-card/95 backdrop-blur-md p-4 shadow-2xl">
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <h3 className="font-display text-base font-bold text-foreground">{selectedWard.ward_name}</h3>
-                  <p className="font-mono text-[10px] tracking-wider text-muted-foreground">
-                    WARD {selectedWard.ward_no} · {selectedWard.ac_name}
-                  </p>
+                  <p className="font-mono text-[10px] tracking-wider text-muted-foreground">WARD {selectedWard.ward_no} · {selectedWard.ac_name}</p>
                 </div>
-                <button onClick={() => setSelectedWard(null)} className="text-muted-foreground hover:text-foreground">
-                  <X className="h-4 w-4" />
-                </button>
+                <button onClick={() => setSelectedWard(null)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
               </div>
               <div className="flex items-baseline justify-between border-t border-border/30 pt-3">
                 <span className="font-mono text-[10px] tracking-widest text-muted-foreground">AQI</span>
-                <span className="font-display text-3xl font-black" style={{
-                  color: aqiToBorderColor(selectedWard.interpolated_aqi ?? 0).replace("0.7", "1")
-                }}>
-                  {selectedWard.interpolated_aqi ?? "—"}
-                </span>
+                <span className="font-display text-3xl font-black" style={{ color: aqiToColor(selectedWard.interpolated_aqi ?? 0) }}>{selectedWard.interpolated_aqi ?? "—"}</span>
               </div>
               <div className="mt-2 flex items-center justify-between text-muted-foreground">
                 <span className="font-mono text-[9px] tracking-wider">POP: {selectedWard.total_pop?.toLocaleString() || "—"}</span>
               </div>
-              <button
-                onClick={() => onEnterDashboard(selectedWard)}
-                className="mt-3 w-full rounded-lg border border-primary/40 bg-primary/10 py-2 font-mono text-[11px] tracking-[0.15em] text-primary transition-all hover:bg-primary/20 hover:border-primary/70"
-              >
+              <button onClick={() => onEnterDashboard(selectedWard)} className="mt-3 w-full rounded-lg border border-primary/40 bg-primary/10 py-2 font-mono text-[11px] tracking-[0.15em] text-primary transition-all hover:bg-primary/20 hover:border-primary/70">
                 EXPLORE THIS WARD →
               </button>
             </div>
@@ -582,15 +486,10 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         )}
       </AnimatePresence>
 
-      {/* AQI Legend - bottom left */}
+      {/* AQI Legend */}
       <AnimatePresence>
         {showUI && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            className="absolute bottom-6 left-4 z-20"
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.6 }} className="absolute bottom-6 left-4 z-20">
             <div className="flex items-center gap-1 rounded-full border border-border/50 bg-card/80 px-3 py-1.5 backdrop-blur-md">
               {[
                 { color: "#00E5A0", label: "Good" },
@@ -610,19 +509,11 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         )}
       </AnimatePresence>
 
-      {/* Enter Dashboard Button - bottom center */}
+      {/* Enter Dashboard */}
       <AnimatePresence>
         {showUI && (
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20"
-          >
-            <button
-              onClick={() => onEnterDashboard(selectedWard ?? undefined)}
-              className="group flex items-center gap-3 rounded-full border border-primary/40 bg-card/90 px-8 py-3 font-mono text-xs tracking-[0.2em] text-primary backdrop-blur-md transition-all hover:bg-primary/15 hover:border-primary/70 hover:shadow-[0_0_30px_rgba(0,229,160,0.2)]"
-            >
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.8 }} className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+            <button onClick={() => onEnterDashboard(selectedWard ?? undefined)} className="group flex items-center gap-3 rounded-full border border-primary/40 bg-card/90 px-8 py-3 font-mono text-xs tracking-[0.2em] text-primary backdrop-blur-md transition-all hover:bg-primary/15 hover:border-primary/70 hover:shadow-[0_0_30px_rgba(0,229,160,0.2)]">
               <span className="animate-pulse-live">▶</span>
               ENTER DASHBOARD
               <Navigation className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
@@ -631,15 +522,10 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         )}
       </AnimatePresence>
 
-      {/* Ward count indicator */}
+      {/* Hovered ward name */}
       <AnimatePresence>
         {showUI && hoveredWard && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute bottom-6 right-4 z-20"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute bottom-6 right-4 z-20">
             <span className="font-mono text-[10px] tracking-wider text-muted-foreground bg-card/80 backdrop-blur-md border border-border/50 rounded-full px-3 py-1.5">
               {hoveredWard}
             </span>
