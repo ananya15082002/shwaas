@@ -188,7 +188,16 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     };
   }, []);
 
-  // Ward GeoJSON layer
+  // Switch style (satellite / dark)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    setMapLoaded(false);
+    map.setStyle(isSatellite ? SATELLITE_STYLE : DARK_STYLE);
+    map.once("style.load", () => setMapLoaded(true));
+  }, [isSatellite]);
+
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded || !enrichedWards) return;
