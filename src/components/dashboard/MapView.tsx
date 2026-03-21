@@ -183,17 +183,12 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     if (!map.isStyleLoaded()) {
       const onStyleLoad = () => {
         map.off("style.load", onStyleLoad);
-        // Re-trigger this effect by forcing a state update isn't ideal,
-        // so we just call the setup inline after style loads
-        setupWardLayers(map);
+        setMapLoaded((v) => !v); // toggle to re-trigger effect
+        setTimeout(() => setMapLoaded(true), 0);
       };
       map.on("style.load", onStyleLoad);
       return () => { map.off("style.load", onStyleLoad); };
     }
-
-    setupWardLayers(map);
-
-    function setupWardLayers(m: maplibregl.Map) {
 
     // Remove old layers/source
     if (map.getLayer("wards-fill")) map.removeLayer("wards-fill");
@@ -290,7 +285,6 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     map.on("click", "wards-fill", (e) => {
       if (e.features && e.features.length > 0) {
         const p = e.features[0].properties;
-        // Reconstruct centroid from string if needed
         const centroid = typeof p.centroid === "string" ? JSON.parse(p.centroid) : p.centroid;
         onWardSelect?.({ ...p, centroid } as WardFeature["properties"]);
       }
