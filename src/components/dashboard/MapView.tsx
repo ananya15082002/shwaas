@@ -531,7 +531,20 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
           {showHeatmap ? "◼ HEATMAP" : "◻ HEATMAP"}
         </button>
 
-        {/* Ward Search */}
+        {/* Satellite toggle */}
+        <button
+          onClick={() => setIsSatellite((v) => !v)}
+          className="absolute right-3 top-[6.25rem] z-[1000] flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[11px] tracking-wider backdrop-blur-sm transition-all"
+          style={{
+            background: isSatellite ? "rgba(0,150,255,0.15)" : "rgba(255,255,255,0.05)",
+            borderColor: isSatellite ? "rgba(0,150,255,0.5)" : "rgba(255,255,255,0.1)",
+            color: isSatellite ? "#0096FF" : "rgba(255,255,255,0.5)",
+          }}
+        >
+          <Satellite className="h-3 w-3" />
+          {isSatellite ? "◼ SATELLITE" : "◻ SATELLITE"}
+        </button>
+
         {showWards && (
           <div className="absolute left-3 top-3 z-[1000]">
             {searchOpen ? (
