@@ -55,6 +55,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   const [searchingPlaces, setSearchingPlaces] = useState(false);
   const placeSearchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [isSatellite, setIsSatellite] = useState(false);
 
   const { wardsGeoJSON } = useDelhiWards();
 
