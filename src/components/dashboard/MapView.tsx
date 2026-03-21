@@ -179,6 +179,22 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     const map = mapRef.current;
     if (!map || !mapLoaded || !enrichedWards) return;
 
+    // Ensure style is fully loaded before adding sources/layers
+    if (!map.isStyleLoaded()) {
+      const onStyleLoad = () => {
+        map.off("style.load", onStyleLoad);
+        // Re-trigger this effect by forcing a state update isn't ideal,
+        // so we just call the setup inline after style loads
+        setupWardLayers(map);
+      };
+      map.on("style.load", onStyleLoad);
+      return () => { map.off("style.load", onStyleLoad); };
+    }
+
+    setupWardLayers(map);
+
+    function setupWardLayers(m: maplibregl.Map) {
+
     // Remove old layers/source
     if (map.getLayer("wards-fill")) map.removeLayer("wards-fill");
     if (map.getLayer("wards-border")) map.removeLayer("wards-border");
