@@ -197,7 +197,8 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       source: "wards",
       paint: {
         "fill-color": colorExpr as any,
-        "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false], 0.75, 0.55],
+        "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false], 0.9, 0.78],
+        "fill-antialias": true,
       },
     });
 
@@ -207,8 +208,8 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       source: "wards",
       paint: {
         "line-color": colorExpr as any,
-        "line-width": ["case", ["boolean", ["feature-state", "hover"], false], 2.5, 0.8],
-        "line-opacity": 0.85,
+        "line-width": ["case", ["boolean", ["feature-state", "hover"], false], 2.5, 1.2],
+        "line-opacity": 0.9,
       },
     });
 

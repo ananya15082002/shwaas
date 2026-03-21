@@ -208,9 +208,10 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
         "fill-color": colorExpr as any,
         "fill-opacity": [
           "case",
-          ["boolean", ["feature-state", "hover"], false], 0.7,
-          0.55
+          ["boolean", ["feature-state", "hover"], false], 0.9,
+          0.78
         ],
+        "fill-antialias": true,
       },
     });
 
@@ -223,9 +224,9 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
         "line-width": [
           "case",
           ["boolean", ["feature-state", "hover"], false], 2.5,
-          0.8
+          1.2
         ],
-        "line-opacity": 0.8,
+        "line-opacity": 0.9,
       },
     });
 
