@@ -18,6 +18,19 @@ interface FullScreenMapProps {
 const DELHI_CENTER: [number, number] = [77.209, 28.6139];
 const DELHI_BOUNDS: maplibregl.LngLatBoundsLike = [[76.84, 28.40], [77.35, 28.88]];
 const DARK_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
+const SATELLITE_STYLE: maplibregl.StyleSpecification = {
+  version: 8,
+  sources: {
+    "esri-satellite": {
+      type: "raster",
+      tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
+      tileSize: 256,
+      attribution: "© Esri",
+      maxzoom: 18,
+    },
+  },
+  layers: [{ id: "satellite", type: "raster", source: "esri-satellite" }],
+};
 
 function aqiToColor(aqi: number): string {
   if (!aqi || aqi === 0) return "#282D37";
