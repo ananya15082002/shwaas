@@ -481,6 +481,18 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
                 <Icon className="h-4 w-4" />
               </button>
             ))}
+            <button
+              onClick={() => setIsSatellite((v) => !v)}
+              title={isSatellite ? "Dark mode" : "Satellite"}
+              className="flex h-10 w-10 items-center justify-center rounded-lg border backdrop-blur-md transition-all"
+              style={{
+                background: isSatellite ? "rgba(0,150,255,0.15)" : "rgba(4,8,16,0.8)",
+                borderColor: isSatellite ? "rgba(0,150,255,0.5)" : "rgba(255,255,255,0.1)",
+                color: isSatellite ? "#0096FF" : "rgba(255,255,255,0.5)",
+              }}
+            >
+              <Satellite className="h-4 w-4" />
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
