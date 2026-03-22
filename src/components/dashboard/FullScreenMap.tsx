@@ -572,6 +572,75 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
             >
               <Satellite className="h-4 w-4" />
             </button>
+            <button
+              onClick={tourActive ? stopTour : startTour}
+              title={tourActive ? "Stop tour" : "Fly tour: Top 5 polluted"}
+              className="flex h-10 w-10 items-center justify-center rounded-lg border backdrop-blur-md transition-all"
+              style={{
+                background: tourActive ? "rgba(255,61,61,0.15)" : "rgba(4,8,16,0.8)",
+                borderColor: tourActive ? "rgba(255,61,61,0.5)" : "rgba(255,255,255,0.1)",
+                color: tourActive ? "#FF3D3D" : "rgba(255,255,255,0.5)",
+              }}
+            >
+              {tourActive ? <Square className="h-4 w-4" /> : <Plane className="h-4 w-4" />}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Flying Tour HUD */}
+      <AnimatePresence>
+        {tourActive && tourIndex >= 0 && tourIndex < top5Polluted.length && (
+          <motion.div
+            key={`tour-${tourIndex}`}
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 30 }}
+            transition={{ duration: 0.5 }}
+            className="absolute top-20 right-4 z-30 w-64"
+          >
+            <div className="rounded-xl border border-destructive/30 bg-card/95 backdrop-blur-xl p-4 shadow-2xl">
+              <div className="flex items-center gap-2 mb-3">
+                <Plane className="h-3.5 w-3.5 text-destructive animate-pulse" />
+                <span className="font-mono text-[9px] tracking-[0.2em] text-destructive font-bold">
+                  FLYING TOUR · {tourIndex + 1}/{top5Polluted.length}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full font-display text-xs font-black" style={{ background: "rgba(255,61,61,0.15)", color: "#FF3D3D" }}>
+                  #{tourIndex + 1}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-display text-sm font-bold text-foreground truncate">{top5Polluted[tourIndex].ward_name}</h4>
+                  <p className="font-mono text-[9px] text-muted-foreground">Ward {top5Polluted[tourIndex].ward_no} · {top5Polluted[tourIndex].ac_name}</p>
+                </div>
+              </div>
+              <div className="flex items-baseline justify-between border-t border-border/30 pt-2 mt-2">
+                <div>
+                  <span className="font-mono text-[9px] tracking-widest text-muted-foreground">AQI</span>
+                  <span className="ml-2 font-mono text-[9px] text-muted-foreground">{getAQICategory(top5Polluted[tourIndex].interpolated_aqi ?? 0)}</span>
+                </div>
+                <span className="font-display text-2xl font-black" style={{ color: aqiToColor(top5Polluted[tourIndex].interpolated_aqi ?? 0) }}>
+                  {top5Polluted[tourIndex].interpolated_aqi ?? "—"}
+                </span>
+              </div>
+              <div className="mt-2 font-mono text-[9px] text-muted-foreground">
+                Pop: {top5Polluted[tourIndex].total_pop?.toLocaleString() || "—"}
+              </div>
+              {/* Progress dots */}
+              <div className="flex items-center justify-center gap-1.5 mt-3">
+                {top5Polluted.map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-1.5 rounded-full transition-all duration-500"
+                    style={{
+                      width: i === tourIndex ? 16 : 6,
+                      background: i === tourIndex ? "#FF3D3D" : i < tourIndex ? "rgba(255,61,61,0.4)" : "rgba(255,255,255,0.15)",
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
