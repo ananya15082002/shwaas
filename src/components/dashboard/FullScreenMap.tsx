@@ -77,6 +77,52 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     return enrichedWards.features.map((f) => f.properties);
   }, [enrichedWards]);
 
+  const top5Polluted = useMemo(() => {
+    return [...wardList]
+      .filter((w) => (w.interpolated_aqi ?? 0) > 0)
+      .sort((a, b) => (b.interpolated_aqi ?? 0) - (a.interpolated_aqi ?? 0))
+      .slice(0, 5);
+  }, [wardList]);
+
+  // Flying tour logic
+  const startTour = useCallback(() => {
+    if (top5Polluted.length === 0) return;
+    setTourActive(true);
+    setTourIndex(0);
+  }, [top5Polluted]);
+
+  const stopTour = useCallback(() => {
+    setTourActive(false);
+    setTourIndex(-1);
+    if (tourTimerRef.current) clearTimeout(tourTimerRef.current);
+    tourTimerRef.current = null;
+    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 11, pitch: 50, bearing: -10, duration: 1500 });
+  }, []);
+
+  useEffect(() => {
+    if (!tourActive || tourIndex < 0 || tourIndex >= top5Polluted.length) {
+      if (tourActive && tourIndex >= top5Polluted.length) stopTour();
+      return;
+    }
+    const map = mapRef.current;
+    if (!map) return;
+    const ward = top5Polluted[tourIndex];
+    const [cLon, cLat] = ward.centroid;
+    setSelectedWard(ward);
+    map.flyTo({
+      center: [cLon, cLat],
+      zoom: 14.5,
+      pitch: 60,
+      bearing: -20 + tourIndex * 15,
+      duration: 2500,
+      essential: true,
+    });
+    tourTimerRef.current = setTimeout(() => {
+      setTourIndex((i) => i + 1);
+    }, 5000);
+    return () => { if (tourTimerRef.current) clearTimeout(tourTimerRef.current); };
+  }, [tourActive, tourIndex, top5Polluted, stopTour]);
+
   const filteredWards = useMemo(() => {
     if (!wardSearch.trim()) return wardList.slice(0, 10);
     const q = wardSearch.toLowerCase();
