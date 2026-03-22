@@ -320,7 +320,6 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
-    if (!map.isStyleLoaded()) return;
 
     if (map.getLayer("szones-fill")) map.removeLayer("szones-fill");
     if (map.getLayer("szones-border")) map.removeLayer("szones-border");
