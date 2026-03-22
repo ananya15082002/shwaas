@@ -198,7 +198,38 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   }, [isSatellite]);
 
 
+  // Add 3D buildings layer (dark mode only)
   useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded || isSatellite) return;
+    if (!map.isStyleLoaded()) return;
+
+    if (map.getLayer("3d-buildings")) map.removeLayer("3d-buildings");
+    if (!map.getSource("openmaptiles")) return;
+
+    const layers = map.getStyle().layers || [];
+    const labelLayer = layers.find((l: any) => l.type === "symbol" && l.layout?.["text-field"]);
+
+    map.addLayer({
+      id: "3d-buildings",
+      source: "openmaptiles",
+      "source-layer": "building",
+      type: "fill-extrusion",
+      minzoom: 13,
+      paint: {
+        "fill-extrusion-color": "hsl(220, 15%, 18%)",
+        "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 13, 0, 16, ["get", "render_height"]],
+        "fill-extrusion-base": ["interpolate", ["linear"], ["zoom"], 13, 0, 16, ["get", "render_min_height"]],
+        "fill-extrusion-opacity": 0.6,
+      },
+    }, labelLayer?.id);
+
+    return () => {
+      if (map.getLayer("3d-buildings")) map.removeLayer("3d-buildings");
+    };
+  }, [mapLoaded, isSatellite]);
+
+
     const map = mapRef.current;
     if (!map || !mapLoaded || !enrichedWards) return;
     if (!map.isStyleLoaded()) return;
