@@ -234,17 +234,6 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     const map = mapRef.current;
     if (!map || !mapLoaded || !enrichedWards) return;
 
-    // Ensure style is fully loaded before adding sources/layers
-    if (!map.isStyleLoaded()) {
-      const onStyleLoad = () => {
-        map.off("style.load", onStyleLoad);
-        setMapLoaded((v) => !v); // toggle to re-trigger effect
-        setTimeout(() => setMapLoaded(true), 0);
-      };
-      map.on("style.load", onStyleLoad);
-      return () => { map.off("style.load", onStyleLoad); };
-    }
-
     // Remove old layers/source
     if (map.getLayer("wards-fill")) map.removeLayer("wards-fill");
     if (map.getLayer("wards-border")) map.removeLayer("wards-border");
@@ -350,7 +339,6 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded || !showWards) return;
-    if (!map.isStyleLoaded()) return;
 
     if (map.getLayer("special-zones-fill")) map.removeLayer("special-zones-fill");
     if (map.getLayer("special-zones-border")) map.removeLayer("special-zones-border");
@@ -430,7 +418,6 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
-    if (!map.isStyleLoaded()) return;
 
     if (map.getLayer("aqi-heatmap")) map.removeLayer("aqi-heatmap");
     if (map.getSource("heatmap-data")) map.removeSource("heatmap-data");
