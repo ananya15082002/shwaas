@@ -418,7 +418,6 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
-    if (!map.isStyleLoaded()) return;
 
     if (map.getLayer("aqi-heatmap")) map.removeLayer("aqi-heatmap");
     if (map.getSource("heatmap-data")) map.removeSource("heatmap-data");
