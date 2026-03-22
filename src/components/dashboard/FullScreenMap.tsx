@@ -233,7 +233,6 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded || !enrichedWards) return;
-    if (!map.isStyleLoaded()) return;
 
     if (map.getLayer("wards-fill")) map.removeLayer("wards-fill");
     if (map.getLayer("wards-border")) map.removeLayer("wards-border");
