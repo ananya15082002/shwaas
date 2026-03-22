@@ -18,7 +18,7 @@ interface MapViewProps {
 }
 
 const DELHI_CENTER: [number, number] = [77.209, 28.6139]; // [lng, lat] for maplibre
-const DELHI_BOUNDS: maplibregl.LngLatBoundsLike = [[76.84, 28.40], [77.35, 28.88]];
+const DELHI_BOUNDS: maplibregl.LngLatBoundsLike = [[76.7, 28.30], [77.5, 28.95]];
 
 const DARK_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 const SATELLITE_STYLE: maplibregl.StyleSpecification = {
@@ -162,7 +162,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
       style: DARK_STYLE,
       center: DELHI_CENTER,
       zoom: 10.5,
-      minZoom: 10,
+      minZoom: 9,
       maxBounds: DELHI_BOUNDS,
       attributionControl: false,
       pitch: 45,
@@ -196,6 +196,38 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     map.setStyle(isSatellite ? SATELLITE_STYLE : DARK_STYLE);
     map.once("style.load", () => setMapLoaded(true));
   }, [isSatellite]);
+
+
+  // Add 3D buildings layer (dark mode only)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded || isSatellite) return;
+    if (!map.isStyleLoaded()) return;
+
+    if (map.getLayer("3d-buildings")) map.removeLayer("3d-buildings");
+    if (!map.getSource("openmaptiles")) return;
+
+    const layers = map.getStyle().layers || [];
+    const labelLayer = layers.find((l: any) => l.type === "symbol" && l.layout?.["text-field"]);
+
+    map.addLayer({
+      id: "3d-buildings",
+      source: "openmaptiles",
+      "source-layer": "building",
+      type: "fill-extrusion",
+      minzoom: 13,
+      paint: {
+        "fill-extrusion-color": "hsl(220, 15%, 18%)",
+        "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 13, 0, 16, ["get", "render_height"]],
+        "fill-extrusion-base": ["interpolate", ["linear"], ["zoom"], 13, 0, 16, ["get", "render_min_height"]],
+        "fill-extrusion-opacity": 0.6,
+      },
+    }, labelLayer?.id);
+
+    return () => {
+      if (map.getLayer("3d-buildings")) map.removeLayer("3d-buildings");
+    };
+  }, [mapLoaded, isSatellite]);
 
 
   useEffect(() => {
