@@ -16,7 +16,7 @@ interface FullScreenMapProps {
 }
 
 const DELHI_CENTER: [number, number] = [77.209, 28.6139];
-const DELHI_BOUNDS: maplibregl.LngLatBoundsLike = [[76.84, 28.40], [77.35, 28.88]];
+const DELHI_BOUNDS: maplibregl.LngLatBoundsLike = [[76.7, 28.30], [77.5, 28.95]];
 const DARK_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 const SATELLITE_STYLE: maplibregl.StyleSpecification = {
   version: 8,
