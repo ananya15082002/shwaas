@@ -2,10 +2,10 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, Navigation, ZoomIn, ZoomOut, Locate, MapPin, Satellite } from "lucide-react";
+import { Search, X, Navigation, ZoomIn, ZoomOut, Locate, MapPin, Satellite, Plane, Square } from "lucide-react";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
-import { assignAQIToWards, aqiToBorderColor } from "@/lib/wardAqi";
+import { assignAQIToWards, aqiToBorderColor, getAQICategory } from "@/lib/wardAqi";
 import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
 import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
 
