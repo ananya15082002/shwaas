@@ -230,6 +230,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   }, [mapLoaded, isSatellite]);
 
 
+  useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded || !enrichedWards) return;
     if (!map.isStyleLoaded()) return;

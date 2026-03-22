@@ -230,6 +230,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   }, [mapLoaded, isSatellite]);
 
 
+  useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded || !enrichedWards) return;
 
