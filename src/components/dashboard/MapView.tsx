@@ -339,7 +339,6 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded || !showWards) return;
-    if (!map.isStyleLoaded()) return;
 
     if (map.getLayer("special-zones-fill")) map.removeLayer("special-zones-fill");
     if (map.getLayer("special-zones-border")) map.removeLayer("special-zones-border");
