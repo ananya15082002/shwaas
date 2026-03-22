@@ -162,7 +162,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
       style: DARK_STYLE,
       center: DELHI_CENTER,
       zoom: 10.5,
-      minZoom: 10,
+      minZoom: 9,
       maxBounds: DELHI_BOUNDS,
       attributionControl: false,
       pitch: 45,

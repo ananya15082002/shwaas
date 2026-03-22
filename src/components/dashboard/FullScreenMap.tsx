@@ -157,7 +157,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       style: DARK_STYLE,
       center: DELHI_CENTER,
       zoom: 9,
-      minZoom: 10,
+      minZoom: 9,
       maxZoom: 16,
       maxBounds: DELHI_BOUNDS,
       attributionControl: false,
