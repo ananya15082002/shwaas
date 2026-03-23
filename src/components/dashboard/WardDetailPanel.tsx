@@ -44,6 +44,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
     summary?: string;
     health_risk?: string;
     pollution_source?: string;
+    source_type?: string;
     source_icon?: string;
     confidence?: number;
     trend?: string;
@@ -54,9 +55,11 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
     admin_action?: string;
     citizen_tip?: string;
     local_insight?: string;
+    seasonal_factor?: string;
     anomaly?: boolean;
     anomaly_detail?: string;
     pm25_status?: string;
+    predicted_next_hours?: string;
   } | null;
 
   const TrendIcon = ai?.trend === "RISING" ? TrendingUp : ai?.trend === "FALLING" ? TrendingDown : Minus;
