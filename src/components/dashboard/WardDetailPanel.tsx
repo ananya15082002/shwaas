@@ -102,6 +102,41 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
           </div>
         </div>
 
+        {/* Highlighted Pollution Source Badge */}
+        {ai?.source_icon && ai?.pollution_source && !aiLoading && (
+          <div className="flex items-center gap-3 rounded-xl border-2 p-3 animate-pulse-subtle" style={{
+            borderColor: `${displayLevel.color}60`,
+            background: `linear-gradient(135deg, ${displayLevel.color}10, transparent)`,
+          }}>
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl" style={{
+              background: `${displayLevel.color}20`,
+              boxShadow: `0 0 20px ${displayLevel.color}30`,
+            }}>
+              {ai.source_icon}
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="font-mono text-[8px] uppercase tracking-[0.2em] text-muted-foreground">
+                {lang === "hi" ? "प्रमुख प्रदूषण स्रोत" : "MAJOR POLLUTION SOURCE"}
+              </span>
+              <p className="font-display text-sm font-bold text-foreground leading-tight mt-0.5">{ai.pollution_source}</p>
+              {ai.source_type && (
+                <span className="inline-block mt-1 rounded-full px-2 py-0.5 font-mono text-[8px] uppercase tracking-wider" style={{
+                  background: `${displayLevel.color}15`,
+                  color: displayLevel.color,
+                }}>
+                  {ai.source_type.replace(/_/g, " ")}
+                </span>
+              )}
+            </div>
+            {ai.confidence && (
+              <div className="text-right shrink-0">
+                <span className="font-display text-xl font-black text-primary">{ai.confidence}%</span>
+                <span className="block font-mono text-[7px] text-muted-foreground tracking-wider">{lang === "hi" ? "विश्वास" : "CONF"}</span>
+              </div>
+            )}
+          </div>
+        )}
+
         {liveData && (
           <div className="rounded-lg border border-border bg-secondary/20 p-3">
             <div className="flex items-center gap-1.5 mb-1.5">
