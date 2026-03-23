@@ -337,7 +337,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
         onWardSelect?.({ ...p, centroid } as WardFeature["properties"]);
       }
     });
-  }, [enrichedWards, showWards, mapLoaded, onWardSelect]);
+  }, [enrichedWards, showWards, mapLoaded, isSatellite, onWardSelect]);
 
   // Special zones
   useEffect(() => {
