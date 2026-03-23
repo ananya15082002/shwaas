@@ -219,11 +219,11 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
 
     map.on("load", () => {
       setMapLoaded(true);
-      // Cinematic entrance zoom
+      // Cinematic entrance zoom - show full Delhi first
       map.flyTo({
         center: DELHI_CENTER,
-        zoom: 11,
-        pitch: 50,
+        zoom: 10.5,
+        pitch: 45,
         bearing: -10,
         duration: 3000,
         essential: true,
