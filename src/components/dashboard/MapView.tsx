@@ -188,13 +188,17 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     };
   }, []);
 
-  // Switch style (satellite / dark)
+  // Switch style (satellite / dark) - robust reload
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     setMapLoaded(false);
     map.setStyle(isSatellite ? SATELLITE_STYLE : DARK_STYLE);
-    map.once("style.load", () => setMapLoaded(true));
+    const onStyleLoad = () => {
+      setTimeout(() => setMapLoaded(true), 100);
+    };
+    map.once("style.load", onStyleLoad);
+    return () => { map.off("style.load", onStyleLoad); };
   }, [isSatellite]);
 
 
@@ -333,7 +337,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
         onWardSelect?.({ ...p, centroid } as WardFeature["properties"]);
       }
     });
-  }, [enrichedWards, showWards, mapLoaded, onWardSelect]);
+  }, [enrichedWards, showWards, mapLoaded, isSatellite, onWardSelect]);
 
   // Special zones
   useEffect(() => {

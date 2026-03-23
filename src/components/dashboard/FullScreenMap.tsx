@@ -2,12 +2,13 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, Navigation, ZoomIn, ZoomOut, Locate, MapPin, Satellite, Plane, Square } from "lucide-react";
+import { Search, X, Navigation, ZoomIn, ZoomOut, Locate, MapPin, Satellite, Plane, Square, Factory } from "lucide-react";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
 import { assignAQIToWards, aqiToBorderColor, getAQICategory } from "@/lib/wardAqi";
 import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
 import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
+import { DELHI_POLLUTION_SOURCES, getSourceTypeColor } from "@/lib/delhiPollutionSources";
 
 interface FullScreenMapProps {
   stations: StationData[];
@@ -16,7 +17,7 @@ interface FullScreenMapProps {
 }
 
 const DELHI_CENTER: [number, number] = [77.209, 28.6139];
-const DELHI_BOUNDS: maplibregl.LngLatBoundsLike = [[76.7, 28.30], [77.5, 28.95]];
+const DELHI_BOUNDS: maplibregl.LngLatBoundsLike = [[76.5, 28.15], [77.7, 29.05]];
 const DARK_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 const SATELLITE_STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -56,6 +57,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   const placeSearchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [isSatellite, setIsSatellite] = useState(false);
+  const [showSources, setShowSources] = useState(true);
   const [tourActive, setTourActive] = useState(false);
   const [tourIndex, setTourIndex] = useState(-1);
   const tourTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -205,8 +207,8 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       container: containerRef.current,
       style: DARK_STYLE,
       center: DELHI_CENTER,
-      zoom: 9,
-      minZoom: 9,
+      zoom: 10,
+      minZoom: 8,
       maxZoom: 16,
       maxBounds: DELHI_BOUNDS,
       attributionControl: false,
@@ -217,11 +219,11 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
 
     map.on("load", () => {
       setMapLoaded(true);
-      // Cinematic entrance zoom
+      // Cinematic entrance zoom - show full Delhi first
       map.flyTo({
         center: DELHI_CENTER,
-        zoom: 11,
-        pitch: 50,
+        zoom: 10.5,
+        pitch: 45,
         bearing: -10,
         duration: 3000,
         essential: true,
@@ -237,13 +239,18 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     };
   }, []);
 
-  // Switch style (satellite / dark)
+  // Switch style (satellite / dark) - robust reload
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     setMapLoaded(false);
     map.setStyle(isSatellite ? SATELLITE_STYLE : DARK_STYLE);
-    map.once("style.load", () => setMapLoaded(true));
+    const onStyleLoad = () => {
+      // Small delay to ensure style is fully ready
+      setTimeout(() => setMapLoaded(true), 100);
+    };
+    map.once("style.load", onStyleLoad);
+    return () => { map.off("style.load", onStyleLoad); };
   }, [isSatellite]);
 
 
@@ -363,7 +370,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         onEnterDashboard({ ...p, centroid } as WardFeature["properties"]);
       }
     });
-  }, [enrichedWards, mapLoaded]);
+  }, [enrichedWards, mapLoaded, isSatellite]);
 
   // Special zones
   useEffect(() => {
@@ -449,8 +456,41 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     return () => markers.forEach((m) => m.remove());
   }, [mapLoaded, findNearestWard, onEnterDashboard]);
 
+  // Pollution source markers
+  const pollSourceMarkersRef = useRef<maplibregl.Marker[]>([]);
+  useEffect(() => {
+    const map = mapRef.current;
+    pollSourceMarkersRef.current.forEach((m) => m.remove());
+    pollSourceMarkersRef.current = [];
+    if (!map || !mapLoaded || !showSources) return;
+
+    DELHI_POLLUTION_SOURCES.forEach((src) => {
+      const color = getSourceTypeColor(src.type);
+      const el = document.createElement("div");
+      el.style.cssText = `cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${color}25;border:2px solid ${color};font-size:14px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));transition:transform 0.2s;`;
+      el.textContent = src.emoji;
+      el.title = `${src.name} - ${src.description}`;
+      el.addEventListener("mouseenter", () => { el.style.transform = "scale(1.3)"; });
+      el.addEventListener("mouseleave", () => { el.style.transform = "scale(1)"; });
+      el.addEventListener("click", () => {
+        const nearest = findNearestWard(src.lat, src.lon);
+        if (nearest) {
+          setSelectedWard(nearest);
+          map.flyTo({ center: [src.lon, src.lat], zoom: 14, duration: 1200 });
+        }
+      });
+      const m = new maplibregl.Marker({ element: el }).setLngLat([src.lon, src.lat]).addTo(map);
+      pollSourceMarkersRef.current.push(m);
+    });
+
+    return () => {
+      pollSourceMarkersRef.current.forEach((m) => m.remove());
+      pollSourceMarkersRef.current = [];
+    };
+  }, [mapLoaded, showSources, findNearestWard]);
+
   const resetView = () => {
-    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 11, pitch: 50, bearing: -10, duration: 1500 });
+    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10.5, pitch: 45, bearing: -10, duration: 1500 });
     setSelectedWard(null);
   };
 
@@ -571,6 +611,18 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
               }}
             >
               <Satellite className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setShowSources((v) => !v)}
+              title={showSources ? "Hide pollution sources" : "Show pollution sources"}
+              className="flex h-10 w-10 items-center justify-center rounded-lg border backdrop-blur-md transition-all"
+              style={{
+                background: showSources ? "rgba(255,107,53,0.15)" : "rgba(4,8,16,0.8)",
+                borderColor: showSources ? "rgba(255,107,53,0.5)" : "rgba(255,255,255,0.1)",
+                color: showSources ? "#FF6B35" : "rgba(255,255,255,0.5)",
+              }}
+            >
+              <Factory className="h-4 w-4" />
             </button>
             <button
               onClick={tourActive ? stopTour : startTour}

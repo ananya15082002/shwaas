@@ -44,6 +44,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
     summary?: string;
     health_risk?: string;
     pollution_source?: string;
+    source_type?: string;
     source_icon?: string;
     confidence?: number;
     trend?: string;
@@ -54,9 +55,11 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
     admin_action?: string;
     citizen_tip?: string;
     local_insight?: string;
+    seasonal_factor?: string;
     anomaly?: boolean;
     anomaly_detail?: string;
     pm25_status?: string;
+    predicted_next_hours?: string;
   } | null;
 
   const TrendIcon = ai?.trend === "RISING" ? TrendingUp : ai?.trend === "FALLING" ? TrendingDown : Minus;
@@ -98,6 +101,41 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
             </button>
           </div>
         </div>
+
+        {/* Highlighted Pollution Source Badge */}
+        {ai?.source_icon && ai?.pollution_source && !aiLoading && (
+          <div className="flex items-center gap-3 rounded-xl border-2 p-3 animate-pulse-subtle" style={{
+            borderColor: `${displayLevel.color}60`,
+            background: `linear-gradient(135deg, ${displayLevel.color}10, transparent)`,
+          }}>
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl" style={{
+              background: `${displayLevel.color}20`,
+              boxShadow: `0 0 20px ${displayLevel.color}30`,
+            }}>
+              {ai.source_icon}
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="font-mono text-[8px] uppercase tracking-[0.2em] text-muted-foreground">
+                {lang === "hi" ? "प्रमुख प्रदूषण स्रोत" : "MAJOR POLLUTION SOURCE"}
+              </span>
+              <p className="font-display text-sm font-bold text-foreground leading-tight mt-0.5">{ai.pollution_source}</p>
+              {ai.source_type && (
+                <span className="inline-block mt-1 rounded-full px-2 py-0.5 font-mono text-[8px] uppercase tracking-wider" style={{
+                  background: `${displayLevel.color}15`,
+                  color: displayLevel.color,
+                }}>
+                  {ai.source_type.replace(/_/g, " ")}
+                </span>
+              )}
+            </div>
+            {ai.confidence && (
+              <div className="text-right shrink-0">
+                <span className="font-display text-xl font-black text-primary">{ai.confidence}%</span>
+                <span className="block font-mono text-[7px] text-muted-foreground tracking-wider">{lang === "hi" ? "विश्वास" : "CONF"}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {liveData && (
           <div className="rounded-lg border border-border bg-secondary/20 p-3">
@@ -164,20 +202,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
             <p className="mt-2 font-mono text-xs text-destructive">{aiError}</p>
           ) : ai ? (
             <div className="mt-3 space-y-3">
-              {ai.pollution_source && (
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="font-mono text-[9px] text-muted-foreground">{t("ward.primarySource")}</span>
-                    <p className="font-mono text-xs font-bold text-foreground">{ai.source_icon} {ai.pollution_source}</p>
-                  </div>
-                  {ai.confidence && (
-                    <div className="text-right">
-                      <span className="font-mono text-[9px] text-muted-foreground">{t("ward.confidence")}</span>
-                      <p className="font-display text-sm font-bold text-primary">{ai.confidence}%</p>
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* Source already shown in highlighted badge above */}
 
               {ai.summary && <p className="font-body text-sm leading-relaxed text-foreground">{ai.summary}</p>}
 
@@ -259,6 +284,26 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
                       <li key={i} className="rounded border border-border bg-secondary/30 px-2.5 py-1.5 font-body text-xs text-secondary-foreground">{r}</li>
                     ))}
                   </ul>
+                </div>
+              )}
+
+              {ai.seasonal_factor && (
+                <div className="rounded-md border border-primary/20 bg-primary/5 p-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">🌿</span>
+                    <span className="font-mono text-[9px] text-muted-foreground">{lang === "hi" ? "मौसमी कारक" : "SEASONAL FACTOR"}</span>
+                  </div>
+                  <p className="mt-1 font-body text-xs text-muted-foreground">{ai.seasonal_factor}</p>
+                </div>
+              )}
+
+              {ai.predicted_next_hours && (
+                <div className="rounded-md border border-accent/20 bg-accent/5 p-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">⏱️</span>
+                    <span className="font-mono text-[9px] text-muted-foreground">{lang === "hi" ? "अगले 4-6 घंटे" : "NEXT 4-6 HRS PREDICTION"}</span>
+                  </div>
+                  <p className="mt-1 font-body text-xs text-muted-foreground">{ai.predicted_next_hours}</p>
                 </div>
               )}
 
