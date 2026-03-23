@@ -202,20 +202,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
             <p className="mt-2 font-mono text-xs text-destructive">{aiError}</p>
           ) : ai ? (
             <div className="mt-3 space-y-3">
-              {ai.pollution_source && (
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="font-mono text-[9px] text-muted-foreground">{t("ward.primarySource")}</span>
-                    <p className="font-mono text-xs font-bold text-foreground">{ai.source_icon} {ai.pollution_source}</p>
-                  </div>
-                  {ai.confidence && (
-                    <div className="text-right">
-                      <span className="font-mono text-[9px] text-muted-foreground">{t("ward.confidence")}</span>
-                      <p className="font-display text-sm font-bold text-primary">{ai.confidence}%</p>
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* Source already shown in highlighted badge above */}
 
               {ai.summary && <p className="font-body text-sm leading-relaxed text-foreground">{ai.summary}</p>}
 
