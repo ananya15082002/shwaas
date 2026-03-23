@@ -456,6 +456,39 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     return () => markers.forEach((m) => m.remove());
   }, [mapLoaded, findNearestWard, onEnterDashboard]);
 
+  // Pollution source markers
+  const pollSourceMarkersRef = useRef<maplibregl.Marker[]>([]);
+  useEffect(() => {
+    const map = mapRef.current;
+    pollSourceMarkersRef.current.forEach((m) => m.remove());
+    pollSourceMarkersRef.current = [];
+    if (!map || !mapLoaded || !showSources) return;
+
+    DELHI_POLLUTION_SOURCES.forEach((src) => {
+      const color = getSourceTypeColor(src.type);
+      const el = document.createElement("div");
+      el.style.cssText = `cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${color}25;border:2px solid ${color};font-size:14px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));transition:transform 0.2s;`;
+      el.textContent = src.emoji;
+      el.title = `${src.name} - ${src.description}`;
+      el.addEventListener("mouseenter", () => { el.style.transform = "scale(1.3)"; });
+      el.addEventListener("mouseleave", () => { el.style.transform = "scale(1)"; });
+      el.addEventListener("click", () => {
+        const nearest = findNearestWard(src.lat, src.lon);
+        if (nearest) {
+          setSelectedWard(nearest);
+          map.flyTo({ center: [src.lon, src.lat], zoom: 14, duration: 1200 });
+        }
+      });
+      const m = new maplibregl.Marker({ element: el }).setLngLat([src.lon, src.lat]).addTo(map);
+      pollSourceMarkersRef.current.push(m);
+    });
+
+    return () => {
+      pollSourceMarkersRef.current.forEach((m) => m.remove());
+      pollSourceMarkersRef.current = [];
+    };
+  }, [mapLoaded, showSources, findNearestWard]);
+
   const resetView = () => {
     mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 11, pitch: 50, bearing: -10, duration: 1500 });
     setSelectedWard(null);
