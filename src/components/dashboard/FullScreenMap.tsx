@@ -490,7 +490,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   }, [mapLoaded, showSources, findNearestWard]);
 
   const resetView = () => {
-    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 11, pitch: 50, bearing: -10, duration: 1500 });
+    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10.5, pitch: 45, bearing: -10, duration: 1500 });
     setSelectedWard(null);
   };
 
