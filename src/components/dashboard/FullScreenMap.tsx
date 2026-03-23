@@ -613,6 +613,18 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
               <Satellite className="h-4 w-4" />
             </button>
             <button
+              onClick={() => setShowSources((v) => !v)}
+              title={showSources ? "Hide pollution sources" : "Show pollution sources"}
+              className="flex h-10 w-10 items-center justify-center rounded-lg border backdrop-blur-md transition-all"
+              style={{
+                background: showSources ? "rgba(255,107,53,0.15)" : "rgba(4,8,16,0.8)",
+                borderColor: showSources ? "rgba(255,107,53,0.5)" : "rgba(255,255,255,0.1)",
+                color: showSources ? "#FF6B35" : "rgba(255,255,255,0.5)",
+              }}
+            >
+              <Factory className="h-4 w-4" />
+            </button>
+            <button
               onClick={tourActive ? stopTour : startTour}
               title={tourActive ? "Stop tour" : "Fly tour: Top 5 polluted"}
               className="flex h-10 w-10 items-center justify-center rounded-lg border backdrop-blur-md transition-all"
