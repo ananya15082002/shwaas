@@ -239,13 +239,18 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     };
   }, []);
 
-  // Switch style (satellite / dark)
+  // Switch style (satellite / dark) - robust reload
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     setMapLoaded(false);
     map.setStyle(isSatellite ? SATELLITE_STYLE : DARK_STYLE);
-    map.once("style.load", () => setMapLoaded(true));
+    const onStyleLoad = () => {
+      // Small delay to ensure style is fully ready
+      setTimeout(() => setMapLoaded(true), 100);
+    };
+    map.once("style.load", onStyleLoad);
+    return () => { map.off("style.load", onStyleLoad); };
   }, [isSatellite]);
 
 
