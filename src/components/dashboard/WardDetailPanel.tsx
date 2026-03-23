@@ -300,6 +300,26 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
                 </div>
               )}
 
+              {ai.seasonal_factor && (
+                <div className="rounded-md border border-primary/20 bg-primary/5 p-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">🌿</span>
+                    <span className="font-mono text-[9px] text-muted-foreground">{lang === "hi" ? "मौसमी कारक" : "SEASONAL FACTOR"}</span>
+                  </div>
+                  <p className="mt-1 font-body text-xs text-muted-foreground">{ai.seasonal_factor}</p>
+                </div>
+              )}
+
+              {ai.predicted_next_hours && (
+                <div className="rounded-md border border-accent/20 bg-accent/5 p-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">⏱️</span>
+                    <span className="font-mono text-[9px] text-muted-foreground">{lang === "hi" ? "अगले 4-6 घंटे" : "NEXT 4-6 HRS PREDICTION"}</span>
+                  </div>
+                  <p className="mt-1 font-body text-xs text-muted-foreground">{ai.predicted_next_hours}</p>
+                </div>
+              )}
+
               {ai.local_insight && (
                 <div className="rounded-md border border-border bg-secondary/30 p-2.5">
                   <div className="flex items-center gap-1.5">
