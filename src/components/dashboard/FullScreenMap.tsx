@@ -370,7 +370,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         onEnterDashboard({ ...p, centroid } as WardFeature["properties"]);
       }
     });
-  }, [enrichedWards, mapLoaded]);
+  }, [enrichedWards, mapLoaded, isSatellite]);
 
   // Special zones
   useEffect(() => {
