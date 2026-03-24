@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, Navigation, ZoomIn, ZoomOut, Locate, MapPin, Satellite, Plane, Square, Factory } from "lucide-react";
+import { Search, X, Navigation, ZoomIn, ZoomOut, Locate, MapPin, Plane, Square, Factory } from "lucide-react";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
 import { assignAQIToWards, aqiToBorderColor, getAQICategory } from "@/lib/wardAqi";
@@ -19,19 +19,6 @@ interface FullScreenMapProps {
 const DELHI_CENTER: [number, number] = [77.209, 28.6139];
 const DELHI_BOUNDS: maplibregl.LngLatBoundsLike = [[76.5, 28.15], [77.7, 29.05]];
 const DARK_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
-const SATELLITE_STYLE: maplibregl.StyleSpecification = {
-  version: 8,
-  sources: {
-    "esri-satellite": {
-      type: "raster",
-      tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
-      tileSize: 256,
-      attribution: "© Esri",
-      maxzoom: 18,
-    },
-  },
-  layers: [{ id: "satellite", type: "raster", source: "esri-satellite" }],
-};
 
 function aqiToColor(aqi: number): string {
   if (!aqi || aqi === 0) return "#282D37";
@@ -56,8 +43,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   const [searchingPlaces, setSearchingPlaces] = useState(false);
   const placeSearchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [isSatellite, setIsSatellite] = useState(false);
-  const [showSources, setShowSources] = useState(true);
+const [showSources, setShowSources] = useState(true);
   const [tourActive, setTourActive] = useState(false);
   const [tourIndex, setTourIndex] = useState(-1);
   const tourTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -239,25 +225,10 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     };
   }, []);
 
-  // Switch style (satellite / dark) - robust reload
+  // Add 3D buildings layer
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
-    setMapLoaded(false);
-    map.setStyle(isSatellite ? SATELLITE_STYLE : DARK_STYLE);
-    const onStyleLoad = () => {
-      // Small delay to ensure style is fully ready
-      setTimeout(() => setMapLoaded(true), 100);
-    };
-    map.once("style.load", onStyleLoad);
-    return () => { map.off("style.load", onStyleLoad); };
-  }, [isSatellite]);
-
-
-  // Add 3D buildings layer (dark mode only)
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !mapLoaded || isSatellite) return;
+    if (!map || !mapLoaded) return;
     if (!map.isStyleLoaded()) return;
 
     if (map.getLayer("3d-buildings")) map.removeLayer("3d-buildings");
@@ -283,7 +254,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     return () => {
       if (map.getLayer("3d-buildings")) map.removeLayer("3d-buildings");
     };
-  }, [mapLoaded, isSatellite]);
+  }, [mapLoaded]);
 
 
   useEffect(() => {
@@ -370,7 +341,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         onEnterDashboard({ ...p, centroid } as WardFeature["properties"]);
       }
     });
-  }, [enrichedWards, mapLoaded, isSatellite]);
+  }, [enrichedWards, mapLoaded]);
 
   // Special zones
   useEffect(() => {
@@ -600,19 +571,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
                 <Icon className="h-4 w-4" />
               </button>
             ))}
-            <button
-              onClick={() => setIsSatellite((v) => !v)}
-              title={isSatellite ? "Dark mode" : "Satellite"}
-              className="flex h-10 w-10 items-center justify-center rounded-lg border backdrop-blur-md transition-all"
-              style={{
-                background: isSatellite ? "rgba(0,150,255,0.15)" : "rgba(4,8,16,0.8)",
-                borderColor: isSatellite ? "rgba(0,150,255,0.5)" : "rgba(255,255,255,0.1)",
-                color: isSatellite ? "#0096FF" : "rgba(255,255,255,0.5)",
-              }}
-            >
-              <Satellite className="h-4 w-4" />
-            </button>
-            <button
+<button
               onClick={() => setShowSources((v) => !v)}
               title={showSources ? "Hide pollution sources" : "Show pollution sources"}
               className="flex h-10 w-10 items-center justify-center rounded-lg border backdrop-blur-md transition-all"

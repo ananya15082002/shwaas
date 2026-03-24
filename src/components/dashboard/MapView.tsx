@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Search, X, Flame, MapPin, Satellite } from "lucide-react";
+import { Search, X, Flame, MapPin } from "lucide-react";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
 import { assignAQIToWards, aqiToFillColor, aqiToBorderColor } from "@/lib/wardAqi";
@@ -21,19 +21,6 @@ const DELHI_CENTER: [number, number] = [77.209, 28.6139]; // [lng, lat] for mapl
 const DELHI_BOUNDS: maplibregl.LngLatBoundsLike = [[76.7, 28.30], [77.5, 28.95]];
 
 const DARK_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
-const SATELLITE_STYLE: maplibregl.StyleSpecification = {
-  version: 8,
-  sources: {
-    "esri-satellite": {
-      type: "raster",
-      tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
-      tileSize: 256,
-      attribution: "© Esri",
-      maxzoom: 18,
-    },
-  },
-  layers: [{ id: "satellite", type: "raster", source: "esri-satellite" }],
-};
 
 function aqiToColor(aqi: number): string {
   if (!aqi || aqi === 0) return "#282D37";
@@ -55,8 +42,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   const [showWards, setShowWards] = useState(true);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
-  const [isSatellite, setIsSatellite] = useState(false);
-  const [wardSearch, setWardSearch] = useState("");
+const [wardSearch, setWardSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [placeResults, setPlaceResults] = useState<{ name: string; lat: number; lon: number }[]>([]);
   const [searchingPlaces, setSearchingPlaces] = useState(false);
@@ -188,24 +174,10 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     };
   }, []);
 
-  // Switch style (satellite / dark) - robust reload
+  // Add 3D buildings layer
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
-    setMapLoaded(false);
-    map.setStyle(isSatellite ? SATELLITE_STYLE : DARK_STYLE);
-    const onStyleLoad = () => {
-      setTimeout(() => setMapLoaded(true), 100);
-    };
-    map.once("style.load", onStyleLoad);
-    return () => { map.off("style.load", onStyleLoad); };
-  }, [isSatellite]);
-
-
-  // Add 3D buildings layer (dark mode only)
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !mapLoaded || isSatellite) return;
+    if (!map || !mapLoaded) return;
     if (!map.isStyleLoaded()) return;
 
     if (map.getLayer("3d-buildings")) map.removeLayer("3d-buildings");
@@ -231,7 +203,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
     return () => {
       if (map.getLayer("3d-buildings")) map.removeLayer("3d-buildings");
     };
-  }, [mapLoaded, isSatellite]);
+  }, [mapLoaded]);
 
 
   useEffect(() => {
@@ -337,7 +309,7 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
         onWardSelect?.({ ...p, centroid } as WardFeature["properties"]);
       }
     });
-  }, [enrichedWards, showWards, mapLoaded, isSatellite, onWardSelect]);
+  }, [enrichedWards, showWards, mapLoaded, onWardSelect]);
 
   // Special zones
   useEffect(() => {
@@ -554,21 +526,8 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
           {showHeatmap ? "◼ HEATMAP" : "◻ HEATMAP"}
         </button>
 
-        {/* Satellite toggle */}
-        <button
-          onClick={() => setIsSatellite((v) => !v)}
-          className="absolute right-3 top-[6.25rem] z-[1000] flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[11px] tracking-wider backdrop-blur-sm transition-all"
-          style={{
-            background: isSatellite ? "rgba(0,150,255,0.15)" : "rgba(255,255,255,0.05)",
-            borderColor: isSatellite ? "rgba(0,150,255,0.5)" : "rgba(255,255,255,0.1)",
-            color: isSatellite ? "#0096FF" : "rgba(255,255,255,0.5)",
-          }}
-        >
-          <Satellite className="h-3 w-3" />
-          {isSatellite ? "◼ SATELLITE" : "◻ SATELLITE"}
-        </button>
 
-        {showWards && (
+{showWards && (
           <div className="absolute left-3 top-3 z-[1000]">
             {searchOpen ? (
               <div className="w-64 rounded-lg border border-border bg-card/95 backdrop-blur-sm">
