@@ -14,32 +14,38 @@ function getFallbackCards(sourceType: string, aqi: number, lang: "en" | "hi"): A
   const hi = lang === "hi";
   const cards: AdvisoryCard[] = [];
 
-  if (sourceType === "vehicular" || aqi > 150) {
+  // --- Citizen cards ---
+  if (sourceType === "vehicular" || aqi > 100) {
     cards.push(
-      { visual_key: "metro", title: hi ? "मेट्रो लें" : "Take Metro", desc: hi ? "वाहन प्रदूषण अधिक है — आज मेट्रो या बस से जाएं" : "Vehicle emissions are high right now — use metro or DTC bus today", target: "citizen", category: "transport" },
-      { visual_key: "carpool", title: hi ? "कारपूलिंग करें" : "Carpool Today", desc: hi ? "सहकर्मियों के साथ एक गाड़ी — सड़क पर कम गाड़ियाँ" : "Share a ride with colleagues to reduce vehicle count on roads", target: "citizen", category: "transport" },
-      { visual_key: "wfh", title: hi ? "घर से काम करें" : "Work From Home", desc: hi ? "आज ऑफिस आना-जाना टालें अगर संभव हो" : "Skip the commute today if your work allows WFH", target: "citizen", category: "transport" },
-      { visual_key: "odd_even", title: hi ? "ऑड-ईवन लागू करें" : "Odd-Even Scheme", desc: hi ? "प्रमुख सड़कों पर वाहन राशनिंग आज सक्रिय करें" : "Activate odd-even vehicle rationing on major corridors today", target: "govt", category: "transport" },
+      { visual_key: "metro",   title: hi ? "मेट्रो लें"      : "Take Metro",    desc: hi ? "वाहन प्रदूषण अधिक है — आज मेट्रो या बस लें"          : "Vehicle emissions are high — use metro or DTC bus today",          target: "citizen", category: "transport" },
+      { visual_key: "carpool", title: hi ? "कारपूलिंग करें"  : "Carpool Today", desc: hi ? "सहकर्मियों के साथ एक गाड़ी — सड़क पर कम वाहन"         : "Share a ride with colleagues to cut vehicle count on roads",        target: "citizen", category: "transport" },
+      { visual_key: "wfh",     title: hi ? "घर से काम करें"  : "Work From Home", desc: hi ? "आज आना-जाना टालें — WFH प्रदूषण घटाने में मदद करता है" : "Skip the commute if possible — WFH reduces peak-hour emissions",    target: "citizen", category: "transport" },
     );
   }
 
-  if (sourceType === "construction" || sourceType === "dust") {
-    cards.push(
-      { visual_key: "construction_shroud", title: hi ? "निर्माण ढकें" : "Shroud Sites", desc: hi ? "चीन जैसी तकनीक — निर्माण स्थलों को धूल-रोधी जाली से ढकें" : "China-style shrouding — wrap all active construction sites in anti-dust mesh", target: "govt", category: "construction" },
-      { visual_key: "water_spray", title: hi ? "पानी छिड़काव" : "Water Spray", desc: hi ? "एंटी-स्मॉग गन से निर्माण स्थलों और सड़कों पर पानी छिड़कें" : "Deploy anti-smog water guns at construction sites and major roads", target: "govt", category: "construction" },
-    );
-  }
+  // --- Govt cards — always show at least base set ---
+  cards.push(
+    { visual_key: "water_spray",         title: hi ? "पानी का छिड़काव"    : "Deploy Water Spray",     desc: hi ? "सभी प्रमुख सड़कों और निर्माण स्थलों पर एंटी-स्मॉग गन लगाएं"  : "Run anti-smog water sprinklers on major roads and construction sites", target: "govt", category: "construction" },
+    { visual_key: "construction_shroud", title: hi ? "निर्माण स्थल ढकें"  : "Shroud Construction",    desc: hi ? "चीन की तरह — सभी एक्टिव निर्माण स्थलों को धूल-रोधी जाली से ढकें" : "China-style mesh shrouding on all active construction sites",            target: "govt", category: "construction" },
+    { visual_key: "odd_even",            title: hi ? "ऑड-ईवन योजना"       : "Odd-Even Scheme",        desc: hi ? "भीड़ के समय प्रमुख कॉरिडोर पर वाहन राशनिंग लागू करें"           : "Enforce odd-even vehicle rationing on high-traffic corridors",          target: "govt", category: "transport" },
+  );
 
   if (aqi > 200) {
     cards.push(
-      { visual_key: "truck_ban", title: hi ? "ट्रक प्रतिबंध" : "Ban Trucks", desc: hi ? "रात 10 बजे के बाद गैर-जरूरी ट्रकों का प्रवेश बंद करें" : "Ban non-essential trucks from entering Delhi after 10 PM", target: "govt", category: "transport" },
+      { visual_key: "truck_ban", title: hi ? "ट्रक प्रतिबंध" : "Ban Trucks", desc: hi ? "रात 10 बजे के बाद गैर-जरूरी ट्रकों का दिल्ली में प्रवेश बंद करें" : "Ban non-essential trucks from entering Delhi after 10 PM tonight", target: "govt", category: "transport" },
     );
   }
 
-  // Always tree cards
+  if (aqi > 300) {
+    cards.push(
+      { visual_key: "school_closure", title: hi ? "स्कूल बंद करें" : "Close Schools", desc: hi ? "AQI खतरनाक — सभी स्कूल और आउटडोर आयोजन तुरंत बंद करें" : "AQI at hazardous level — close all schools and outdoor events immediately", target: "govt", category: "health" },
+    );
+  }
+
+  // --- Always tree cards (citizen) ---
   cards.push(
-    { visual_key: "tree_peepal", title: hi ? "पीपल लगाएं" : "Plant Peepal", desc: hi ? "दिल्ली का सबसे बड़ा CO₂ अवशोषक — अपनी कॉलोनी में लगाएं" : "Delhi's best CO₂ absorber — plant in your colony or rooftop", target: "citizen", category: "trees" },
-    { visual_key: "tree_neem", title: hi ? "नीम लगाएं" : "Plant Neem", desc: hi ? "प्राकृतिक वायु शोधक — PM कण और धूल को अवशोषित करता है" : "Natural air purifier — absorbs dust particles and reduces PM levels", target: "citizen", category: "trees" },
+    { visual_key: "tree_peepal", title: hi ? "पीपल लगाएं" : "Plant Peepal", desc: hi ? "दिल्ली का सबसे बड़ा CO₂ अवशोषक — कॉलोनी या छत पर लगाएं" : "Delhi's top CO₂ absorber — plant in your colony or on your rooftop", target: "citizen", category: "trees" },
+    { visual_key: "tree_neem",   title: hi ? "नीम लगाएं"  : "Plant Neem",   desc: hi ? "प्राकृतिक वायु शोधक — PM और धूल को अवशोषित करता है"       : "Natural air purifier that absorbs PM particles and dust around it",  target: "citizen", category: "trees" },
   );
 
   return cards;
