@@ -65,7 +65,7 @@ const CATEGORY_COLORS: Record<string, { border: string; bg: string; badge: strin
   waste:        { border: "rgba(107,114,128,0.4)", bg: "rgba(107,114,128,0.06)", badge: "rgba(107,114,128,0.15)" },
 };
 
-function LottieEmbed({ url, emoji }: { url: string; emoji: string }) {
+function LottieEmbed({ url, emoji, category }: { url: string; emoji: string; category: string }) {
   const [animData, setAnimData] = useState<object | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -79,7 +79,7 @@ function LottieEmbed({ url, emoji }: { url: string; emoji: string }) {
   }, [url]);
 
   if (failed || !animData) {
-    return <span className="text-5xl select-none">{emoji}</span>;
+    return <AnimatedEmoji emoji={emoji} category={category} />;
   }
 
   return (
@@ -89,6 +89,45 @@ function LottieEmbed({ url, emoji }: { url: string; emoji: string }) {
       autoplay
       style={{ width: 88, height: 88 }}
     />
+  );
+}
+
+const ANIM_STYLE: Record<string, React.CSSProperties> = {
+  trees: {
+    animation: "floatTree 3s ease-in-out infinite",
+    filter: "drop-shadow(0 4px 12px rgba(34,197,94,0.5))",
+  },
+  transport: {
+    animation: "floatCard 2.5s ease-in-out infinite",
+    filter: "drop-shadow(0 4px 12px rgba(59,130,246,0.4))",
+  },
+  construction: {
+    animation: "floatCard 2.8s ease-in-out infinite",
+    filter: "drop-shadow(0 4px 12px rgba(245,158,11,0.4))",
+  },
+  health: {
+    animation: "floatCard 2s ease-in-out infinite",
+    filter: "drop-shadow(0 4px 12px rgba(239,68,68,0.4))",
+  },
+};
+
+function AnimatedEmoji({ emoji, category }: { emoji: string; category: string }) {
+  const style = ANIM_STYLE[category] ?? ANIM_STYLE.transport;
+  return (
+    <>
+      <style>{`
+        @keyframes floatTree {
+          0%, 100% { transform: translateY(0px) scale(1); }
+          33% { transform: translateY(-6px) scale(1.05) rotate(-2deg); }
+          66% { transform: translateY(-3px) scale(1.02) rotate(2deg); }
+        }
+        @keyframes floatCard {
+          0%, 100% { transform: translateY(0px) scale(1); }
+          50% { transform: translateY(-5px) scale(1.06); }
+        }
+      `}</style>
+      <span className="text-5xl select-none" style={style}>{emoji}</span>
+    </>
   );
 }
 
@@ -106,11 +145,15 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
       {/* Animation / Emoji area */}
       <div
         className="flex items-center justify-center h-28 w-full relative"
-        style={{ background: `linear-gradient(135deg, ${colors.bg}, rgba(0,0,0,0.3))` }}
+        style={{
+          background: card.category === "trees"
+            ? "linear-gradient(135deg, rgba(34,197,94,0.18), rgba(16,185,129,0.08), rgba(0,0,0,0.4))"
+            : `linear-gradient(135deg, ${colors.bg}, rgba(0,0,0,0.3))`,
+        }}
       >
         {lottieUrl
-          ? <LottieEmbed url={lottieUrl} emoji={emoji} />
-          : <span className="text-5xl select-none">{emoji}</span>
+          ? <LottieEmbed url={lottieUrl} emoji={emoji} category={card.category} />
+          : <AnimatedEmoji emoji={emoji} category={card.category} />
         }
 
         {/* target badge */}
