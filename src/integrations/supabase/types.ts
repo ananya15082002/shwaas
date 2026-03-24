@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_analysis_cache: {
+        Row: {
+          analysis: Json
+          aqi_value: number | null
+          cache_key: string
+          created_at: string
+          expires_at: string
+          id: string
+          mode: string
+          ward_name: string | null
+          ward_no: number | null
+        }
+        Insert: {
+          analysis: Json
+          aqi_value?: number | null
+          cache_key: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          mode?: string
+          ward_name?: string | null
+          ward_no?: number | null
+        }
+        Update: {
+          analysis?: Json
+          aqi_value?: number | null
+          cache_key?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          mode?: string
+          ward_name?: string | null
+          ward_no?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
