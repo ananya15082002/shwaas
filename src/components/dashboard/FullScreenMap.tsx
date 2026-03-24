@@ -491,16 +491,16 @@ const [showSources, setShowSources] = useState(true);
       {/* Header */}
       <AnimatePresence>
         {showUI && (
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="absolute top-0 inset-x-0 z-20 flex items-center justify-between px-6 py-4">
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="absolute top-0 inset-x-0 z-20 flex items-center justify-between px-3 py-3 sm:px-6 sm:py-4">
             <div>
-              <h1 className="font-display text-lg font-bold tracking-[0.15em] text-foreground">
+              <h1 className="font-display text-sm font-bold tracking-[0.1em] text-foreground sm:text-lg sm:tracking-[0.15em]">
                 DELHI <span className="text-primary">AIR QUALITY</span>
               </h1>
-              <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground mt-0.5">251 WARDS · REAL-TIME MONITORING</p>
+              <p className="hidden font-mono text-[10px] tracking-[0.2em] text-muted-foreground mt-0.5 sm:block">251 WARDS · REAL-TIME MONITORING</p>
             </div>
-            <div className="rounded-lg border border-border/50 bg-card/80 backdrop-blur-md px-4 py-2 flex items-center gap-3">
-              <span className="font-mono text-[10px] tracking-widest text-muted-foreground">CITY AQI</span>
-              <span className="font-display text-2xl font-black" style={{ color: aqiLevel.color }}>{cityAqi || "—"}</span>
+            <div className="rounded-lg border border-border/50 bg-card/80 backdrop-blur-md px-2 py-1.5 flex items-center gap-2 sm:px-4 sm:py-2 sm:gap-3">
+              <span className="font-mono text-[9px] tracking-widest text-muted-foreground sm:text-[10px]">CITY AQI</span>
+              <span className="font-display text-xl font-black sm:text-2xl" style={{ color: aqiLevel.color }}>{cityAqi || "—"}</span>
             </div>
           </motion.div>
         )}
@@ -509,9 +509,9 @@ const [showSources, setShowSources] = useState(true);
       {/* Search */}
       <AnimatePresence>
         {showUI && (
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="absolute left-4 top-20 z-20">
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="absolute left-4 top-20 z-20 right-4 sm:right-auto">
             {searchOpen ? (
-              <div className="w-72 rounded-xl border border-border/50 bg-card/95 backdrop-blur-md shadow-2xl">
+              <div className="w-full sm:w-72 rounded-xl border border-border/50 bg-card/95 backdrop-blur-md shadow-2xl">
                 <div className="flex items-center gap-2 border-b border-border/30 px-4 py-3">
                   <Search className="h-4 w-4 text-primary" />
                   <input autoFocus value={wardSearch} onChange={(e) => { setWardSearch(e.target.value); searchPlaces(e.target.value); }} placeholder="Ward or place..." className="flex-1 bg-transparent font-mono text-xs text-foreground placeholder:text-muted-foreground focus:outline-none" />

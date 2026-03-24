@@ -89,7 +89,7 @@ export function HealthAdvisoryCards({ aqi }: HealthAdvisoryCardsProps) {
           <p className="font-body text-xs leading-relaxed text-foreground">{advice.general}</p>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 xs:grid-cols-2 sm:grid-cols-2">
         {advice.groups.map(({ icon: Icon, label, advice: tip }) => (
           <div key={label} className="rounded-lg border border-border bg-card/50 p-2.5">
             <div className="flex items-center gap-1.5">

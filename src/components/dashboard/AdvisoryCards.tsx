@@ -139,12 +139,12 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
 
   return (
     <div
-      className="shrink-0 w-44 rounded-2xl border overflow-hidden flex flex-col"
+      className="shrink-0 w-36 rounded-2xl border overflow-hidden flex flex-col sm:w-44"
       style={{ borderColor: colors.border, background: colors.bg, backdropFilter: "blur(8px)" }}
     >
       {/* Animation / Emoji area */}
       <div
-        className="flex items-center justify-center h-28 w-full relative"
+        className="flex items-center justify-center h-24 w-full relative sm:h-28"
         style={{
           background: card.category === "trees"
             ? "linear-gradient(135deg, rgba(34,197,94,0.18), rgba(16,185,129,0.08), rgba(0,0,0,0.4))"

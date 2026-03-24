@@ -130,7 +130,7 @@ const Index = () => {
 
             <div className="flex w-full flex-col lg:w-1/2">
               <div className="block border-b border-border lg:hidden">
-                <div className="h-48">
+                <div className="h-36 sm:h-48 md:h-56">
                   <MapView
                     stations={stations}
                     selectedStation={effectiveStation}
@@ -148,21 +148,21 @@ const Index = () => {
               </div>
 
               <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col overflow-hidden">
-                <TabsList className="mx-3 mt-3 w-fit bg-secondary/50">
-                  <TabsTrigger value="ward" className="gap-1.5 font-mono text-[10px]">
-                    <Map className="h-3 w-3" /> {t("tab.ward")}
+                <TabsList className="mx-2 mt-2 w-[calc(100%-1rem)] overflow-x-auto bg-secondary/50 sm:mx-3 sm:mt-3 sm:w-fit">
+                  <TabsTrigger value="ward" className="gap-1 font-mono text-[9px] sm:gap-1.5 sm:text-[10px]">
+                    <Map className="h-3 w-3 shrink-0" /> <span className="hidden xs:inline sm:inline">{t("tab.ward")}</span><span className="xs:hidden sm:hidden">Ward</span>
                   </TabsTrigger>
-                  <TabsTrigger value="city" className="gap-1.5 font-mono text-[10px]">
-                    <BarChart3 className="h-3 w-3" /> {t("tab.city")}
+                  <TabsTrigger value="city" className="gap-1 font-mono text-[9px] sm:gap-1.5 sm:text-[10px]">
+                    <BarChart3 className="h-3 w-3 shrink-0" /> <span className="hidden xs:inline sm:inline">{t("tab.city")}</span><span className="xs:hidden sm:hidden">City</span>
                   </TabsTrigger>
-                  <TabsTrigger value="rankings" className="gap-1.5 font-mono text-[10px]">
-                    <Trophy className="h-3 w-3" /> {t("tab.rankings")}
+                  <TabsTrigger value="rankings" className="gap-1 font-mono text-[9px] sm:gap-1.5 sm:text-[10px]">
+                    <Trophy className="h-3 w-3 shrink-0" /> <span className="hidden xs:inline sm:inline">{t("tab.rankings")}</span><span className="xs:hidden sm:hidden">Rank</span>
                   </TabsTrigger>
-                  <TabsTrigger value="compare" className="gap-1.5 font-mono text-[10px]">
-                    <GitCompareArrows className="h-3 w-3" /> {t("tab.compare")}
+                  <TabsTrigger value="compare" className="gap-1 font-mono text-[9px] sm:gap-1.5 sm:text-[10px]">
+                    <GitCompareArrows className="h-3 w-3 shrink-0" /> <span className="hidden xs:inline sm:inline">{t("tab.compare")}</span><span className="xs:hidden sm:hidden">Cmp</span>
                   </TabsTrigger>
-                  <TabsTrigger value="dictionary" className="gap-1.5 font-mono text-[10px]">
-                    <BookOpen className="h-3 w-3" /> {t("tab.dictionary")}
+                  <TabsTrigger value="dictionary" className="gap-1 font-mono text-[9px] sm:gap-1.5 sm:text-[10px]">
+                    <BookOpen className="h-3 w-3 shrink-0" /> <span className="hidden xs:inline sm:inline">{t("tab.dictionary")}</span><span className="xs:hidden sm:hidden">Dict</span>
                   </TabsTrigger>
                 </TabsList>
 

@@ -530,7 +530,7 @@ const [wardSearch, setWardSearch] = useState("");
 {showWards && (
           <div className="absolute left-3 top-3 z-[1000]">
             {searchOpen ? (
-              <div className="w-64 rounded-lg border border-border bg-card/95 backdrop-blur-sm">
+              <div className="w-[min(256px,calc(100vw-80px))] rounded-lg border border-border bg-card/95 backdrop-blur-sm">
                 <div className="flex items-center gap-2 border-b border-border px-3 py-2">
                   <Search className="h-3.5 w-3.5 text-muted-foreground" />
                   <input

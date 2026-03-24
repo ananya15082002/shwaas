@@ -34,10 +34,10 @@ export function Navbar({ lastUpdated, onRefresh, loading, onLogoClick }: NavbarP
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="hidden items-center gap-2 sm:flex">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-1.5">
             <Radio className="h-3 w-3 animate-pulse-live text-aqi-unhealthy" />
-            <span className="font-mono text-xs font-semibold text-aqi-unhealthy">{t("nav.live")}</span>
+            <span className="font-mono text-[10px] font-semibold text-aqi-unhealthy sm:text-xs">{t("nav.live")}</span>
           </div>
 
           <div className="hidden flex-col items-end md:flex">
@@ -46,7 +46,7 @@ export function Navbar({ lastUpdated, onRefresh, loading, onLogoClick }: NavbarP
             </span>
           </div>
 
-          <div className="flex flex-col items-end font-mono tabular-nums">
+          <div className="hidden flex-col items-end font-mono tabular-nums sm:flex">
             <span className="text-sm font-semibold text-primary text-glow-primary">
               {time.toLocaleTimeString("en-IN", { hour12: false })}
             </span>
@@ -60,7 +60,7 @@ export function Navbar({ lastUpdated, onRefresh, loading, onLogoClick }: NavbarP
             variant="outline"
             size="sm"
             onClick={toggleLang}
-            className="gap-1.5 border-primary/30 font-mono text-[10px] hover:border-primary hover:bg-primary/10"
+            className="gap-1 border-primary/30 px-2 font-mono text-[10px] hover:border-primary hover:bg-primary/10 sm:gap-1.5 sm:px-3"
           >
             <Languages className="h-3.5 w-3.5 text-primary" />
             <span className="hidden sm:inline">{t("lang.toggle")}</span>
@@ -72,9 +72,9 @@ export function Navbar({ lastUpdated, onRefresh, loading, onLogoClick }: NavbarP
             size="icon"
             onClick={onRefresh}
             disabled={loading}
-            className="border-primary/30 hover:border-primary hover:bg-primary/10"
+            className="h-8 w-8 border-primary/30 hover:border-primary hover:bg-primary/10 sm:h-9 sm:w-9"
           >
-            <RefreshCw className={`h-4 w-4 text-primary ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-3.5 w-3.5 text-primary sm:h-4 sm:w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
       </div>

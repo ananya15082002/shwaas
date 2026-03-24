@@ -46,7 +46,7 @@ export function WardRankings({ stations }: WardRankingsProps) {
     <ScrollArea className="h-full">
       <div className="space-y-5 p-4">
         {/* Summary stats */}
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-3">
           <div className="rounded-lg border border-border bg-card/50 p-3 text-center">
             <span className="font-mono text-[9px] text-muted-foreground">{t("ranking.totalWards")}</span>
             <p className="mt-1 font-display text-lg font-black text-primary">{sorted.length}</p>
@@ -143,11 +143,11 @@ export function WardRankings({ stations }: WardRankingsProps) {
               return (
                 <div key={band.label} className="flex items-center gap-2">
                   <span className="inline-block h-3 w-3 rounded-sm shrink-0" style={{ background: band.color }} />
-                  <span className="w-36 font-mono text-[10px] text-muted-foreground">{band.label}</span>
+                  <span className="w-24 shrink-0 font-mono text-[9px] text-muted-foreground sm:w-36 sm:text-[10px]">{band.label}</span>
                   <div className="flex-1 h-2 rounded-full bg-secondary/50 overflow-hidden">
                     <div className="h-full rounded-full" style={{ width: `${pct}%`, background: band.color }} />
                   </div>
-                  <span className="w-12 text-right font-mono text-[10px] font-bold text-foreground">{count} <span className="text-muted-foreground">({pct}%)</span></span>
+                  <span className="w-10 shrink-0 text-right font-mono text-[9px] font-bold text-foreground sm:w-12 sm:text-[10px]">{count} <span className="text-muted-foreground">({pct}%)</span></span>
                 </div>
               );
             })}
