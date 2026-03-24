@@ -9,6 +9,41 @@ import { useWardHistory } from "@/hooks/useWardHistory";
 import { WardTrendChart } from "@/components/dashboard/WardTrendChart";
 import { HealthAdvisoryCards } from "@/components/dashboard/HealthAdvisoryCards";
 import { AdvisoryCards, AdvisoryCard } from "@/components/dashboard/AdvisoryCards";
+
+function getFallbackCards(sourceType: string, aqi: number, lang: "en" | "hi"): AdvisoryCard[] {
+  const hi = lang === "hi";
+  const cards: AdvisoryCard[] = [];
+
+  if (sourceType === "vehicular" || aqi > 150) {
+    cards.push(
+      { visual_key: "metro", title: hi ? "मेट्रो लें" : "Take Metro", desc: hi ? "वाहन प्रदूषण अधिक है — आज मेट्रो या बस से जाएं" : "Vehicle emissions are high right now — use metro or DTC bus today", target: "citizen", category: "transport" },
+      { visual_key: "carpool", title: hi ? "कारपूलिंग करें" : "Carpool Today", desc: hi ? "सहकर्मियों के साथ एक गाड़ी — सड़क पर कम गाड़ियाँ" : "Share a ride with colleagues to reduce vehicle count on roads", target: "citizen", category: "transport" },
+      { visual_key: "wfh", title: hi ? "घर से काम करें" : "Work From Home", desc: hi ? "आज ऑफिस आना-जाना टालें अगर संभव हो" : "Skip the commute today if your work allows WFH", target: "citizen", category: "transport" },
+      { visual_key: "odd_even", title: hi ? "ऑड-ईवन लागू करें" : "Odd-Even Scheme", desc: hi ? "प्रमुख सड़कों पर वाहन राशनिंग आज सक्रिय करें" : "Activate odd-even vehicle rationing on major corridors today", target: "govt", category: "transport" },
+    );
+  }
+
+  if (sourceType === "construction" || sourceType === "dust") {
+    cards.push(
+      { visual_key: "construction_shroud", title: hi ? "निर्माण ढकें" : "Shroud Sites", desc: hi ? "चीन जैसी तकनीक — निर्माण स्थलों को धूल-रोधी जाली से ढकें" : "China-style shrouding — wrap all active construction sites in anti-dust mesh", target: "govt", category: "construction" },
+      { visual_key: "water_spray", title: hi ? "पानी छिड़काव" : "Water Spray", desc: hi ? "एंटी-स्मॉग गन से निर्माण स्थलों और सड़कों पर पानी छिड़कें" : "Deploy anti-smog water guns at construction sites and major roads", target: "govt", category: "construction" },
+    );
+  }
+
+  if (aqi > 200) {
+    cards.push(
+      { visual_key: "truck_ban", title: hi ? "ट्रक प्रतिबंध" : "Ban Trucks", desc: hi ? "रात 10 बजे के बाद गैर-जरूरी ट्रकों का प्रवेश बंद करें" : "Ban non-essential trucks from entering Delhi after 10 PM", target: "govt", category: "transport" },
+    );
+  }
+
+  // Always tree cards
+  cards.push(
+    { visual_key: "tree_peepal", title: hi ? "पीपल लगाएं" : "Plant Peepal", desc: hi ? "दिल्ली का सबसे बड़ा CO₂ अवशोषक — अपनी कॉलोनी में लगाएं" : "Delhi's best CO₂ absorber — plant in your colony or rooftop", target: "citizen", category: "trees" },
+    { visual_key: "tree_neem", title: hi ? "नीम लगाएं" : "Plant Neem", desc: hi ? "प्राकृतिक वायु शोधक — PM कण और धूल को अवशोषित करता है" : "Natural air purifier — absorbs dust particles and reduces PM levels", target: "citizen", category: "trees" },
+  );
+
+  return cards;
+}
 import { WeatherInfo } from "@/components/dashboard/WeatherInfo";
 import { AqiCalendar } from "@/components/dashboard/AqiCalendar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -326,9 +361,15 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
 
         <HealthAdvisoryCards aqi={displayAqi} />
 
-        {ai?.advisory_cards && ai.advisory_cards.length > 0 && (
+        {!aiLoading && (
           <div className="rounded-lg border border-border bg-card/30 p-3">
-            <AdvisoryCards cards={ai.advisory_cards} />
+            <AdvisoryCards
+              cards={
+                ai?.advisory_cards && ai.advisory_cards.length > 0
+                  ? ai.advisory_cards
+                  : getFallbackCards(ai?.source_type ?? "vehicular", displayAqi, lang)
+              }
+            />
           </div>
         )}
 

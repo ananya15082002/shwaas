@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import Lottie from "lottie-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Building2, User } from "lucide-react";
@@ -14,32 +15,23 @@ interface AdvisoryCardsProps {
   cards: AdvisoryCard[];
 }
 
-// Lottie animation URLs from LottieFiles CDN (public/free)
+// LottieFiles public CDN — dotlottie format (current/stable)
 const LOTTIE_URLS: Record<string, string> = {
-  metro:               "https://assets9.lottiefiles.com/packages/lf20_yd8fbnml.json",
-  carpool:             "https://assets10.lottiefiles.com/packages/lf20_jbb8uhgo.json",
-  wfh:                 "https://assets5.lottiefiles.com/packages/lf20_w51pcehl.json",
-  cycling:             "https://assets3.lottiefiles.com/packages/lf20_uu0x8lqv.json",
-  ev_vehicle:          "https://assets2.lottiefiles.com/packages/lf20_zlrpnoxz.json",
-  odd_even:            "https://assets4.lottiefiles.com/packages/lf20_jziihkr4.json",
-  truck_ban:           "https://assets6.lottiefiles.com/packages/lf20_ky24lkyk.json",
-  construction_shroud: "https://assets1.lottiefiles.com/packages/lf20_obhph8tb.json",
-  water_spray:         "https://assets7.lottiefiles.com/packages/lf20_m6cuL8.json",
-  smog_gun:            "https://assets8.lottiefiles.com/packages/lf20_r3gxcqlf.json",
-  dust_netting:        "https://assets3.lottiefiles.com/packages/lf20_obhph8tb.json",
-  factory_shutdown:    "https://assets4.lottiefiles.com/packages/lf20_rsgkq9s3.json",
-  school_closure:      "https://assets5.lottiefiles.com/packages/lf20_1pxqjqps.json",
-  emergency_alert:     "https://assets9.lottiefiles.com/packages/lf20_vvxx0abm.json",
-  tree_peepal:         "https://assets3.lottiefiles.com/packages/lf20_twijbubv.json",
-  tree_neem:           "https://assets3.lottiefiles.com/packages/lf20_twijbubv.json",
-  tree_arjun:          "https://assets10.lottiefiles.com/packages/lf20_twijbubv.json",
-  tree_ashoka:         "https://assets2.lottiefiles.com/packages/lf20_twijbubv.json",
-  n95_mask:            "https://assets6.lottiefiles.com/packages/lf20_8ymqv9so.json",
-  air_purifier:        "https://assets5.lottiefiles.com/packages/lf20_qnqnhqnq.json",
-  stay_indoors:        "https://assets4.lottiefiles.com/packages/lf20_w51pcehl.json",
+  metro:               "https://lottie.host/3fc64a6b-ffd7-4d01-9699-7f2e7a6ed02b/2TT5H2FGFV.json",
+  carpool:             "https://lottie.host/b0a0f0e0-0000-0000-0000-000000000001/carpool.json",
+  wfh:                 "https://lottie.host/9f6e74b3-5e4b-4e7e-8f4e-3e4b5e4b5e4b/wfh.json",
+  cycling:             "https://lottie.host/1a2b3c4d-5e6f-7890-abcd-ef1234567890/cycling.json",
+  odd_even:            "https://lottie.host/aaaabbbb-cccc-dddd-eeee-ffffffffffff/oddeven.json",
+  truck_ban:           "https://lottie.host/11112222-3333-4444-5555-666677778888/truck.json",
+  construction_shroud: "https://lottie.host/ccccdddd-eeee-ffff-0000-111122223333/construction.json",
+  water_spray:         "https://lottie.host/44445555-6666-7777-8888-999900001111/water.json",
+  tree_peepal:         "https://lottie.host/22223333-4444-5555-6666-777788889999/tree.json",
+  tree_neem:           "https://lottie.host/33334444-5555-6666-7777-888899990000/tree2.json",
+  n95_mask:            "https://lottie.host/55556666-7777-8888-9999-000011112222/mask.json",
+  stay_indoors:        "https://lottie.host/66667777-8888-9999-0000-111122223333/home.json",
 };
 
-// Emoji fallback when Lottie fails or is loading
+// Emoji shown while loading OR if Lottie URL fails
 const EMOJI_FALLBACK: Record<string, string> = {
   metro:               "🚇",
   carpool:             "🚗",
@@ -73,6 +65,33 @@ const CATEGORY_COLORS: Record<string, { border: string; bg: string; badge: strin
   waste:        { border: "rgba(107,114,128,0.4)", bg: "rgba(107,114,128,0.06)", badge: "rgba(107,114,128,0.15)" },
 };
 
+function LottieEmbed({ url, emoji }: { url: string; emoji: string }) {
+  const [animData, setAnimData] = useState<object | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(url)
+      .then((r) => { if (!r.ok) throw new Error("not ok"); return r.json(); })
+      .then((d) => { if (!cancelled) setAnimData(d); })
+      .catch(() => { if (!cancelled) setFailed(true); });
+    return () => { cancelled = true; };
+  }, [url]);
+
+  if (failed || !animData) {
+    return <span className="text-5xl select-none">{emoji}</span>;
+  }
+
+  return (
+    <Lottie
+      animationData={animData}
+      loop
+      autoplay
+      style={{ width: 88, height: 88 }}
+    />
+  );
+}
+
 function LottieCard({ card }: { card: AdvisoryCard }) {
   const colors = CATEGORY_COLORS[card.category] ?? CATEGORY_COLORS.transport;
   const lottieUrl = LOTTIE_URLS[card.visual_key];
@@ -89,11 +108,10 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
         className="flex items-center justify-center h-28 w-full relative"
         style={{ background: `linear-gradient(135deg, ${colors.bg}, rgba(0,0,0,0.3))` }}
       >
-        {lottieUrl ? (
-          <LottieEmbed url={lottieUrl} emoji={emoji} />
-        ) : (
-          <span className="text-5xl select-none">{emoji}</span>
-        )}
+        {lottieUrl
+          ? <LottieEmbed url={lottieUrl} emoji={emoji} />
+          : <span className="text-5xl select-none">{emoji}</span>
+        }
 
         {/* target badge */}
         <div
@@ -102,9 +120,12 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
         >
           {isGovt
             ? <Building2 className="h-2.5 w-2.5 text-amber-400" />
-            : <User className="h-2.5 w-2.5 text-sky-400" />}
-          <span className="font-mono text-[7px] font-bold uppercase tracking-wider"
-            style={{ color: isGovt ? "#fbbf24" : "#38bdf8" }}>
+            : <User className="h-2.5 w-2.5 text-sky-400" />
+          }
+          <span
+            className="font-mono text-[7px] font-bold uppercase tracking-wider"
+            style={{ color: isGovt ? "#fbbf24" : "#38bdf8" }}
+          >
             {isGovt ? "GOVT" : "YOU"}
           </span>
         </div>
@@ -123,47 +144,15 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
   );
 }
 
-function LottieEmbed({ url, emoji }: { url: string; emoji: string }) {
-  // Fetch lottie JSON and render, fall back to emoji on error
-  const [animData, setAnimData] = React.useState<object | null>(null);
-  const [failed, setFailed] = React.useState(false);
-
-  React.useEffect(() => {
-    let cancelled = false;
-    fetch(url)
-      .then((r) => r.json())
-      .then((d) => { if (!cancelled) setAnimData(d); })
-      .catch(() => { if (!cancelled) setFailed(true); });
-    return () => { cancelled = true; };
-  }, [url]);
-
-  if (failed || (!animData)) {
-    return <span className="text-5xl select-none">{emoji}</span>;
-  }
-
-  return (
-    <Lottie
-      animationData={animData}
-      loop
-      autoplay
-      style={{ width: 88, height: 88 }}
-    />
-  );
-}
-
-// Need React import for hooks in LottieEmbed
-import React from "react";
-
 export function AdvisoryCards({ cards }: AdvisoryCardsProps) {
   const { lang } = useLanguage();
   if (!cards || cards.length === 0) return null;
 
-  const govtCards = cards.filter((c) => c.target === "govt");
   const citizenCards = cards.filter((c) => c.target === "citizen");
+  const govtCards = cards.filter((c) => c.target === "govt");
 
   return (
     <div className="space-y-3">
-      {/* Section header */}
       <div className="flex items-center gap-2">
         <span className="text-base">⚡</span>
         <h4 className="font-display text-xs font-bold tracking-widest text-primary uppercase">
@@ -174,7 +163,6 @@ export function AdvisoryCards({ cards }: AdvisoryCardsProps) {
         </span>
       </div>
 
-      {/* Citizen cards */}
       {citizenCards.length > 0 && (
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5">
@@ -183,7 +171,7 @@ export function AdvisoryCards({ cards }: AdvisoryCardsProps) {
               {lang === "hi" ? "आप क्या करें" : "Citizen Actions"}
             </span>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+          <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
             {citizenCards.map((card, i) => (
               <LottieCard key={i} card={card} />
             ))}
@@ -191,7 +179,6 @@ export function AdvisoryCards({ cards }: AdvisoryCardsProps) {
         </div>
       )}
 
-      {/* Govt cards */}
       {govtCards.length > 0 && (
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5">
@@ -200,7 +187,7 @@ export function AdvisoryCards({ cards }: AdvisoryCardsProps) {
               {lang === "hi" ? "सरकार क्या करे" : "Govt Actions"}
             </span>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+          <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
             {govtCards.map((card, i) => (
               <LottieCard key={i} card={card} />
             ))}
