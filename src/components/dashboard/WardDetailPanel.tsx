@@ -8,6 +8,7 @@ import { useWardLiveData } from "@/hooks/useWardLiveData";
 import { useWardHistory } from "@/hooks/useWardHistory";
 import { WardTrendChart } from "@/components/dashboard/WardTrendChart";
 import { HealthAdvisoryCards } from "@/components/dashboard/HealthAdvisoryCards";
+import { AdvisoryCards, AdvisoryCard } from "@/components/dashboard/AdvisoryCards";
 import { WeatherInfo } from "@/components/dashboard/WeatherInfo";
 import { AqiCalendar } from "@/components/dashboard/AqiCalendar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -60,6 +61,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
     anomaly_detail?: string;
     pm25_status?: string;
     predicted_next_hours?: string;
+    advisory_cards?: AdvisoryCard[];
   } | null;
 
   const TrendIcon = ai?.trend === "RISING" ? TrendingUp : ai?.trend === "FALLING" ? TrendingDown : Minus;
@@ -323,6 +325,12 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
         <WeatherInfo iaqi={iaqi} />
 
         <HealthAdvisoryCards aqi={displayAqi} />
+
+        {ai?.advisory_cards && ai.advisory_cards.length > 0 && (
+          <div className="rounded-lg border border-border bg-card/30 p-3">
+            <AdvisoryCards cards={ai.advisory_cards} />
+          </div>
+        )}
 
         <WardTrendChart history={history} loading={historyLoading} />
 

@@ -87,13 +87,30 @@ function buildWardPrompt(ward: any, liveIaqi: any, delhiContext: string, langIns
     ? `PM2.5:${liveIaqi.pm25?.v ?? "N/A"}, PM10:${liveIaqi.pm10?.v ?? "N/A"}, NO2:${liveIaqi.no2?.v ?? "N/A"}, O3:${liveIaqi.o3?.v ?? "N/A"}, CO:${liveIaqi.co?.v ?? "N/A"}, SO2:${liveIaqi.so2?.v ?? "N/A"}, Temp:${liveIaqi.t?.v ?? "N/A"}°C, Humidity:${liveIaqi.h?.v ?? "N/A"}%, Wind:${liveIaqi.w?.v ?? "N/A"}m/s`
     : "No live data.";
 
+  const visualKeys = `Allowed visual_key values (choose the single most fitting per card):
+transport citizen: metro | carpool | wfh | cycling | ev_vehicle
+transport govt: odd_even | truck_ban
+construction: construction_shroud | water_spray | smog_gun | dust_netting
+govt policy: factory_shutdown | school_closure | emergency_alert
+trees: tree_peepal | tree_neem | tree_arjun | tree_ashoka
+health: n95_mask | air_purifier | stay_indoors`;
+
   return `You are an ML-trained Delhi air quality prediction engine. Return ONLY valid JSON, no markdown.${langInstruction}
 Context: ${delhiContext}
 Ward: ${ward?.ward_name ?? "Unknown"} (No.${ward?.ward_no ?? "N/A"}), AC: ${ward?.ac_name ?? "N/A"}, Pop: ${ward?.total_pop?.toLocaleString?.() ?? "N/A"}, AQI: ${ward?.interpolated_aqi ?? "N/A"}, Nearest Station: ${ward?.nearest_station_dist ?? "N/A"}m
 Live: ${iaqiStr}
 Delhi hotspots: Industrial(Okhla,Wazirpur,Naraina,Bawana), Landfills(Ghazipur,Bhalswa,Okhla), Traffic(ITO,Ashram,Anand Vihar)
+${visualKeys}
+Advisory card generation rules:
+1. Analyze the live pollutant values to identify the dominant source RIGHT NOW (high NO2+CO at rush hour = vehicular; high PM10 = construction/dust; high SO2 = industrial; low wind + high all = inversion)
+2. Generate 5-7 cards that DIRECTLY address what the live data is showing — be specific (mention the pollutant value or time context in desc)
+3. Mix: 2-3 citizen cards + 2-3 govt cards + 1 tree card always
+4. Each card picks ONE visual_key from the allowed list above
+5. title: max 4 words. desc: 1 sentence, actionable, situation-specific
+6. target must be exactly "citizen" or "govt"
+7. If Hindi lang: title and desc in Devanagari Hindi
 Return JSON:
-{"summary":"3-4 sentences with seasonal context","health_risk":"LOW|MODERATE|HIGH|SEVERE|CRITICAL","pollution_source":"specific 5-10 words","source_type":"vehicular|industrial|stubble_burning|construction|waste_burning|dust|weather_inversion|mixed","source_icon":"emoji","confidence":75,"trend":"RISING|STABLE|FALLING","trend_reason":"why","vulnerable_impact":"1-2 sentences","key_concerns":["c1","c2","c3"],"recommendations":["r1","r2","r3"],"admin_action":"1 specific action","citizen_tip":"1 tip for right now","local_insight":"ward-specific insight","seasonal_factor":"seasonal effect","anomaly":false,"anomaly_detail":"","pm25_status":"SAFE|ELEVATED|DANGEROUS","predicted_next_hours":"4-6hr forecast"}`;
+{"summary":"3-4 sentences with seasonal context","health_risk":"LOW|MODERATE|HIGH|SEVERE|CRITICAL","pollution_source":"specific 5-10 words","source_type":"vehicular|industrial|stubble_burning|construction|waste_burning|dust|weather_inversion|mixed","source_icon":"emoji","confidence":75,"trend":"RISING|STABLE|FALLING","trend_reason":"why","vulnerable_impact":"1-2 sentences","key_concerns":["c1","c2","c3"],"recommendations":["r1","r2","r3"],"admin_action":"1 specific action","citizen_tip":"1 tip for right now","local_insight":"ward-specific insight","seasonal_factor":"seasonal effect","anomaly":false,"anomaly_detail":"","pm25_status":"SAFE|ELEVATED|DANGEROUS","predicted_next_hours":"4-6hr forecast","advisory_cards":[{"visual_key":"metro","title":"Take Metro Today","desc":"NO2 at 68ppb — vehicular rush is the cause. Skip your car, take metro.","target":"citizen","category":"transport"}]}`;
 }
 
 function buildStationPrompt(station: any, delhiContext: string, langInstruction: string): string {
@@ -172,6 +189,47 @@ function inferSource(liveIaqi: any) {
   return { type: "dust", icon: "💨", source: "Road and construction dust" };
 }
 
+function buildFallbackAdvisoryCards(sourceType: string, aqi: number, lang: string) {
+  const hi = lang === "hi";
+  const cards: any[] = [];
+
+  if (sourceType === "vehicular" || aqi > 150) {
+    cards.push(
+      { visual_key: "metro", title: hi ? "मेट्रो लें" : "Take Metro", desc: hi ? "वाहन प्रदूषण अधिक है — आज मेट्रो या बस से जाएं" : "Vehicle emissions are high — use metro or DTC bus today", target: "citizen", category: "transport" },
+      { visual_key: "carpool", title: hi ? "कारपूलिंग करें" : "Carpool Today", desc: hi ? "सहकर्मियों के साथ एक गाड़ी में जाएं, प्रदूषण घटाएं" : "Share a ride with colleagues to cut vehicle count on roads", target: "citizen", category: "transport" },
+      { visual_key: "wfh", title: hi ? "घर से काम करें" : "Work From Home", desc: hi ? "आज ऑफिस आना-जाना टालें — WFH एक विकल्प है" : "Avoid the commute today if your work allows WFH", target: "citizen", category: "transport" },
+      { visual_key: "odd_even", title: hi ? "ऑड-ईवन लागू करें" : "Odd-Even Scheme", desc: hi ? "प्रमुख सड़कों पर वाहन राशनिंग योजना सक्रिय करें" : "Activate odd-even vehicle rationing on major corridors today", target: "govt", category: "transport" },
+    );
+  }
+
+  if (sourceType === "construction" || sourceType === "dust") {
+    cards.push(
+      { visual_key: "construction_shroud", title: hi ? "निर्माण ढकें" : "Shroud Construction", desc: hi ? "चीन जैसी तकनीक — सभी निर्माण स्थलों को जाली/कपड़े से ढकें" : "China-style technique — wrap all active construction sites in dust-suppression mesh", target: "govt", category: "construction" },
+      { visual_key: "water_spray", title: hi ? "पानी छिड़कें" : "Deploy Water Spray", desc: hi ? "एंटी-स्मॉग गन से निर्माण स्थलों पर तुरंत पानी छिड़काव करें" : "Deploy anti-smog water sprinklers at all construction sites immediately", target: "govt", category: "construction" },
+    );
+  }
+
+  if (aqi > 200) {
+    cards.push(
+      { visual_key: "truck_ban", title: hi ? "ट्रक प्रतिबंध" : "Ban Trucks", desc: hi ? "रात 10 बजे के बाद गैर-जरूरी ट्रकों का दिल्ली में प्रवेश बंद करें" : "Ban non-essential truck entry into Delhi after 10 PM tonight", target: "govt", category: "transport" },
+    );
+  }
+
+  if (aqi > 300) {
+    cards.push(
+      { visual_key: "school_closure", title: hi ? "स्कूल बंद करें" : "Close Schools", desc: hi ? "AQI खतरनाक स्तर पर — सभी स्कूल तुरंत बंद करें" : "AQI at hazardous level — close all schools and outdoor venues immediately", target: "govt", category: "health" },
+    );
+  }
+
+  // Always add tree cards
+  cards.push(
+    { visual_key: "tree_peepal", title: hi ? "पीपल लगाएं" : "Plant Peepal", desc: hi ? "दिल्ली का सबसे बड़ा CO₂ अवशोषक — कॉलोनी में लगाएं" : "Best CO₂ absorber for Delhi — plant in your colony or rooftop garden", target: "citizen", category: "trees" },
+    { visual_key: "tree_neem", title: hi ? "नीम लगाएं" : "Plant Neem", desc: hi ? "प्राकृतिक वायु शोधक — धूल और PM कण कम करता है" : "Natural air purifier — absorbs dust particles and reduces PM levels", target: "citizen", category: "trees" },
+  );
+
+  return cards;
+}
+
 function buildHeuristicAnalysis(mode: string, ward: any, station: any, liveIaqi: any, lang: string) {
   const wardAqi = Number(ward?.interpolated_aqi ?? liveIaqi?.pm25?.v ?? 140);
   const stationAqi = Number(station?.aqi ?? wardAqi);
@@ -201,6 +259,7 @@ function buildHeuristicAnalysis(mode: string, ward: any, station: any, liveIaqi:
         anomaly_detail: "",
         pm25_status: pm25Status,
         predicted_next_hours: "अगले 4-6 घंटों में AQI समान या थोड़ा बढ़ सकता है",
+        advisory_cards: buildFallbackAdvisoryCards(source.type, aqi, "hi"),
         _source: "heuristic_fallback",
       };
     }
@@ -225,6 +284,7 @@ function buildHeuristicAnalysis(mode: string, ward: any, station: any, liveIaqi:
       anomaly_detail: "",
       pm25_status: pm25Status,
       predicted_next_hours: "AQI likely to remain stable to slightly worse in next 4-6 hours",
+      advisory_cards: buildFallbackAdvisoryCards(source.type, aqi, "en"),
       _source: "heuristic_fallback",
     };
   }
