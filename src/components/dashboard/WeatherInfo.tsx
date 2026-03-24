@@ -29,7 +29,7 @@ export function WeatherInfo({ iaqi }: WeatherInfoProps) {
       <h4 className="font-display text-xs font-bold tracking-widest text-primary">
         🌡️ {t("weather.title")}
       </h4>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2 xs:grid-cols-2 sm:grid-cols-4">
         {items.map(({ icon: Icon, label, value, color }) => (
           <div key={label} className="rounded-lg border border-border bg-card/50 p-3">
             <div className="flex items-center gap-1.5 text-muted-foreground">

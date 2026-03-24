@@ -123,7 +123,7 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
 
   return (
     <ScrollArea className="h-full">
-      <div className="space-y-5 p-4">
+      <div className="space-y-4 p-3 sm:p-4">
         <div className="cyber-border rounded-lg p-4 text-center">
           <span className="font-mono text-[10px] text-muted-foreground">CITY AQI (POPULATION-WEIGHTED · 251 WARDS)</span>
           <div className="mt-1 font-display text-4xl font-black" style={{ color: mlLevel.color, textShadow: `0 0 20px ${mlLevel.color}60` }}>
@@ -169,11 +169,11 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
           <h4 className="flex items-center gap-2 font-display text-xs font-bold tracking-widest text-primary">
             <TrendingUp className="h-4 w-4" /> {t("city.top10")} — TOP 15 WARDS
           </h4>
-          <div className="mt-2 h-52">
+          <div className="mt-2 h-44 sm:h-52 md:h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={barData} margin={{ top: 5, right: 5, bottom: 5, left: 0 }}>
-                <XAxis dataKey="name" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 9, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "hsl(220, 15%, 18%)" }} tickLine={false} angle={-30} textAnchor="end" height={50} />
-                <YAxis tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 9, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} width={35} />
+              <BarChart data={barData} margin={{ top: 5, right: 5, bottom: 40, left: 0 }}>
+                <XAxis dataKey="name" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 8, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "hsl(220, 15%, 18%)" }} tickLine={false} angle={-40} textAnchor="end" interval={0} />
+                <YAxis tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 8, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} width={28} />
                 <Tooltip contentStyle={{ backgroundColor: "hsl(220, 18%, 10%)", border: "1px solid hsl(220, 15%, 18%)", borderRadius: "8px", fontFamily: "JetBrains Mono", fontSize: "11px" }} />
                 <Bar dataKey="aqi" radius={[4, 4, 0, 0]}>
                   {barData.map((entry, idx) => (
@@ -189,14 +189,14 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
           <h4 className="font-display text-xs font-bold tracking-widest text-primary">
             🎯 {t("city.pollutantProfile")}
           </h4>
-          <div className="mt-2 h-52">
+          <div className="mt-2 h-44 sm:h-52 md:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={radarData}>
                 <PolarGrid stroke="hsl(220, 15%, 18%)" />
-                <PolarAngleAxis dataKey="pollutant" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 10, fontFamily: "JetBrains Mono" }} />
-                <PolarRadiusAxis tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 8 }} />
+                <PolarAngleAxis dataKey="pollutant" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 9, fontFamily: "JetBrains Mono" }} />
+                <PolarRadiusAxis tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 7 }} />
                 <Radar name="Average" dataKey="value" stroke="hsl(180, 100%, 45%)" fill="hsl(180, 100%, 45%)" fillOpacity={0.2} />
-                <Legend wrapperStyle={{ fontFamily: "JetBrains Mono", fontSize: 10 }} />
+                <Legend wrapperStyle={{ fontFamily: "JetBrains Mono", fontSize: 9 }} />
               </RadarChart>
             </ResponsiveContainer>
           </div>

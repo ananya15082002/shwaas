@@ -165,7 +165,7 @@ export function CompareTab({ stations }: CompareTabProps) {
         ) : (
           <>
             {/* AQI cards */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {selectedWards.map((w, i) => {
                 const aqi = w.interpolated_aqi ?? 0;
                 const level = getAqiLevel(aqi);
@@ -189,20 +189,20 @@ export function CompareTab({ stations }: CompareTabProps) {
               <h4 className="font-display text-xs font-bold tracking-widest text-primary">
                 📊 {t("compare.pollutantComparison")}
               </h4>
-              <div className="mt-2 h-52">
+              <div className="mt-2 h-44 sm:h-52 md:h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={selectedWards.map((w) => ({
-                      name: w.ward_name,
+                      name: w.ward_name.length > 10 ? w.ward_name.slice(0, 10) + "…" : w.ward_name,
                       AQI: w.interpolated_aqi ?? 0,
                       Population: Math.round((w.total_pop ?? 0) / 1000),
                     }))}
-                    margin={{ top: 5, right: 5, bottom: 5, left: 0 }}
+                    margin={{ top: 5, right: 5, bottom: 30, left: 0 }}
                   >
-                    <XAxis dataKey="name" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 9, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "hsl(220, 15%, 18%)" }} tickLine={false} angle={-15} textAnchor="end" height={50} />
-                    <YAxis tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 9, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} width={35} />
+                    <XAxis dataKey="name" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 9, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "hsl(220, 15%, 18%)" }} tickLine={false} angle={-15} textAnchor="end" interval={0} />
+                    <YAxis tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 9, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} width={28} />
                     <Tooltip contentStyle={{ backgroundColor: "hsl(220, 18%, 10%)", border: "1px solid hsl(220, 15%, 18%)", borderRadius: "8px", fontFamily: "JetBrains Mono", fontSize: "11px" }} />
-                    <Legend wrapperStyle={{ fontFamily: "JetBrains Mono", fontSize: 10 }} />
+                    <Legend wrapperStyle={{ fontFamily: "JetBrains Mono", fontSize: 9 }} />
                     <Bar dataKey="AQI" fill="hsl(180, 100%, 45%)" radius={[3, 3, 0, 0]} />
                     <Bar dataKey="Population" fill="hsl(260, 80%, 60%)" radius={[3, 3, 0, 0]} name="Pop (K)" />
                   </BarChart>

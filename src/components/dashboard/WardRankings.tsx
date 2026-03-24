@@ -46,7 +46,7 @@ export function WardRankings({ stations }: WardRankingsProps) {
     <ScrollArea className="h-full">
       <div className="space-y-5 p-4">
         {/* Summary stats */}
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-3">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
           <div className="rounded-lg border border-border bg-card/50 p-3 text-center">
             <span className="font-mono text-[9px] text-muted-foreground">{t("ranking.totalWards")}</span>
             <p className="mt-1 font-display text-lg font-black text-primary">{sorted.length}</p>

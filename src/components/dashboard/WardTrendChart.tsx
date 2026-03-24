@@ -78,7 +78,7 @@ export function WardTrendChart({ history, loading }: WardTrendChartProps) {
           <span className="font-mono text-[9px] text-muted-foreground">PM10</span>
         </div>
       </div>
-      <ChartContainer config={chartConfig} className="aspect-[2.5/1] w-full">
+      <ChartContainer config={chartConfig} className="aspect-[2/1] w-full sm:aspect-[2.5/1]">
         <AreaChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
           <defs>
             <linearGradient id="pm25Fill" x1="0" y1="0" x2="0" y2="1">
