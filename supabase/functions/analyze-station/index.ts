@@ -215,12 +215,24 @@ Return ONLY valid JSON:
     });
 
     if (response.status === 429) {
+      // Try Groq fallback on rate limit
+      const groqKey = Deno.env.get('GROQ_API_KEY');
+      if (groqKey) {
+        console.log('Lovable AI rate limited, falling back to Groq');
+        return await handleWithGroq(groqKey, station, mode, ward, liveIaqi, langInstruction, lang);
+      }
       return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }), {
         status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
     if (response.status === 402) {
+      // Try Groq fallback on credits exhausted
+      const groqKey = Deno.env.get('GROQ_API_KEY');
+      if (groqKey) {
+        console.log('Lovable AI credits exhausted, falling back to Groq');
+        return await handleWithGroq(groqKey, station, mode, ward, liveIaqi, langInstruction, lang);
+      }
       return new Response(JSON.stringify({ error: 'AI credits exhausted. Analysis temporarily unavailable.' }), {
         status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
