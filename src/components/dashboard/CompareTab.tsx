@@ -189,7 +189,7 @@ export function CompareTab({ stations }: CompareTabProps) {
               <h4 className="font-display text-xs font-bold tracking-widest text-primary">
                 📊 {t("compare.pollutantComparison")}
               </h4>
-              <div className="mt-2 h-44 sm:h-52 md:h-64">
+              <div className="mt-2 h-56 sm:h-64 lg:h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={selectedWards.map((w) => ({
@@ -197,10 +197,10 @@ export function CompareTab({ stations }: CompareTabProps) {
                       AQI: w.interpolated_aqi ?? 0,
                       Population: Math.round((w.total_pop ?? 0) / 1000),
                     }))}
-                    margin={{ top: 5, right: 5, bottom: 30, left: 0 }}
+                    margin={{ top: 5, right: 5, bottom: 40, left: 0 }}
                   >
-                    <XAxis dataKey="name" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 9, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "hsl(220, 15%, 18%)" }} tickLine={false} angle={-15} textAnchor="end" interval={0} />
-                    <YAxis tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 9, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} width={28} />
+                    <XAxis dataKey="name" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 10, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "hsl(220, 15%, 18%)" }} tickLine={false} angle={-20} textAnchor="end" interval={0} />
+                    <YAxis tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 10, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} width={32} />
                     <Tooltip contentStyle={{ backgroundColor: "hsl(220, 18%, 10%)", border: "1px solid hsl(220, 15%, 18%)", borderRadius: "8px", fontFamily: "JetBrains Mono", fontSize: "11px" }} />
                     <Legend wrapperStyle={{ fontFamily: "JetBrains Mono", fontSize: 9 }} />
                     <Bar dataKey="AQI" fill="hsl(180, 100%, 45%)" radius={[3, 3, 0, 0]} />

@@ -169,11 +169,11 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
           <h4 className="flex items-center gap-2 font-display text-xs font-bold tracking-widest text-primary">
             <TrendingUp className="h-4 w-4" /> {t("city.top10")} — TOP 15 WARDS
           </h4>
-          <div className="mt-2 h-44 sm:h-52 md:h-64">
+          <div className="mt-2 h-56 sm:h-64 lg:h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={barData} margin={{ top: 5, right: 5, bottom: 40, left: 0 }}>
-                <XAxis dataKey="name" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 8, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "hsl(220, 15%, 18%)" }} tickLine={false} angle={-40} textAnchor="end" interval={0} />
-                <YAxis tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 8, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} width={28} />
+              <BarChart data={barData} margin={{ top: 5, right: 5, bottom: 50, left: 0 }}>
+                <XAxis dataKey="name" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 9, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "hsl(220, 15%, 18%)" }} tickLine={false} angle={-35} textAnchor="end" interval={0} />
+                <YAxis tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 9, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} width={30} />
                 <Tooltip contentStyle={{ backgroundColor: "hsl(220, 18%, 10%)", border: "1px solid hsl(220, 15%, 18%)", borderRadius: "8px", fontFamily: "JetBrains Mono", fontSize: "11px" }} />
                 <Bar dataKey="aqi" radius={[4, 4, 0, 0]}>
                   {barData.map((entry, idx) => (
@@ -189,7 +189,7 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
           <h4 className="font-display text-xs font-bold tracking-widest text-primary">
             🎯 {t("city.pollutantProfile")}
           </h4>
-          <div className="mt-2 h-44 sm:h-52 md:h-64">
+          <div className="mt-2 h-52 sm:h-60 lg:h-72">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={radarData}>
                 <PolarGrid stroke="hsl(220, 15%, 18%)" />
