@@ -325,78 +325,87 @@ const [wardSearch, setWardSearch] = useState("");
     const map = mapRef.current;
     if (!map || !mapLoaded || !showWards) return;
 
-    if (map.getLayer("special-zones-fill")) map.removeLayer("special-zones-fill");
-    if (map.getLayer("special-zones-border")) map.removeLayer("special-zones-border");
-    if (map.getSource("special-zones")) map.removeSource("special-zones");
+    const apply = () => {
+      if (!map.isStyleLoaded()) return;
+      if (map.getLayer("special-zones-fill")) map.removeLayer("special-zones-fill");
+      if (map.getLayer("special-zones-border")) map.removeLayer("special-zones-border");
+      if (map.getSource("special-zones")) map.removeSource("special-zones");
 
-    const features = DELHI_SPECIAL_ZONES.map((zone) => {
-      const [cLon, cLat] = zone.centroid;
-      let zoneAqi = 0;
-      if (stationsWithCoords.length > 0) {
-        const nearby = stationsWithCoords
-          .map((s) => ({ ...s, dist: Math.sqrt(Math.pow(s.lat - cLat, 2) + Math.pow(s.lon - cLon, 2)) }))
-          .sort((a, b) => a.dist - b.dist).slice(0, 3);
-        if (nearby.length === 1) zoneAqi = nearby[0].aqi;
-        else {
-          const weights = nearby.map((s) => 1 / (s.dist + 0.001));
-          const tw = weights.reduce((a, b) => a + b, 0);
-          zoneAqi = Math.round(nearby.reduce((sum, s, i) => sum + s.aqi * weights[i], 0) / tw);
+      const features = DELHI_SPECIAL_ZONES.map((zone) => {
+        const [cLon, cLat] = zone.centroid;
+        let zoneAqi = 0;
+        if (stationsWithCoords.length > 0) {
+          const nearby = stationsWithCoords
+            .map((s) => ({ ...s, dist: Math.sqrt(Math.pow(s.lat - cLat, 2) + Math.pow(s.lon - cLon, 2)) }))
+            .sort((a, b) => a.dist - b.dist).slice(0, 3);
+          if (nearby.length === 1) zoneAqi = nearby[0].aqi;
+          else {
+            const weights = nearby.map((s) => 1 / (s.dist + 0.001));
+            const tw = weights.reduce((a, b) => a + b, 0);
+            zoneAqi = Math.round(nearby.reduce((sum, s, i) => sum + s.aqi * weights[i], 0) / tw);
+          }
         }
-      }
-      return {
-        type: "Feature" as const,
-        properties: { ...zone, interpolated_aqi: zoneAqi },
-        geometry: {
-          type: "Polygon" as const,
-          coordinates: [zone.polygon.map(([lat, lon]) => [lon, lat])],
-        },
-      };
-    });
-
-    map.addSource("special-zones", {
-      type: "geojson",
-      data: { type: "FeatureCollection", features },
-    });
-
-    map.addLayer({
-      id: "special-zones-fill",
-      type: "fill",
-      source: "special-zones",
-      paint: {
-        "fill-color": ["match", ["get", "id"],
-          ...features.flatMap((f) => [f.properties.id, aqiToColor(f.properties.interpolated_aqi)]),
-          "#282D37"
-        ] as any,
-        "fill-opacity": 0.5,
-      },
-    });
-
-    map.addLayer({
-      id: "special-zones-border",
-      type: "line",
-      source: "special-zones",
-      paint: {
-        "line-color": ["match", ["get", "id"],
-          ...features.flatMap((f) => [f.properties.id, aqiToColor(f.properties.interpolated_aqi)]),
-          "#555"
-        ] as any,
-        "line-width": 1.5,
-        "line-dasharray": [4, 4],
-      },
-    });
-
-    map.on("click", "special-zones-fill", (e) => {
-      if (e.features && e.features.length > 0) {
-        const p = e.features[0].properties;
-        const centroid = typeof p.centroid === "string" ? JSON.parse(p.centroid) : p.centroid;
-        const fakeWard: WardFeature["properties"] = {
-          ward_no: -1, ward_name: p.name, ac_name: p.description,
-          ac_no: 0, total_pop: 0, sc_pop: 0, nw2022: "", centroid,
-          interpolated_aqi: p.interpolated_aqi,
+        return {
+          type: "Feature" as const,
+          properties: { ...zone, interpolated_aqi: zoneAqi },
+          geometry: {
+            type: "Polygon" as const,
+            coordinates: [zone.polygon.map(([lat, lon]) => [lon, lat])],
+          },
         };
-        onWardSelect?.(fakeWard);
-      }
-    });
+      });
+
+      map.addSource("special-zones", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features },
+      });
+
+      map.addLayer({
+        id: "special-zones-fill",
+        type: "fill",
+        source: "special-zones",
+        paint: {
+          "fill-color": ["match", ["get", "id"],
+            ...features.flatMap((f) => [f.properties.id, aqiToColor(f.properties.interpolated_aqi)]),
+            "#282D37"
+          ] as any,
+          "fill-opacity": 0.5,
+        },
+      });
+
+      map.addLayer({
+        id: "special-zones-border",
+        type: "line",
+        source: "special-zones",
+        paint: {
+          "line-color": ["match", ["get", "id"],
+            ...features.flatMap((f) => [f.properties.id, aqiToColor(f.properties.interpolated_aqi)]),
+            "#555"
+          ] as any,
+          "line-width": 1.5,
+          "line-dasharray": [4, 4],
+        },
+      });
+
+      map.on("click", "special-zones-fill", (e) => {
+        if (e.features && e.features.length > 0) {
+          const p = e.features[0].properties;
+          const centroid = typeof p.centroid === "string" ? JSON.parse(p.centroid) : p.centroid;
+          const fakeWard: WardFeature["properties"] = {
+            ward_no: -1, ward_name: p.name, ac_name: p.description,
+            ac_no: 0, total_pop: 0, sc_pop: 0, nw2022: "", centroid,
+            interpolated_aqi: p.interpolated_aqi,
+          };
+          onWardSelect?.(fakeWard);
+        }
+      });
+    };
+
+    if (map.isStyleLoaded()) {
+      apply();
+    } else {
+      map.once("style.load", apply);
+    }
   }, [showWards, mapLoaded, stationsWithCoords, onWardSelect]);
 
   // Heatmap layer
