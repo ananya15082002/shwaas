@@ -292,7 +292,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
                   <span className="font-mono text-[9px] text-muted-foreground">{t("intel.keyConcerns")}</span>
                   <ul className="mt-1 space-y-1">
                     {ai.key_concerns.map((c, i) => (
-                      <li key={i} className="rounded border border-border bg-secondary/30 px-2.5 py-1.5 font-body text-xs text-secondary-foreground">{c}</li>
+                      <li key={i} className="rounded border border-border bg-secondary/30 px-2 py-1.5 font-body text-[11px] text-secondary-foreground break-words sm:text-xs">{c}</li>
                     ))}
                   </ul>
                 </div>
