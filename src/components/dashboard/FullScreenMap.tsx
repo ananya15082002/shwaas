@@ -312,7 +312,7 @@ const [showSources, setShowSources] = useState(true);
           .setLngLat(e.lngLat)
           .setHTML(`
             <div style="background:rgba(4,8,16,0.95);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 16px;font-family:'JetBrains Mono',monospace;backdrop-filter:blur(12px);">
-              <div style="color:#fff;font-weight:700;font-size:14px;margin-bottom:2px;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px">${p.ward_name}</div>
+              <div style="color:#fff;font-weight:700;font-size:14px;margin-bottom:2px;font-family:'DM Sans',sans-serif;letter-spacing:0.5px">${p.ward_name}</div>
               <div style="color:rgba(255,255,255,0.45);font-size:10px;margin-bottom:10px;letter-spacing:1px">WARD ${p.ward_no} · ${p.ac_name}</div>
               <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px">
                 <span style="color:rgba(255,255,255,0.5);font-size:10px;letter-spacing:2px">AQI</span>
@@ -491,16 +491,16 @@ const [showSources, setShowSources] = useState(true);
       {/* Header */}
       <AnimatePresence>
         {showUI && (
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="absolute top-0 inset-x-0 z-20 flex items-center justify-between px-3 py-3 sm:px-6 sm:py-4">
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="absolute top-0 inset-x-0 z-20 flex items-center justify-between px-3 py-2 xs:py-3 sm:px-6 sm:py-4">
             <div>
-              <h1 className="font-display text-sm font-bold tracking-[0.1em] text-foreground sm:text-lg sm:tracking-[0.15em]">
+              <h1 className="font-display text-xs font-bold tracking-[0.08em] text-foreground xs:text-sm sm:text-lg sm:tracking-[0.15em]">
                 DELHI <span className="text-primary">AIR QUALITY</span>
               </h1>
-              <p className="hidden font-mono text-[10px] tracking-[0.2em] text-muted-foreground mt-0.5 sm:block">251 WARDS · REAL-TIME MONITORING</p>
+              <p className="hidden font-mono text-[9px] tracking-[0.15em] text-muted-foreground mt-0.5 xs:block sm:text-[10px] sm:tracking-[0.2em]">251 WARDS · REAL-TIME MONITORING</p>
             </div>
-            <div className="rounded-lg border border-border/50 bg-card/80 backdrop-blur-md px-2 py-1.5 flex items-center gap-2 sm:px-4 sm:py-2 sm:gap-3">
-              <span className="font-mono text-[9px] tracking-widest text-muted-foreground sm:text-[10px]">CITY AQI</span>
-              <span className="font-display text-xl font-black sm:text-2xl" style={{ color: aqiLevel.color }}>{cityAqi || "—"}</span>
+            <div className="rounded-lg border border-border/50 bg-card/80 backdrop-blur-md px-2 py-1 flex items-center gap-1.5 xs:px-3 xs:py-1.5 xs:gap-2 sm:px-4 sm:py-2 sm:gap-3">
+              <span className="font-mono text-[8px] tracking-widest text-muted-foreground xs:text-[9px] sm:text-[10px]">CITY AQI</span>
+              <span className="font-display text-lg font-black xs:text-xl sm:text-2xl" style={{ color: aqiLevel.color }}>{cityAqi || "—"}</span>
             </div>
           </motion.div>
         )}
@@ -608,12 +608,12 @@ const [showSources, setShowSources] = useState(true);
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 30 }}
             transition={{ duration: 0.5 }}
-            className="absolute top-20 right-4 z-30 w-64"
+            className="absolute top-16 right-3 z-30 w-[min(16rem,calc(100vw-1.5rem))] xs:top-20 xs:right-4 sm:w-64"
           >
-            <div className="rounded-xl border border-destructive/30 bg-card/95 backdrop-blur-xl p-4 shadow-2xl">
-              <div className="flex items-center gap-2 mb-3">
-                <Plane className="h-3.5 w-3.5 text-destructive animate-pulse" />
-                <span className="font-mono text-[9px] tracking-[0.2em] text-destructive font-bold">
+            <div className="rounded-xl border border-destructive/30 bg-card/95 backdrop-blur-xl p-3 shadow-2xl sm:p-4">
+              <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                <Plane className="h-3 w-3 text-destructive animate-pulse sm:h-3.5 sm:w-3.5" />
+                <span className="font-mono text-[8px] tracking-[0.15em] text-destructive font-bold xs:text-[9px] sm:tracking-[0.2em]">
                   FLYING TOUR · {tourIndex + 1}/{top5Polluted.length}
                 </span>
               </div>
@@ -659,7 +659,7 @@ const [showSources, setShowSources] = useState(true);
       {/* Selected ward card */}
       <AnimatePresence>
         {selectedWard && (
-          <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} transition={{ duration: 0.3 }} className="absolute bottom-28 left-4 z-20 w-72">
+          <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} transition={{ duration: 0.3 }} className="absolute bottom-28 left-3 z-20 w-[min(18rem,calc(100vw-1.5rem))] sm:left-4 sm:w-72">
             <div className="rounded-xl border border-border/50 bg-card/95 backdrop-blur-md p-4 shadow-2xl">
               <div className="flex items-start justify-between mb-3">
                 <div>
@@ -710,7 +710,7 @@ const [showSources, setShowSources] = useState(true);
       <AnimatePresence>
         {showUI && (
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.8 }} className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
-            <button onClick={() => onEnterDashboard(selectedWard ?? undefined)} className="group flex items-center gap-3 rounded-full border border-primary/40 bg-card/90 px-8 py-3 font-mono text-xs tracking-[0.2em] text-primary backdrop-blur-md transition-all hover:bg-primary/15 hover:border-primary/70 hover:shadow-[0_0_30px_rgba(0,229,160,0.2)]">
+            <button onClick={() => onEnterDashboard(selectedWard ?? undefined)} className="group flex items-center gap-2 rounded-full border border-primary/40 bg-card/90 px-4 py-2 font-mono text-[10px] tracking-[0.15em] text-primary backdrop-blur-md transition-all hover:bg-primary/15 hover:border-primary/70 hover:shadow-[0_0_30px_rgba(0,229,160,0.2)] xs:gap-3 xs:px-6 xs:py-2.5 xs:text-xs sm:px-8 sm:py-3 sm:tracking-[0.2em]">
               <span className="animate-pulse-live">▶</span>
               ENTER DASHBOARD
               <Navigation className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />

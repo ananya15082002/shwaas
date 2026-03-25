@@ -23,7 +23,7 @@ export default {
     extend: {
       fontFamily: {
         display: ["Orbitron", "monospace"],
-        body: ["Rajdhani", "sans-serif"],
+        body: ["DM Sans", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
       },
       colors: {

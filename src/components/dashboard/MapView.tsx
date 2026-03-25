@@ -280,7 +280,7 @@ const [wardSearch, setWardSearch] = useState("");
           .setLngLat(e.lngLat)
           .setHTML(`
             <div style="background:rgba(4,8,16,0.95);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 14px;font-family:'JetBrains Mono',monospace;">
-              <div style="color:#fff;font-weight:700;font-size:13px;margin-bottom:2px;font-family:'Rajdhani',sans-serif">${p.ward_name}</div>
+              <div style="color:#fff;font-weight:700;font-size:13px;margin-bottom:2px;font-family:'DM Sans',sans-serif">${p.ward_name}</div>
               <div style="color:rgba(255,255,255,0.45);font-size:10px;margin-bottom:8px">Ward ${p.ward_no} · ${p.ac_name}</div>
               <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px">
                 <span style="color:rgba(255,255,255,0.5);font-size:10px;letter-spacing:2px">AQI</span>
@@ -474,7 +474,7 @@ const [wardSearch, setWardSearch] = useState("");
     const el = document.createElement("div");
     el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));animation:wardPinBounce 0.5s ease-out;pointer-events:none;">
       <div style="background:rgba(4,8,16,0.92);border:1px solid ${level.color}80;border-radius:8px;padding:4px 10px;margin-bottom:4px;backdrop-filter:blur(8px);">
-        <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;color:#fff;text-align:center;">${activeWard.ward_name || "Ward"}</div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:#fff;text-align:center;">${activeWard.ward_name || "Ward"}</div>
         <div style="font-family:'Orbitron',monospace;font-size:16px;font-weight:900;color:${level.color};text-align:center;text-shadow:0 0 12px ${level.color}60;">${aqi || "—"}</div>
       </div>
       <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid rgba(4,8,16,0.92);margin-bottom:-1px;"></div>
