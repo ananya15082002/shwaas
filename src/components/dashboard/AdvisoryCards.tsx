@@ -87,7 +87,7 @@ function LottieEmbed({ url, emoji, category }: { url: string; emoji: string; cat
       animationData={animData}
       loop
       autoplay
-      style={{ width: 88, height: 88 }}
+      className="h-14 w-14 xs:h-16 xs:w-16 sm:h-20 sm:w-20"
     />
   );
 }
@@ -126,7 +126,7 @@ function AnimatedEmoji({ emoji, category }: { emoji: string; category: string })
           50% { transform: translateY(-5px) scale(1.06); }
         }
       `}</style>
-      <span className="text-2xl select-none xs:text-3xl sm:text-4xl" style={style}>{emoji}</span>
+      <span className="select-none text-xl xs:text-2xl sm:text-3xl" style={style}>{emoji}</span>
     </>
   );
 }
@@ -139,12 +139,11 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
 
   return (
     <div
-      className="shrink-0 w-28 min-w-[112px] rounded-xl border overflow-hidden flex flex-col xs:w-32 sm:w-36 md:w-40 lg:w-36 xl:w-40"
+      className="flex min-w-0 w-full flex-col overflow-hidden rounded-xl border"
       style={{ borderColor: colors.border, background: colors.bg, backdropFilter: "blur(8px)" }}
     >
-      {/* Animation / Emoji area */}
       <div
-        className="flex items-center justify-center h-16 w-full relative xs:h-18 sm:h-22 md:h-24"
+        className="relative flex h-16 w-full items-center justify-center xs:h-20 sm:h-24"
         style={{
           background: card.category === "trees"
             ? "linear-gradient(135deg, rgba(34,197,94,0.18), rgba(16,185,129,0.08), rgba(0,0,0,0.4))"
@@ -156,9 +155,8 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
           : <AnimatedEmoji emoji={emoji} category={card.category} />
         }
 
-        {/* target badge */}
         <div
-          className="absolute top-1 right-1 flex items-center gap-0.5 rounded-full px-1 py-0.5 sm:top-2 sm:right-2 sm:px-1.5"
+          className="absolute right-1 top-1 flex items-center gap-0.5 rounded-full px-1 py-0.5 sm:right-2 sm:top-2 sm:px-1.5"
           style={{ background: colors.badge }}
         >
           {isGovt
@@ -174,12 +172,11 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
         </div>
       </div>
 
-      {/* Text area */}
-      <div className="flex flex-col gap-0.5 p-1.5 flex-1 xs:p-2 sm:p-2.5 sm:gap-1">
-        <p className="font-display text-[9px] font-bold leading-tight text-foreground line-clamp-2 xs:text-[10px] sm:text-[11px]">
+      <div className="flex flex-1 flex-col gap-0.5 p-1.5 xs:p-2 sm:gap-1 sm:p-2.5">
+        <p className="line-clamp-2 font-display text-[9px] font-bold leading-tight text-foreground xs:text-[10px] sm:text-[11px]">
           {card.title}
         </p>
-        <p className="font-body text-[8px] leading-snug text-muted-foreground line-clamp-2 xs:text-[9px] sm:text-[10px]">
+        <p className="line-clamp-2 break-words font-body text-[8px] leading-snug text-muted-foreground xs:text-[9px] sm:text-[10px]">
           {card.desc}
         </p>
       </div>
@@ -195,26 +192,26 @@ export function AdvisoryCards({ cards }: AdvisoryCardsProps) {
   const govtCards = cards.filter((c) => c.target === "govt");
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
+    <div className="space-y-3 min-w-0 w-full">
+      <div className="flex items-center gap-2 min-w-0">
         <span className="text-base">⚡</span>
         <h4 className="font-display text-xs font-bold tracking-widest text-primary uppercase">
           {lang === "hi" ? "रियल-टाइम एडवाइजरी" : "Real-Time Advisories"}
         </h4>
-        <span className="ml-auto font-mono text-[9px] text-muted-foreground uppercase tracking-wider">
+        <span className="ml-auto shrink-0 font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
           {lang === "hi" ? "AI द्वारा उत्पन्न" : "AI Generated"}
         </span>
       </div>
 
       {citizenCards.length > 0 && (
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 min-w-0">
           <div className="flex items-center gap-1.5">
             <User className="h-3 w-3 text-sky-400" />
             <span className="font-mono text-[9px] uppercase tracking-wider text-sky-400">
               {lang === "hi" ? "आप क्या करें" : "Citizen Actions"}
             </span>
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-2 sm:gap-3" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
+          <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
             {citizenCards.map((card, i) => (
               <LottieCard key={i} card={card} />
             ))}
@@ -223,14 +220,14 @@ export function AdvisoryCards({ cards }: AdvisoryCardsProps) {
       )}
 
       {govtCards.length > 0 && (
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 min-w-0">
           <div className="flex items-center gap-1.5">
             <Building2 className="h-3 w-3 text-amber-400" />
             <span className="font-mono text-[9px] uppercase tracking-wider text-amber-400">
               {lang === "hi" ? "सरकार क्या करे" : "Govt Actions"}
             </span>
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-2 sm:gap-3" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
+          <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
             {govtCards.map((card, i) => (
               <LottieCard key={i} card={card} />
             ))}

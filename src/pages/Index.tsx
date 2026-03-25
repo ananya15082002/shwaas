@@ -111,8 +111,8 @@ const Index = () => {
         ) : loading && stations.length === 0 ? (
           <HeroSkeleton />
         ) : (
-          <div className="flex flex-1 overflow-hidden flex-col">
-            <div className="border-b border-border shrink-0">
+          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+            <div className="shrink-0 border-b border-border">
               <div className="h-36 xs:h-40 sm:h-56 md:h-64 lg:h-72 xl:h-80">
                 <MapView
                   stations={stations}
@@ -130,9 +130,8 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="flex w-full flex-1 flex-col overflow-hidden">
-
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col overflow-hidden">
+            <div className="flex min-w-0 w-full flex-1 flex-col overflow-hidden">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="flex min-w-0 flex-1 flex-col overflow-hidden">
                 <div className="mx-2 mt-2 sm:mx-3 sm:mt-3">
                   <TabsList className="grid w-full grid-cols-5 bg-secondary/50 sm:inline-flex sm:w-fit">
                     <TabsTrigger value="ward" className="gap-1 px-1 py-1.5 font-mono text-[9px] sm:px-4 sm:py-2 sm:text-xs">
@@ -153,31 +152,31 @@ const Index = () => {
                   </TabsList>
                 </div>
 
-                <TabsContent value="ward" className="flex-1 overflow-hidden mt-0">
+                <TabsContent value="ward" className="mt-0 min-w-0 flex-1 overflow-hidden">
                   {displayWard ? (
-                    <div className="h-full overflow-hidden">
+                    <div className="h-full min-w-0 overflow-hidden">
                       <WardDetailPanel ward={displayWard} onClose={() => { setSelectedWard(null); setActiveTab("city"); }} />
                     </div>
                   ) : (
-                    <div className="flex h-full items-center justify-center text-muted-foreground font-mono text-sm">
+                    <div className="flex h-full items-center justify-center font-mono text-sm text-muted-foreground">
                       Loading wards...
                     </div>
                   )}
                 </TabsContent>
 
-                <TabsContent value="city" className="flex-1 overflow-hidden mt-0">
+                <TabsContent value="city" className="mt-0 min-w-0 flex-1 overflow-hidden">
                   <CityOverviewTab stations={stations} cityAqi={cityAqi} />
                 </TabsContent>
 
-                <TabsContent value="rankings" className="flex-1 overflow-hidden mt-0">
+                <TabsContent value="rankings" className="mt-0 min-w-0 flex-1 overflow-hidden">
                   <WardRankings stations={stations} />
                 </TabsContent>
 
-                <TabsContent value="compare" className="flex-1 overflow-hidden mt-0">
+                <TabsContent value="compare" className="mt-0 min-w-0 flex-1 overflow-hidden">
                   <CompareTab stations={stations} />
                 </TabsContent>
 
-                <TabsContent value="dictionary" className="flex-1 overflow-hidden mt-0">
+                <TabsContent value="dictionary" className="mt-0 min-w-0 flex-1 overflow-hidden">
                   <DictionaryTab />
                 </TabsContent>
               </Tabs>
