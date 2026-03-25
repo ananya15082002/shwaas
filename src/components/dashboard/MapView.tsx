@@ -413,43 +413,52 @@ const [wardSearch, setWardSearch] = useState("");
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
 
-    if (map.getLayer("aqi-heatmap")) map.removeLayer("aqi-heatmap");
-    if (map.getSource("heatmap-data")) map.removeSource("heatmap-data");
+    const apply = () => {
+      if (!map.isStyleLoaded()) return;
+      if (map.getLayer("aqi-heatmap")) map.removeLayer("aqi-heatmap");
+      if (map.getSource("heatmap-data")) map.removeSource("heatmap-data");
 
-    if (!showHeatmap || !enrichedWards) return;
+      if (!showHeatmap || !enrichedWards) return;
 
-    const heatFeatures = enrichedWards.features.map((f) => ({
-      type: "Feature" as const,
-      properties: { intensity: Math.min((f.properties.interpolated_aqi ?? 0) / 500, 1) },
-      geometry: { type: "Point" as const, coordinates: [f.properties.centroid[0], f.properties.centroid[1]] },
-    }));
+      const heatFeatures = enrichedWards.features.map((f) => ({
+        type: "Feature" as const,
+        properties: { intensity: Math.min((f.properties.interpolated_aqi ?? 0) / 500, 1) },
+        geometry: { type: "Point" as const, coordinates: [f.properties.centroid[0], f.properties.centroid[1]] },
+      }));
 
-    map.addSource("heatmap-data", {
-      type: "geojson",
-      data: { type: "FeatureCollection", features: heatFeatures },
-    });
+      map.addSource("heatmap-data", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: heatFeatures },
+      });
 
-    map.addLayer({
-      id: "aqi-heatmap",
-      type: "heatmap",
-      source: "heatmap-data",
-      paint: {
-        "heatmap-weight": ["get", "intensity"],
-        "heatmap-intensity": 1.5,
-        "heatmap-radius": 35,
-        "heatmap-opacity": 0.7,
-        "heatmap-color": [
-          "interpolate", ["linear"], ["heatmap-density"],
-          0, "rgba(0,0,0,0)",
-          0.2, "#00E5A0",
-          0.4, "#FFD600",
-          0.6, "#FF8C00",
-          0.8, "#FF3D3D",
-          0.9, "#C62BFF",
-          1.0, "#FF0033",
-        ],
-      },
-    });
+      map.addLayer({
+        id: "aqi-heatmap",
+        type: "heatmap",
+        source: "heatmap-data",
+        paint: {
+          "heatmap-weight": ["get", "intensity"],
+          "heatmap-intensity": 1.5,
+          "heatmap-radius": 35,
+          "heatmap-opacity": 0.7,
+          "heatmap-color": [
+            "interpolate", ["linear"], ["heatmap-density"],
+            0, "rgba(0,0,0,0)",
+            0.2, "#00E5A0",
+            0.4, "#FFD600",
+            0.6, "#FF8C00",
+            0.8, "#FF3D3D",
+            0.9, "#C62BFF",
+            1.0, "#FF0033",
+          ],
+        },
+      });
+    };
+
+    if (map.isStyleLoaded()) {
+      apply();
+    } else {
+      map.once("style.load", apply);
+    }
   }, [enrichedWards, showHeatmap, mapLoaded]);
 
   // Landmark markers
