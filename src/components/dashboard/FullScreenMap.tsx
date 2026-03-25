@@ -710,7 +710,7 @@ const [showSources, setShowSources] = useState(true);
       <AnimatePresence>
         {showUI && (
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.8 }} className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
-            <button onClick={() => onEnterDashboard(selectedWard ?? undefined)} className="group flex items-center gap-3 rounded-full border border-primary/40 bg-card/90 px-8 py-3 font-mono text-xs tracking-[0.2em] text-primary backdrop-blur-md transition-all hover:bg-primary/15 hover:border-primary/70 hover:shadow-[0_0_30px_rgba(0,229,160,0.2)]">
+            <button onClick={() => onEnterDashboard(selectedWard ?? undefined)} className="group flex items-center gap-2 rounded-full border border-primary/40 bg-card/90 px-4 py-2 font-mono text-[10px] tracking-[0.15em] text-primary backdrop-blur-md transition-all hover:bg-primary/15 hover:border-primary/70 hover:shadow-[0_0_30px_rgba(0,229,160,0.2)] xs:gap-3 xs:px-6 xs:py-2.5 xs:text-xs sm:px-8 sm:py-3 sm:tracking-[0.2em]">
               <span className="animate-pulse-live">▶</span>
               ENTER DASHBOARD
               <Navigation className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
