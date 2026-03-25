@@ -119,7 +119,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
 
   return (
     <ScrollArea className="h-full">
-      <div className="space-y-3 overflow-x-hidden p-3 pb-20 pr-4 sm:space-y-4 sm:p-4 sm:pb-16">
+      <div className="space-y-3 p-3 pb-20 sm:space-y-4 sm:p-4 sm:pb-16">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             <h2 className="font-display text-sm font-bold text-foreground sm:text-lg">{ward.ward_name}</h2>

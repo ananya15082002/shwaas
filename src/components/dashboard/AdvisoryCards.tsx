@@ -126,7 +126,7 @@ function AnimatedEmoji({ emoji, category }: { emoji: string; category: string })
           50% { transform: translateY(-5px) scale(1.06); }
         }
       `}</style>
-      <span className="text-3xl select-none xs:text-4xl sm:text-5xl" style={style}>{emoji}</span>
+      <span className="text-2xl select-none xs:text-3xl sm:text-4xl" style={style}>{emoji}</span>
     </>
   );
 }
@@ -139,12 +139,12 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
 
   return (
     <div
-      className="shrink-0 w-[calc(50vw-3rem)] min-w-[130px] max-w-[180px] rounded-2xl border overflow-hidden flex flex-col sm:w-40 md:w-44 lg:w-40 xl:w-44"
+      className="shrink-0 w-28 min-w-[112px] rounded-xl border overflow-hidden flex flex-col xs:w-32 sm:w-36 md:w-40 lg:w-36 xl:w-40"
       style={{ borderColor: colors.border, background: colors.bg, backdropFilter: "blur(8px)" }}
     >
       {/* Animation / Emoji area */}
       <div
-        className="flex items-center justify-center h-20 w-full relative xs:h-24 sm:h-28"
+        className="flex items-center justify-center h-16 w-full relative xs:h-18 sm:h-22 md:h-24"
         style={{
           background: card.category === "trees"
             ? "linear-gradient(135deg, rgba(34,197,94,0.18), rgba(16,185,129,0.08), rgba(0,0,0,0.4))"
@@ -158,7 +158,7 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
 
         {/* target badge */}
         <div
-          className="absolute top-2 right-2 flex items-center gap-0.5 rounded-full px-1.5 py-0.5"
+          className="absolute top-1 right-1 flex items-center gap-0.5 rounded-full px-1 py-0.5 sm:top-2 sm:right-2 sm:px-1.5"
           style={{ background: colors.badge }}
         >
           {isGovt
@@ -175,11 +175,11 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
       </div>
 
       {/* Text area */}
-      <div className="flex flex-col gap-0.5 p-2 flex-1 xs:p-2.5 sm:p-3 sm:gap-1">
-        <p className="font-display text-[10px] font-bold leading-tight text-foreground line-clamp-2 xs:text-[11px] sm:text-[12px]">
+      <div className="flex flex-col gap-0.5 p-1.5 flex-1 xs:p-2 sm:p-2.5 sm:gap-1">
+        <p className="font-display text-[9px] font-bold leading-tight text-foreground line-clamp-2 xs:text-[10px] sm:text-[11px]">
           {card.title}
         </p>
-        <p className="font-body text-[9px] leading-snug text-muted-foreground line-clamp-3 xs:text-[10px]">
+        <p className="font-body text-[8px] leading-snug text-muted-foreground line-clamp-2 xs:text-[9px] sm:text-[10px]">
           {card.desc}
         </p>
       </div>
