@@ -271,7 +271,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
                 )}
               </div>
 
-              {ai.trend_reason && <p className="font-mono text-[10px] text-muted-foreground">{ai.trend_reason}</p>}
+              {ai.trend_reason && <p className="font-mono text-[9px] text-muted-foreground break-words sm:text-[10px]">{ai.trend_reason}</p>}
 
               {ai.anomaly && ai.anomaly_detail && (
                 <div className="flex items-start gap-2 rounded-md border border-orange-500/30 bg-orange-500/10 p-2.5">
