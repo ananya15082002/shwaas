@@ -123,7 +123,7 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
 
   return (
     <ScrollArea className="h-full">
-      <div className="space-y-4 p-3 sm:p-4">
+      <div className="space-y-4 p-3 pb-20 sm:p-4 sm:pb-16">
         <div className="cyber-border rounded-lg p-4 text-center">
           <span className="font-mono text-[10px] text-muted-foreground">CITY AQI (POPULATION-WEIGHTED · 251 WARDS)</span>
           <div className="mt-1 font-display text-4xl font-black" style={{ color: mlLevel.color, textShadow: `0 0 20px ${mlLevel.color}60` }}>

@@ -40,7 +40,7 @@ export function StationIntelTab({ station }: StationIntelTabProps) {
 
   return (
     <ScrollArea className="h-full">
-      <div className="space-y-5 p-4">
+      <div className="space-y-5 p-4 pb-20 sm:pb-16">
         <div className="flex flex-col items-center gap-4 sm:flex-row">
           <AqiGauge aqi={station.aqi} size={140} />
           <div className="flex-1">

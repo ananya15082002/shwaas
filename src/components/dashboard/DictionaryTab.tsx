@@ -544,7 +544,7 @@ export function DictionaryTab() {
 
   return (
     <ScrollArea className="h-full">
-      <div className="space-y-5 p-4 pb-8">
+      <div className="space-y-5 p-4 pb-20 sm:pb-16">
         {/* Header */}
         <div>
           <div className="flex items-center gap-2">
