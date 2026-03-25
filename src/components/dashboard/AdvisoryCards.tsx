@@ -214,7 +214,7 @@ export function AdvisoryCards({ cards }: AdvisoryCardsProps) {
               {lang === "hi" ? "आप क्या करें" : "Citizen Actions"}
             </span>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+          <div className="flex gap-2 overflow-x-auto pb-2 sm:gap-3" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
             {citizenCards.map((card, i) => (
               <LottieCard key={i} card={card} />
             ))}
