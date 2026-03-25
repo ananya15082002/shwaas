@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Volume2, VolumeX, Music } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Volume2, VolumeX } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
 
@@ -12,10 +12,21 @@ interface MusicControlProps {
 
 export function MusicControl({ isPlaying, volume, onToggle, onVolumeChange }: MusicControlProps) {
   const [expanded, setExpanded] = useState(false);
+  const [touchMode, setTouchMode] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setTouchMode(window.matchMedia("(hover: none)").matches);
+  }, []);
+
+  const handleMainClick = () => {
+    onToggle();
+    if (touchMode) setExpanded((prev) => !prev);
+  };
 
   return (
     <motion.div
-      className="fixed bottom-4 right-4 z-[110] flex items-center gap-2"
+      className="fixed bottom-2 right-2 z-[110] flex items-center gap-2 sm:bottom-4 sm:right-4"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 1, duration: 0.5 }}
@@ -24,17 +35,17 @@ export function MusicControl({ isPlaying, volume, onToggle, onVolumeChange }: Mu
         {expanded && (
           <motion.div
             initial={{ opacity: 0, width: 0 }}
-            animate={{ opacity: 1, width: 120 }}
+            animate={{ opacity: 1, width: touchMode ? 100 : 120 }}
             exit={{ opacity: 0, width: 0 }}
             className="overflow-hidden"
           >
-            <div className="flex items-center gap-2 rounded-full border border-primary/20 bg-card/90 px-3 py-2 backdrop-blur-xl">
+            <div className="flex items-center gap-2 rounded-full border border-primary/20 bg-card/90 px-2 py-1.5 backdrop-blur-xl sm:px-3 sm:py-2">
               <Slider
                 value={[volume * 100]}
                 onValueChange={([v]) => onVolumeChange(v / 100)}
                 max={100}
                 step={1}
-                className="w-20"
+                className="w-16 sm:w-20"
               />
             </div>
           </motion.div>
@@ -42,18 +53,17 @@ export function MusicControl({ isPlaying, volume, onToggle, onVolumeChange }: Mu
       </AnimatePresence>
 
       <button
-        onClick={onToggle}
-        onMouseEnter={() => setExpanded(true)}
-        onMouseLeave={() => setExpanded(false)}
-        className="group relative flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-card/90 backdrop-blur-xl transition-all hover:border-primary hover:bg-primary/10"
+        onClick={handleMainClick}
+        onMouseEnter={() => !touchMode && setExpanded(true)}
+        onMouseLeave={() => !touchMode && setExpanded(false)}
+        className="group relative flex h-9 w-9 items-center justify-center rounded-full border border-primary/30 bg-card/90 backdrop-blur-xl transition-all hover:border-primary hover:bg-primary/10 sm:h-10 sm:w-10"
         title={isPlaying ? "Mute music" : "Play ambient music"}
       >
         {isPlaying ? (
           <>
-            <Volume2 className="h-4 w-4 text-primary" />
-            {/* Animated music bars */}
+            <Volume2 className="h-3.5 w-3.5 text-primary sm:h-4 sm:w-4" />
             <div className="absolute -top-1 -right-1 flex gap-[2px]">
-              {[0, 1, 2].map(i => (
+              {[0, 1, 2].map((i) => (
                 <motion.div
                   key={i}
                   className="w-[2px] rounded-full bg-primary"
@@ -69,7 +79,7 @@ export function MusicControl({ isPlaying, volume, onToggle, onVolumeChange }: Mu
             </div>
           </>
         ) : (
-          <VolumeX className="h-4 w-4 text-muted-foreground" />
+          <VolumeX className="h-3.5 w-3.5 text-muted-foreground sm:h-4 sm:w-4" />
         )}
       </button>
     </motion.div>
