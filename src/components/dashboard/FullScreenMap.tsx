@@ -312,7 +312,7 @@ const [showSources, setShowSources] = useState(true);
           .setLngLat(e.lngLat)
           .setHTML(`
             <div style="background:rgba(4,8,16,0.95);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 16px;font-family:'JetBrains Mono',monospace;backdrop-filter:blur(12px);">
-              <div style="color:#fff;font-weight:700;font-size:14px;margin-bottom:2px;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px">${p.ward_name}</div>
+              <div style="color:#fff;font-weight:700;font-size:14px;margin-bottom:2px;font-family:'DM Sans',sans-serif;letter-spacing:0.5px">${p.ward_name}</div>
               <div style="color:rgba(255,255,255,0.45);font-size:10px;margin-bottom:10px;letter-spacing:1px">WARD ${p.ward_no} · ${p.ac_name}</div>
               <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px">
                 <span style="color:rgba(255,255,255,0.5);font-size:10px;letter-spacing:2px">AQI</span>
