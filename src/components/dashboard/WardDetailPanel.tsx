@@ -313,7 +313,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
                       <div className="flex items-center gap-1 font-mono text-[8px] tracking-widest text-primary">
                         <User className="h-3 w-3" /> {t("ward.citizenTip")}
                       </div>
-                      <p className="mt-1 font-body text-[11px] leading-snug text-foreground/80">{ai.citizen_tip}</p>
+                      <p className="mt-1 font-body text-[10px] leading-snug text-foreground/80 break-words sm:text-[11px]">{ai.citizen_tip}</p>
                     </div>
                   )}
                 </div>
