@@ -230,8 +230,8 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
           {!isSpecialZone && <StatCard icon={<MapPin className="h-3.5 w-3.5" />} label={t("ward.assembly")} value={`${ward.ac_name} (#${ward.ac_no})`} />}
         </div>
 
-        <div className="cyber-border rounded-lg p-4">
-          <h4 className="flex items-center gap-2 font-display text-xs font-bold tracking-widest text-primary">
+        <div className="cyber-border rounded-lg p-2.5 xs:p-3 sm:p-4">
+          <h4 className="flex items-center gap-2 font-display text-[10px] font-bold tracking-widest text-primary xs:text-xs">
             <Brain className="h-4 w-4" /> {t("ward.aiIntelligence")}
           </h4>
           {aiLoading ? (
