@@ -299,7 +299,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
               )}
 
               {(ai.admin_action || ai.citizen_tip) && (
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-2">
                   {ai.admin_action && (
                     <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-2.5">
                       <div className="flex items-center gap-1 font-mono text-[8px] tracking-widest text-destructive">
