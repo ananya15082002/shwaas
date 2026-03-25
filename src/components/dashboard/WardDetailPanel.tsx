@@ -161,7 +161,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
               <span className="font-mono text-[8px] uppercase tracking-[0.2em] text-muted-foreground">
                 {lang === "hi" ? "प्रमुख प्रदूषण स्रोत" : "MAJOR POLLUTION SOURCE"}
               </span>
-              <p className="font-display text-sm font-bold text-foreground leading-tight mt-0.5">{ai.pollution_source}</p>
+              <p className="font-display text-xs font-bold text-foreground leading-tight mt-0.5 break-words sm:text-sm">{ai.pollution_source}</p>
               {ai.source_type && (
                 <span className="inline-block mt-1 rounded-full px-2 py-0.5 font-mono text-[8px] uppercase tracking-wider" style={{
                   background: `${displayLevel.color}15`,
