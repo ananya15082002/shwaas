@@ -57,12 +57,12 @@ const EMOJI_FALLBACK: Record<string, string> = {
 };
 
 const CATEGORY_COLORS: Record<string, { border: string; bg: string; badge: string }> = {
-  transport:    { border: "rgba(59,130,246,0.4)",  bg: "rgba(59,130,246,0.06)",  badge: "rgba(59,130,246,0.15)"  },
-  construction: { border: "rgba(245,158,11,0.4)",  bg: "rgba(245,158,11,0.06)",  badge: "rgba(245,158,11,0.15)"  },
-  trees:        { border: "rgba(34,197,94,0.4)",   bg: "rgba(34,197,94,0.06)",   badge: "rgba(34,197,94,0.15)"   },
-  health:       { border: "rgba(239,68,68,0.4)",   bg: "rgba(239,68,68,0.06)",   badge: "rgba(239,68,68,0.15)"   },
-  industry:     { border: "rgba(168,85,247,0.4)",  bg: "rgba(168,85,247,0.06)",  badge: "rgba(168,85,247,0.15)"  },
-  waste:        { border: "rgba(107,114,128,0.4)", bg: "rgba(107,114,128,0.06)", badge: "rgba(107,114,128,0.15)" },
+  transport:    { border: "hsl(var(--primary) / 0.45)",      bg: "hsl(var(--primary) / 0.08)",      badge: "hsl(var(--primary) / 0.18)" },
+  construction: { border: "hsl(var(--accent) / 0.45)",       bg: "hsl(var(--accent) / 0.08)",       badge: "hsl(var(--accent) / 0.18)" },
+  trees:        { border: "hsl(var(--aqi-good) / 0.45)",     bg: "hsl(var(--aqi-good) / 0.08)",     badge: "hsl(var(--aqi-good) / 0.18)" },
+  health:       { border: "hsl(var(--destructive) / 0.45)",  bg: "hsl(var(--destructive) / 0.08)",  badge: "hsl(var(--destructive) / 0.18)" },
+  industry:     { border: "hsl(var(--secondary-foreground) / 0.35)", bg: "hsl(var(--secondary) / 0.45)", badge: "hsl(var(--secondary-foreground) / 0.14)" },
+  waste:        { border: "hsl(var(--muted-foreground) / 0.35)",     bg: "hsl(var(--muted) / 0.45)",     badge: "hsl(var(--muted-foreground) / 0.14)" },
 };
 
 function LottieEmbed({ url, emoji, category }: { url: string; emoji: string; category: string }) {
@@ -95,19 +95,19 @@ function LottieEmbed({ url, emoji, category }: { url: string; emoji: string; cat
 const ANIM_STYLE: Record<string, React.CSSProperties> = {
   trees: {
     animation: "floatTree 3s ease-in-out infinite",
-    filter: "drop-shadow(0 4px 12px rgba(34,197,94,0.5))",
+    filter: "drop-shadow(0 4px 12px hsl(var(--aqi-good) / 0.45))",
   },
   transport: {
     animation: "floatCard 2.5s ease-in-out infinite",
-    filter: "drop-shadow(0 4px 12px rgba(59,130,246,0.4))",
+    filter: "drop-shadow(0 4px 12px hsl(var(--primary) / 0.4))",
   },
   construction: {
     animation: "floatCard 2.8s ease-in-out infinite",
-    filter: "drop-shadow(0 4px 12px rgba(245,158,11,0.4))",
+    filter: "drop-shadow(0 4px 12px hsl(var(--accent) / 0.4))",
   },
   health: {
     animation: "floatCard 2s ease-in-out infinite",
-    filter: "drop-shadow(0 4px 12px rgba(239,68,68,0.4))",
+    filter: "drop-shadow(0 4px 12px hsl(var(--destructive) / 0.4))",
   },
 };
 
@@ -146,8 +146,8 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
         className="relative flex h-16 w-full items-center justify-center xs:h-20 sm:h-24"
         style={{
           background: card.category === "trees"
-            ? "linear-gradient(135deg, rgba(34,197,94,0.18), rgba(16,185,129,0.08), rgba(0,0,0,0.4))"
-            : `linear-gradient(135deg, ${colors.bg}, rgba(0,0,0,0.3))`,
+            ? "linear-gradient(135deg, hsl(var(--aqi-good) / 0.2), hsl(var(--primary) / 0.08), hsl(var(--background) / 0.7))"
+            : `linear-gradient(135deg, ${colors.bg}, hsl(var(--background) / 0.55))`,
         }}
       >
         {lottieUrl
@@ -160,12 +160,12 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
           style={{ background: colors.badge }}
         >
           {isGovt
-            ? <Building2 className="h-2.5 w-2.5 text-amber-400" />
-            : <User className="h-2.5 w-2.5 text-sky-400" />
+            ? <Building2 className="h-2.5 w-2.5 text-accent" />
+            : <User className="h-2.5 w-2.5 text-primary" />
           }
           <span
             className="font-mono text-[7px] font-bold uppercase tracking-wider"
-            style={{ color: isGovt ? "#fbbf24" : "#38bdf8" }}
+            style={{ color: isGovt ? "hsl(var(--accent))" : "hsl(var(--primary))" }}
           >
             {isGovt ? "GOVT" : "YOU"}
           </span>
@@ -192,10 +192,10 @@ export function AdvisoryCards({ cards }: AdvisoryCardsProps) {
   const govtCards = cards.filter((c) => c.target === "govt");
 
   return (
-    <div className="space-y-3 min-w-0 w-full">
-      <div className="flex items-center gap-2 min-w-0">
+    <div className="min-w-0 w-full space-y-3">
+      <div className="flex min-w-0 items-center gap-2">
         <span className="text-base">⚡</span>
-        <h4 className="font-display text-xs font-bold tracking-widest text-primary uppercase">
+        <h4 className="font-display text-xs font-bold uppercase tracking-widest text-primary">
           {lang === "hi" ? "रियल-टाइम एडवाइजरी" : "Real-Time Advisories"}
         </h4>
         <span className="ml-auto shrink-0 font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
@@ -204,10 +204,10 @@ export function AdvisoryCards({ cards }: AdvisoryCardsProps) {
       </div>
 
       {citizenCards.length > 0 && (
-        <div className="space-y-1.5 min-w-0">
+        <div className="min-w-0 space-y-1.5">
           <div className="flex items-center gap-1.5">
-            <User className="h-3 w-3 text-sky-400" />
-            <span className="font-mono text-[9px] uppercase tracking-wider text-sky-400">
+            <User className="h-3 w-3 text-primary" />
+            <span className="font-mono text-[9px] uppercase tracking-wider text-primary">
               {lang === "hi" ? "आप क्या करें" : "Citizen Actions"}
             </span>
           </div>
@@ -220,10 +220,10 @@ export function AdvisoryCards({ cards }: AdvisoryCardsProps) {
       )}
 
       {govtCards.length > 0 && (
-        <div className="space-y-1.5 min-w-0">
+        <div className="min-w-0 space-y-1.5">
           <div className="flex items-center gap-1.5">
-            <Building2 className="h-3 w-3 text-amber-400" />
-            <span className="font-mono text-[9px] uppercase tracking-wider text-amber-400">
+            <Building2 className="h-3 w-3 text-accent" />
+            <span className="font-mono text-[9px] uppercase tracking-wider text-accent">
               {lang === "hi" ? "सरकार क्या करे" : "Govt Actions"}
             </span>
           </div>
