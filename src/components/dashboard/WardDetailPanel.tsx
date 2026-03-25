@@ -119,23 +119,23 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
 
   return (
     <ScrollArea className="h-full">
-      <div className="space-y-4 p-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="font-display text-lg font-bold text-foreground">{ward.ward_name}</h2>
-            <p className="font-mono text-[10px] text-muted-foreground">
+      <div className="space-y-3 p-3 sm:space-y-4 sm:p-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <h2 className="font-display text-sm font-bold text-foreground sm:text-lg">{ward.ward_name}</h2>
+            <p className="font-mono text-[9px] text-muted-foreground sm:text-[10px]">
               {isSpecialZone
                 ? ward.ac_name
                 : `Ward ${ward.ward_no} · ${ward.ac_name} · ${ward.total_pop?.toLocaleString()} ${t("ward.residents")}`
               }
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 shrink-0 sm:gap-3">
             <div className="text-right">
-              <span className="font-display text-4xl font-black leading-none" style={{ color: displayLevel.color, textShadow: `0 0 20px ${displayLevel.color}60` }}>
+              <span className="font-display text-2xl font-black leading-none xs:text-3xl sm:text-4xl" style={{ color: displayLevel.color, textShadow: `0 0 20px ${displayLevel.color}60` }}>
                 {displayAqi}
               </span>
-              <span className="mt-1 block font-mono text-[9px] font-bold tracking-widest" style={{ color: displayLevel.color }}>
+              <span className="mt-0.5 block font-mono text-[8px] font-bold tracking-widest sm:mt-1 sm:text-[9px]" style={{ color: displayLevel.color }}>
                 {getAQICategory(displayAqi)}
               </span>
             </div>
