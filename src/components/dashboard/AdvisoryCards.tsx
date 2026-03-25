@@ -158,7 +158,7 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
 
         {/* target badge */}
         <div
-          className="absolute top-2 right-2 flex items-center gap-0.5 rounded-full px-1.5 py-0.5"
+          className="absolute top-1 right-1 flex items-center gap-0.5 rounded-full px-1 py-0.5 sm:top-2 sm:right-2 sm:px-1.5"
           style={{ background: colors.badge }}
         >
           {isGovt
