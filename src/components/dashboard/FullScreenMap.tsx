@@ -610,10 +610,10 @@ const [showSources, setShowSources] = useState(true);
             transition={{ duration: 0.5 }}
             className="absolute top-20 right-4 z-30 w-64"
           >
-            <div className="rounded-xl border border-destructive/30 bg-card/95 backdrop-blur-xl p-4 shadow-2xl">
-              <div className="flex items-center gap-2 mb-3">
-                <Plane className="h-3.5 w-3.5 text-destructive animate-pulse" />
-                <span className="font-mono text-[9px] tracking-[0.2em] text-destructive font-bold">
+            <div className="rounded-xl border border-destructive/30 bg-card/95 backdrop-blur-xl p-3 shadow-2xl sm:p-4">
+              <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                <Plane className="h-3 w-3 text-destructive animate-pulse sm:h-3.5 sm:w-3.5" />
+                <span className="font-mono text-[8px] tracking-[0.15em] text-destructive font-bold xs:text-[9px] sm:tracking-[0.2em]">
                   FLYING TOUR · {tourIndex + 1}/{top5Polluted.length}
                 </span>
               </div>
