@@ -83,7 +83,7 @@ export function CompareTab({ stations }: CompareTabProps) {
 
   return (
     <ScrollArea className="h-full">
-      <div className="space-y-5 p-4">
+      <div className="space-y-5 p-4 pb-20 sm:pb-16">
         <div>
           <h4 className="font-display text-xs font-bold tracking-widest text-primary">
             {t("compare.select")} (Max 4 Wards)

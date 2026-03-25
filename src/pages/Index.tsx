@@ -130,7 +130,7 @@ const Index = () => {
 
             <div className="flex w-full flex-1 flex-col overflow-hidden lg:w-1/2">
               <div className="block border-b border-border lg:hidden">
-                <div className="h-44 xs:h-48 sm:h-56 md:h-64">
+                <div className="h-36 xs:h-40 sm:h-56 md:h-64">
                   <MapView
                     stations={stations}
                     selectedStation={effectiveStation}
@@ -148,22 +148,22 @@ const Index = () => {
               </div>
 
               <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col overflow-hidden">
-                <div className="mx-2 mt-2 overflow-x-auto sm:mx-3 sm:mt-3">
-                  <TabsList className="w-max min-w-full bg-secondary/50 sm:w-fit">
-                    <TabsTrigger value="ward" className="gap-1 font-mono text-[9px] px-2 py-1.5 xs:gap-1.5 xs:text-[10px] xs:px-3 sm:text-xs sm:px-4 sm:py-2">
-                      <Map className="h-3 w-3 shrink-0" /> <span className="hidden xs:inline">{t("tab.ward")}</span><span className="xs:hidden">Ward</span>
+                <div className="mx-2 mt-2 sm:mx-3 sm:mt-3">
+                  <TabsList className="grid w-full grid-cols-5 bg-secondary/50 sm:inline-flex sm:w-fit">
+                    <TabsTrigger value="ward" className="gap-1 px-1 py-1.5 font-mono text-[9px] sm:px-4 sm:py-2 sm:text-xs">
+                      <Map className="h-3 w-3 shrink-0" /> <span className="hidden sm:inline">{t("tab.ward")}</span><span className="sm:hidden">Ward</span>
                     </TabsTrigger>
-                    <TabsTrigger value="city" className="gap-1 font-mono text-[9px] px-2 py-1.5 xs:gap-1.5 xs:text-[10px] xs:px-3 sm:text-xs sm:px-4 sm:py-2">
-                      <BarChart3 className="h-3 w-3 shrink-0" /> <span className="hidden xs:inline">{t("tab.city")}</span><span className="xs:hidden">City</span>
+                    <TabsTrigger value="city" className="gap-1 px-1 py-1.5 font-mono text-[9px] sm:px-4 sm:py-2 sm:text-xs">
+                      <BarChart3 className="h-3 w-3 shrink-0" /> <span className="hidden sm:inline">{t("tab.city")}</span><span className="sm:hidden">City</span>
                     </TabsTrigger>
-                    <TabsTrigger value="rankings" className="gap-1 font-mono text-[9px] px-2 py-1.5 xs:gap-1.5 xs:text-[10px] xs:px-3 sm:text-xs sm:px-4 sm:py-2">
-                      <Trophy className="h-3 w-3 shrink-0" /> <span className="hidden xs:inline">{t("tab.rankings")}</span><span className="xs:hidden">Rank</span>
+                    <TabsTrigger value="rankings" className="gap-1 px-1 py-1.5 font-mono text-[9px] sm:px-4 sm:py-2 sm:text-xs">
+                      <Trophy className="h-3 w-3 shrink-0" /> <span className="hidden sm:inline">{t("tab.rankings")}</span><span className="sm:hidden">Rank</span>
                     </TabsTrigger>
-                    <TabsTrigger value="compare" className="gap-1 font-mono text-[9px] px-2 py-1.5 xs:gap-1.5 xs:text-[10px] xs:px-3 sm:text-xs sm:px-4 sm:py-2">
-                      <GitCompareArrows className="h-3 w-3 shrink-0" /> <span className="hidden xs:inline">{t("tab.compare")}</span><span className="xs:hidden">Cmp</span>
+                    <TabsTrigger value="compare" className="gap-1 px-1 py-1.5 font-mono text-[9px] sm:px-4 sm:py-2 sm:text-xs">
+                      <GitCompareArrows className="h-3 w-3 shrink-0" /> <span className="hidden sm:inline">{t("tab.compare")}</span><span className="sm:hidden">Cmp</span>
                     </TabsTrigger>
-                    <TabsTrigger value="dictionary" className="gap-1 font-mono text-[9px] px-2 py-1.5 xs:gap-1.5 xs:text-[10px] xs:px-3 sm:text-xs sm:px-4 sm:py-2">
-                      <BookOpen className="h-3 w-3 shrink-0" /> <span className="hidden xs:inline">{t("tab.dictionary")}</span><span className="xs:hidden">Dict</span>
+                    <TabsTrigger value="dictionary" className="gap-1 px-1 py-1.5 font-mono text-[9px] sm:px-4 sm:py-2 sm:text-xs">
+                      <BookOpen className="h-3 w-3 shrink-0" /> <span className="hidden sm:inline">{t("tab.dictionary")}</span><span className="sm:hidden">Dict</span>
                     </TabsTrigger>
                   </TabsList>
                 </div>
