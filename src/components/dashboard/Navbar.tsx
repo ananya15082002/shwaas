@@ -21,48 +21,47 @@ export function Navbar({ lastUpdated, onRefresh, loading, onLogoClick }: NavbarP
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
-      <div className="container mx-auto flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={onLogoClick} title="Replay intro">
-          <Wind className="h-6 w-6 text-primary" />
+      <div className="mx-auto flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3">
+        <div className="flex items-center gap-2 cursor-pointer sm:gap-3" onClick={onLogoClick} title="Replay intro">
+          <Wind className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
           <div>
-            <h1 className="font-display text-sm font-bold tracking-wider text-primary sm:text-base">
+            <h1 className="font-display text-xs font-bold tracking-wider text-primary sm:text-sm md:text-base">
               {t("nav.title")}
             </h1>
-            <p className="font-mono text-[10px] text-muted-foreground">
+            <p className="hidden font-mono text-[9px] text-muted-foreground xs:block sm:text-[10px]">
               {t("nav.subtitle")}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4">
-          <div className="flex items-center gap-1.5">
-            <Radio className="h-3 w-3 animate-pulse-live text-aqi-unhealthy" />
-            <span className="font-mono text-[10px] font-semibold text-aqi-unhealthy sm:text-xs">{t("nav.live")}</span>
+        <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 md:gap-4">
+          <div className="flex items-center gap-1">
+            <Radio className="h-2.5 w-2.5 animate-pulse-live text-aqi-unhealthy sm:h-3 sm:w-3" />
+            <span className="font-mono text-[9px] font-semibold text-aqi-unhealthy xs:text-[10px] sm:text-xs">{t("nav.live")}</span>
           </div>
 
-          <div className="hidden flex-col items-end md:flex">
-            <span className="font-mono text-xs text-muted-foreground">
+          <div className="hidden flex-col items-end lg:flex">
+            <span className="font-mono text-[10px] text-muted-foreground">
               {lastUpdated ? `${t("nav.updated")} ${lastUpdated.toLocaleTimeString("en-IN")}` : t("nav.loading")}
             </span>
           </div>
 
           <div className="hidden flex-col items-end font-mono tabular-nums sm:flex">
-            <span className="text-sm font-semibold text-primary text-glow-primary">
+            <span className="text-xs font-semibold text-primary text-glow-primary sm:text-sm">
               {time.toLocaleTimeString("en-IN", { hour12: false })}
             </span>
-            <span className="text-[9px] text-muted-foreground">
+            <span className="text-[8px] text-muted-foreground sm:text-[9px]">
               {time.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
             </span>
           </div>
 
-          {/* Language Toggle */}
           <Button
             variant="outline"
             size="sm"
             onClick={toggleLang}
-            className="gap-1 border-primary/30 px-2 font-mono text-[10px] hover:border-primary hover:bg-primary/10 sm:gap-1.5 sm:px-3"
+            className="h-7 gap-1 border-primary/30 px-1.5 font-mono text-[9px] hover:border-primary hover:bg-primary/10 xs:px-2 xs:text-[10px] sm:h-8 sm:gap-1.5 sm:px-3"
           >
-            <Languages className="h-3.5 w-3.5 text-primary" />
+            <Languages className="h-3 w-3 text-primary sm:h-3.5 sm:w-3.5" />
             <span className="hidden sm:inline">{t("lang.toggle")}</span>
             <span className="sm:hidden">{lang === "en" ? "हि" : "EN"}</span>
           </Button>
@@ -72,9 +71,9 @@ export function Navbar({ lastUpdated, onRefresh, loading, onLogoClick }: NavbarP
             size="icon"
             onClick={onRefresh}
             disabled={loading}
-            className="h-8 w-8 border-primary/30 hover:border-primary hover:bg-primary/10 sm:h-9 sm:w-9"
+            className="h-7 w-7 border-primary/30 hover:border-primary hover:bg-primary/10 sm:h-8 sm:w-8 md:h-9 md:w-9"
           >
-            <RefreshCw className={`h-3.5 w-3.5 text-primary sm:h-4 sm:w-4 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-3 w-3 text-primary sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
       </div>

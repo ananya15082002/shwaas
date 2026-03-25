@@ -111,7 +111,7 @@ const Index = () => {
         ) : loading && stations.length === 0 ? (
           <HeroSkeleton />
         ) : (
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
             <div className="hidden w-1/2 border-r border-border lg:block">
               <MapView
                 stations={stations}
@@ -130,7 +130,7 @@ const Index = () => {
 
             <div className="flex w-full flex-col lg:w-1/2">
               <div className="block border-b border-border lg:hidden">
-                <div className="h-36 sm:h-48 md:h-56">
+                <div className="h-44 xs:h-48 sm:h-56 md:h-64">
                   <MapView
                     stations={stations}
                     selectedStation={effectiveStation}
@@ -148,22 +148,22 @@ const Index = () => {
               </div>
 
               <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col overflow-hidden">
-                <div className="mx-3 mt-3 overflow-x-auto">
+                <div className="mx-2 mt-2 overflow-x-auto sm:mx-3 sm:mt-3">
                   <TabsList className="w-max min-w-full bg-secondary/50 sm:w-fit">
-                    <TabsTrigger value="ward" className="gap-1.5 font-mono text-[10px]">
-                      <Map className="h-3 w-3 shrink-0" /> {t("tab.ward")}
+                    <TabsTrigger value="ward" className="gap-1 font-mono text-[9px] px-2 py-1.5 xs:gap-1.5 xs:text-[10px] xs:px-3 sm:text-xs sm:px-4 sm:py-2">
+                      <Map className="h-3 w-3 shrink-0" /> <span className="hidden xs:inline">{t("tab.ward")}</span><span className="xs:hidden">Ward</span>
                     </TabsTrigger>
-                    <TabsTrigger value="city" className="gap-1.5 font-mono text-[10px]">
-                      <BarChart3 className="h-3 w-3 shrink-0" /> {t("tab.city")}
+                    <TabsTrigger value="city" className="gap-1 font-mono text-[9px] px-2 py-1.5 xs:gap-1.5 xs:text-[10px] xs:px-3 sm:text-xs sm:px-4 sm:py-2">
+                      <BarChart3 className="h-3 w-3 shrink-0" /> <span className="hidden xs:inline">{t("tab.city")}</span><span className="xs:hidden">City</span>
                     </TabsTrigger>
-                    <TabsTrigger value="rankings" className="gap-1.5 font-mono text-[10px]">
-                      <Trophy className="h-3 w-3 shrink-0" /> {t("tab.rankings")}
+                    <TabsTrigger value="rankings" className="gap-1 font-mono text-[9px] px-2 py-1.5 xs:gap-1.5 xs:text-[10px] xs:px-3 sm:text-xs sm:px-4 sm:py-2">
+                      <Trophy className="h-3 w-3 shrink-0" /> <span className="hidden xs:inline">{t("tab.rankings")}</span><span className="xs:hidden">Rank</span>
                     </TabsTrigger>
-                    <TabsTrigger value="compare" className="gap-1.5 font-mono text-[10px]">
-                      <GitCompareArrows className="h-3 w-3 shrink-0" /> {t("tab.compare")}
+                    <TabsTrigger value="compare" className="gap-1 font-mono text-[9px] px-2 py-1.5 xs:gap-1.5 xs:text-[10px] xs:px-3 sm:text-xs sm:px-4 sm:py-2">
+                      <GitCompareArrows className="h-3 w-3 shrink-0" /> <span className="hidden xs:inline">{t("tab.compare")}</span><span className="xs:hidden">Cmp</span>
                     </TabsTrigger>
-                    <TabsTrigger value="dictionary" className="gap-1.5 font-mono text-[10px]">
-                      <BookOpen className="h-3 w-3 shrink-0" /> {t("tab.dictionary")}
+                    <TabsTrigger value="dictionary" className="gap-1 font-mono text-[9px] px-2 py-1.5 xs:gap-1.5 xs:text-[10px] xs:px-3 sm:text-xs sm:px-4 sm:py-2">
+                      <BookOpen className="h-3 w-3 shrink-0" /> <span className="hidden xs:inline">{t("tab.dictionary")}</span><span className="xs:hidden">Dict</span>
                     </TabsTrigger>
                   </TabsList>
                 </div>

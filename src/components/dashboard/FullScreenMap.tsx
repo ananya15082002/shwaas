@@ -608,7 +608,7 @@ const [showSources, setShowSources] = useState(true);
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 30 }}
             transition={{ duration: 0.5 }}
-            className="absolute top-20 right-4 z-30 w-64"
+            className="absolute top-16 right-3 z-30 w-[min(16rem,calc(100vw-1.5rem))] xs:top-20 xs:right-4 sm:w-64"
           >
             <div className="rounded-xl border border-destructive/30 bg-card/95 backdrop-blur-xl p-3 shadow-2xl sm:p-4">
               <div className="flex items-center gap-2 mb-2 sm:mb-3">
