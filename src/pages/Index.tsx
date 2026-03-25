@@ -111,41 +111,26 @@ const Index = () => {
         ) : loading && stations.length === 0 ? (
           <HeroSkeleton />
         ) : (
-          <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
-            <div className="hidden w-1/2 border-r border-border lg:block">
-              <MapView
-                stations={stations}
-                selectedStation={effectiveStation}
-                onSelectStation={(s) => {
-                  setSelectedStation(s);
-                  setSelectedWard(null);
-                }}
-                onWardSelect={(w) => {
-                  setSelectedWard(w);
-                  setActiveTab("ward");
-                }}
-                activeWard={displayWard}
-              />
+          <div className="flex flex-1 overflow-hidden flex-col">
+            <div className="border-b border-border shrink-0">
+              <div className="h-36 xs:h-40 sm:h-56 md:h-64 lg:h-72 xl:h-80">
+                <MapView
+                  stations={stations}
+                  selectedStation={effectiveStation}
+                  onSelectStation={(s) => {
+                    setSelectedStation(s);
+                    setSelectedWard(null);
+                  }}
+                  onWardSelect={(w) => {
+                    setSelectedWard(w);
+                    setActiveTab("ward");
+                  }}
+                  activeWard={displayWard}
+                />
+              </div>
             </div>
 
-            <div className="flex w-full flex-1 flex-col overflow-hidden lg:w-1/2">
-              <div className="block border-b border-border lg:hidden">
-                <div className="h-36 xs:h-40 sm:h-56 md:h-64">
-                  <MapView
-                    stations={stations}
-                    selectedStation={effectiveStation}
-                    onSelectStation={(s) => {
-                      setSelectedStation(s);
-                      setSelectedWard(null);
-                    }}
-                    onWardSelect={(w) => {
-                      setSelectedWard(w);
-                      setActiveTab("ward");
-                    }}
-                    activeWard={displayWard}
-                  />
-                </div>
-              </div>
+            <div className="flex w-full flex-1 flex-col overflow-hidden">
 
               <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col overflow-hidden">
                 <div className="mx-2 mt-2 sm:mx-3 sm:mt-3">
