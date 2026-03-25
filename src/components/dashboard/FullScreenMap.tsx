@@ -659,7 +659,7 @@ const [showSources, setShowSources] = useState(true);
       {/* Selected ward card */}
       <AnimatePresence>
         {selectedWard && (
-          <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} transition={{ duration: 0.3 }} className="absolute bottom-28 left-4 z-20 w-72">
+          <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} transition={{ duration: 0.3 }} className="absolute bottom-28 left-3 z-20 w-[min(18rem,calc(100vw-1.5rem))] sm:left-4 sm:w-72">
             <div className="rounded-xl border border-border/50 bg-card/95 backdrop-blur-md p-4 shadow-2xl">
               <div className="flex items-start justify-between mb-3">
                 <div>
