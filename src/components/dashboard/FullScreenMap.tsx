@@ -491,16 +491,16 @@ const [showSources, setShowSources] = useState(true);
       {/* Header */}
       <AnimatePresence>
         {showUI && (
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="absolute top-0 inset-x-0 z-20 flex items-center justify-between px-3 py-3 sm:px-6 sm:py-4">
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="absolute top-0 inset-x-0 z-20 flex items-center justify-between px-3 py-2 xs:py-3 sm:px-6 sm:py-4">
             <div>
-              <h1 className="font-display text-sm font-bold tracking-[0.1em] text-foreground sm:text-lg sm:tracking-[0.15em]">
+              <h1 className="font-display text-xs font-bold tracking-[0.08em] text-foreground xs:text-sm sm:text-lg sm:tracking-[0.15em]">
                 DELHI <span className="text-primary">AIR QUALITY</span>
               </h1>
-              <p className="hidden font-mono text-[10px] tracking-[0.2em] text-muted-foreground mt-0.5 sm:block">251 WARDS · REAL-TIME MONITORING</p>
+              <p className="hidden font-mono text-[9px] tracking-[0.15em] text-muted-foreground mt-0.5 xs:block sm:text-[10px] sm:tracking-[0.2em]">251 WARDS · REAL-TIME MONITORING</p>
             </div>
-            <div className="rounded-lg border border-border/50 bg-card/80 backdrop-blur-md px-2 py-1.5 flex items-center gap-2 sm:px-4 sm:py-2 sm:gap-3">
-              <span className="font-mono text-[9px] tracking-widest text-muted-foreground sm:text-[10px]">CITY AQI</span>
-              <span className="font-display text-xl font-black sm:text-2xl" style={{ color: aqiLevel.color }}>{cityAqi || "—"}</span>
+            <div className="rounded-lg border border-border/50 bg-card/80 backdrop-blur-md px-2 py-1 flex items-center gap-1.5 xs:px-3 xs:py-1.5 xs:gap-2 sm:px-4 sm:py-2 sm:gap-3">
+              <span className="font-mono text-[8px] tracking-widest text-muted-foreground xs:text-[9px] sm:text-[10px]">CITY AQI</span>
+              <span className="font-display text-lg font-black xs:text-xl sm:text-2xl" style={{ color: aqiLevel.color }}>{cityAqi || "—"}</span>
             </div>
           </motion.div>
         )}
