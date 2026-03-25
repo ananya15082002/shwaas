@@ -128,7 +128,7 @@ const Index = () => {
               />
             </div>
 
-            <div className="flex w-full flex-col lg:w-1/2">
+            <div className="flex w-full flex-1 flex-col overflow-hidden lg:w-1/2">
               <div className="block border-b border-border lg:hidden">
                 <div className="h-44 xs:h-48 sm:h-56 md:h-64">
                   <MapView
