@@ -161,7 +161,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
               <span className="font-mono text-[8px] uppercase tracking-[0.2em] text-muted-foreground">
                 {lang === "hi" ? "प्रमुख प्रदूषण स्रोत" : "MAJOR POLLUTION SOURCE"}
               </span>
-              <p className="font-display text-sm font-bold text-foreground leading-tight mt-0.5">{ai.pollution_source}</p>
+              <p className="font-display text-xs font-bold text-foreground leading-tight mt-0.5 break-words sm:text-sm">{ai.pollution_source}</p>
               {ai.source_type && (
                 <span className="inline-block mt-1 rounded-full px-2 py-0.5 font-mono text-[8px] uppercase tracking-wider" style={{
                   background: `${displayLevel.color}15`,
@@ -247,7 +247,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
             <div className="mt-3 space-y-3">
               {/* Source already shown in highlighted badge above */}
 
-              {ai.summary && <p className="font-body text-xs leading-relaxed text-foreground sm:text-sm">{ai.summary}</p>}
+              {ai.summary && <p className="font-body text-xs leading-relaxed text-foreground break-words sm:text-sm">{ai.summary}</p>}
 
               <div className="flex items-center gap-2 flex-wrap">
                 {ai.health_risk && (
@@ -271,7 +271,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
                 )}
               </div>
 
-              {ai.trend_reason && <p className="font-mono text-[10px] text-muted-foreground">{ai.trend_reason}</p>}
+              {ai.trend_reason && <p className="font-mono text-[9px] text-muted-foreground break-words sm:text-[10px]">{ai.trend_reason}</p>}
 
               {ai.anomaly && ai.anomaly_detail && (
                 <div className="flex items-start gap-2 rounded-md border border-orange-500/30 bg-orange-500/10 p-2.5">
@@ -283,7 +283,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
               {ai.vulnerable_impact && (
                 <div className="rounded-md border border-border bg-secondary/30 p-2.5">
                   <span className="font-mono text-[9px] text-muted-foreground">{t("ward.vulnerableImpact")}</span>
-                  <p className="mt-1 font-body text-xs text-secondary-foreground">{ai.vulnerable_impact}</p>
+                  <p className="mt-1 font-body text-[11px] text-secondary-foreground break-words sm:text-xs">{ai.vulnerable_impact}</p>
                 </div>
               )}
 
@@ -292,7 +292,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
                   <span className="font-mono text-[9px] text-muted-foreground">{t("intel.keyConcerns")}</span>
                   <ul className="mt-1 space-y-1">
                     {ai.key_concerns.map((c, i) => (
-                      <li key={i} className="rounded border border-border bg-secondary/30 px-2.5 py-1.5 font-body text-xs text-secondary-foreground">{c}</li>
+                      <li key={i} className="rounded border border-border bg-secondary/30 px-2 py-1.5 font-body text-[11px] text-secondary-foreground break-words sm:text-xs">{c}</li>
                     ))}
                   </ul>
                 </div>
@@ -305,7 +305,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
                       <div className="flex items-center gap-1 font-mono text-[8px] tracking-widest text-destructive">
                         <Building2 className="h-3 w-3" /> {t("ward.adminAction")}
                       </div>
-                      <p className="mt-1 font-body text-[11px] leading-snug text-foreground/80">{ai.admin_action}</p>
+                      <p className="mt-1 font-body text-[10px] leading-snug text-foreground/80 break-words sm:text-[11px]">{ai.admin_action}</p>
                     </div>
                   )}
                   {ai.citizen_tip && (
@@ -313,7 +313,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
                       <div className="flex items-center gap-1 font-mono text-[8px] tracking-widest text-primary">
                         <User className="h-3 w-3" /> {t("ward.citizenTip")}
                       </div>
-                      <p className="mt-1 font-body text-[11px] leading-snug text-foreground/80">{ai.citizen_tip}</p>
+                      <p className="mt-1 font-body text-[10px] leading-snug text-foreground/80 break-words sm:text-[11px]">{ai.citizen_tip}</p>
                     </div>
                   )}
                 </div>
@@ -324,7 +324,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
                   <span className="font-mono text-[9px] text-muted-foreground">{t("intel.recommendations")}</span>
                   <ul className="mt-1 space-y-1">
                     {ai.recommendations.map((r, i) => (
-                      <li key={i} className="rounded border border-border bg-secondary/30 px-2.5 py-1.5 font-body text-xs text-secondary-foreground">{r}</li>
+                      <li key={i} className="rounded border border-border bg-secondary/30 px-2 py-1.5 font-body text-[11px] text-secondary-foreground break-words sm:text-xs">{r}</li>
                     ))}
                   </ul>
                 </div>
