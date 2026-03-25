@@ -147,11 +147,11 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
 
         {/* Highlighted Pollution Source Badge */}
         {ai?.source_icon && ai?.pollution_source && !aiLoading && (
-          <div className="flex items-center gap-3 rounded-xl border-2 p-3 animate-pulse-subtle" style={{
+          <div className="flex items-center gap-2 rounded-xl border-2 p-2 xs:p-3 animate-pulse-subtle sm:gap-3" style={{
             borderColor: `${displayLevel.color}60`,
             background: `linear-gradient(135deg, ${displayLevel.color}10, transparent)`,
           }}>
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl" style={{
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-lg xs:h-10 xs:w-10 xs:text-xl sm:h-12 sm:w-12 sm:text-2xl" style={{
               background: `${displayLevel.color}20`,
               boxShadow: `0 0 20px ${displayLevel.color}30`,
             }}>
