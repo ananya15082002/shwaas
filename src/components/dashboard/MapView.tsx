@@ -474,7 +474,7 @@ const [wardSearch, setWardSearch] = useState("");
     const el = document.createElement("div");
     el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));animation:wardPinBounce 0.5s ease-out;pointer-events:none;">
       <div style="background:rgba(4,8,16,0.92);border:1px solid ${level.color}80;border-radius:8px;padding:4px 10px;margin-bottom:4px;backdrop-filter:blur(8px);">
-        <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;color:#fff;text-align:center;">${activeWard.ward_name || "Ward"}</div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:#fff;text-align:center;">${activeWard.ward_name || "Ward"}</div>
         <div style="font-family:'Orbitron',monospace;font-size:16px;font-weight:900;color:${level.color};text-align:center;text-shadow:0 0 12px ${level.color}60;">${aqi || "—"}</div>
       </div>
       <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid rgba(4,8,16,0.92);margin-bottom:-1px;"></div>
