@@ -230,7 +230,7 @@ export function AdvisoryCards({ cards }: AdvisoryCardsProps) {
               {lang === "hi" ? "सरकार क्या करे" : "Govt Actions"}
             </span>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+          <div className="flex gap-2 overflow-x-auto pb-2 sm:gap-3" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
             {govtCards.map((card, i) => (
               <LottieCard key={i} card={card} />
             ))}
