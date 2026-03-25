@@ -126,7 +126,7 @@ function AnimatedEmoji({ emoji, category }: { emoji: string; category: string })
           50% { transform: translateY(-5px) scale(1.06); }
         }
       `}</style>
-      <span className="text-5xl select-none" style={style}>{emoji}</span>
+      <span className="text-3xl select-none xs:text-4xl sm:text-5xl" style={style}>{emoji}</span>
     </>
   );
 }
@@ -139,12 +139,12 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
 
   return (
     <div
-      className="shrink-0 w-36 rounded-2xl border overflow-hidden flex flex-col sm:w-44"
+      className="shrink-0 w-[calc(50vw-3rem)] min-w-[130px] max-w-[180px] rounded-2xl border overflow-hidden flex flex-col sm:w-40 md:w-44 lg:w-40 xl:w-44"
       style={{ borderColor: colors.border, background: colors.bg, backdropFilter: "blur(8px)" }}
     >
       {/* Animation / Emoji area */}
       <div
-        className="flex items-center justify-center h-24 w-full relative sm:h-28"
+        className="flex items-center justify-center h-20 w-full relative xs:h-24 sm:h-28"
         style={{
           background: card.category === "trees"
             ? "linear-gradient(135deg, rgba(34,197,94,0.18), rgba(16,185,129,0.08), rgba(0,0,0,0.4))"
@@ -175,11 +175,11 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
       </div>
 
       {/* Text area */}
-      <div className="flex flex-col gap-1 p-3 flex-1">
-        <p className="font-display text-[12px] font-bold leading-tight text-foreground line-clamp-2">
+      <div className="flex flex-col gap-0.5 p-2 flex-1 xs:p-2.5 sm:p-3 sm:gap-1">
+        <p className="font-display text-[10px] font-bold leading-tight text-foreground line-clamp-2 xs:text-[11px] sm:text-[12px]">
           {card.title}
         </p>
-        <p className="font-body text-[10px] leading-snug text-muted-foreground line-clamp-3">
+        <p className="font-body text-[9px] leading-snug text-muted-foreground line-clamp-3 xs:text-[10px]">
           {card.desc}
         </p>
       </div>
@@ -214,7 +214,7 @@ export function AdvisoryCards({ cards }: AdvisoryCardsProps) {
               {lang === "hi" ? "आप क्या करें" : "Citizen Actions"}
             </span>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+          <div className="flex gap-2 overflow-x-auto pb-2 sm:gap-3" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
             {citizenCards.map((card, i) => (
               <LottieCard key={i} card={card} />
             ))}
@@ -230,7 +230,7 @@ export function AdvisoryCards({ cards }: AdvisoryCardsProps) {
               {lang === "hi" ? "सरकार क्या करे" : "Govt Actions"}
             </span>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+          <div className="flex gap-2 overflow-x-auto pb-2 sm:gap-3" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
             {govtCards.map((card, i) => (
               <LottieCard key={i} card={card} />
             ))}

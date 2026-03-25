@@ -147,11 +147,11 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
 
         {/* Highlighted Pollution Source Badge */}
         {ai?.source_icon && ai?.pollution_source && !aiLoading && (
-          <div className="flex items-center gap-3 rounded-xl border-2 p-3 animate-pulse-subtle" style={{
+          <div className="flex items-center gap-2 rounded-xl border-2 p-2 xs:p-3 animate-pulse-subtle sm:gap-3" style={{
             borderColor: `${displayLevel.color}60`,
             background: `linear-gradient(135deg, ${displayLevel.color}10, transparent)`,
           }}>
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl" style={{
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-lg xs:h-10 xs:w-10 xs:text-xl sm:h-12 sm:w-12 sm:text-2xl" style={{
               background: `${displayLevel.color}20`,
               boxShadow: `0 0 20px ${displayLevel.color}30`,
             }}>
@@ -230,8 +230,8 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
           {!isSpecialZone && <StatCard icon={<MapPin className="h-3.5 w-3.5" />} label={t("ward.assembly")} value={`${ward.ac_name} (#${ward.ac_no})`} />}
         </div>
 
-        <div className="cyber-border rounded-lg p-4">
-          <h4 className="flex items-center gap-2 font-display text-xs font-bold tracking-widest text-primary">
+        <div className="cyber-border rounded-lg p-2.5 xs:p-3 sm:p-4">
+          <h4 className="flex items-center gap-2 font-display text-[10px] font-bold tracking-widest text-primary xs:text-xs">
             <Brain className="h-4 w-4" /> {t("ward.aiIntelligence")}
           </h4>
           {aiLoading ? (
@@ -299,7 +299,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
               )}
 
               {(ai.admin_action || ai.citizen_tip) && (
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-2">
                   {ai.admin_action && (
                     <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-2.5">
                       <div className="flex items-center gap-1 font-mono text-[8px] tracking-widest text-destructive">
