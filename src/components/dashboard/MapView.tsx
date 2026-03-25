@@ -210,13 +210,14 @@ const [wardSearch, setWardSearch] = useState("");
     const map = mapRef.current;
     if (!map || !mapLoaded || !enrichedWards) return;
 
-    // Remove old layers/source
-    if (map.getLayer("wards-fill")) map.removeLayer("wards-fill");
-    if (map.getLayer("wards-border")) map.removeLayer("wards-border");
-    if (map.getLayer("wards-highlight")) map.removeLayer("wards-highlight");
-    if (map.getSource("wards")) map.removeSource("wards");
+    const apply = () => {
+      // Remove old layers/source
+      if (map.getLayer("wards-fill")) map.removeLayer("wards-fill");
+      if (map.getLayer("wards-border")) map.removeLayer("wards-border");
+      if (map.getLayer("wards-highlight")) map.removeLayer("wards-highlight");
+      if (map.getSource("wards")) map.removeSource("wards");
 
-    if (!showWards) return;
+      if (!showWards) return;
 
     // Build color expression
     const colorExpr: any[] = ["match", ["get", "ward_no"]];
