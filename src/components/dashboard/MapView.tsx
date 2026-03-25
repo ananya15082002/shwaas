@@ -211,6 +211,7 @@ const [wardSearch, setWardSearch] = useState("");
     if (!map || !mapLoaded || !enrichedWards) return;
 
     const apply = () => {
+      if (!map.isStyleLoaded()) return;
       // Remove old layers/source
       if (map.getLayer("wards-fill")) map.removeLayer("wards-fill");
       if (map.getLayer("wards-border")) map.removeLayer("wards-border");
@@ -219,97 +220,104 @@ const [wardSearch, setWardSearch] = useState("");
 
       if (!showWards) return;
 
-    // Build color expression
-    const colorExpr: any[] = ["match", ["get", "ward_no"]];
-    const borderExpr: any[] = ["match", ["get", "ward_no"]];
-    enrichedWards.features.forEach((f) => {
-      const aqi = f.properties.interpolated_aqi ?? 0;
-      colorExpr.push(f.properties.ward_no, aqiToColor(aqi));
-      borderExpr.push(f.properties.ward_no, aqiToColor(aqi));
-    });
-    colorExpr.push("#282D37");
-    borderExpr.push("#555");
+      // Build color expression
+      const colorExpr: any[] = ["match", ["get", "ward_no"]];
+      const borderExpr: any[] = ["match", ["get", "ward_no"]];
+      enrichedWards.features.forEach((f) => {
+        const aqi = f.properties.interpolated_aqi ?? 0;
+        colorExpr.push(f.properties.ward_no, aqiToColor(aqi));
+        borderExpr.push(f.properties.ward_no, aqiToColor(aqi));
+      });
+      colorExpr.push("#282D37");
+      borderExpr.push("#555");
 
-    map.addSource("wards", { type: "geojson", data: enrichedWards as any });
+      map.addSource("wards", { type: "geojson", data: enrichedWards as any });
 
-    map.addLayer({
-      id: "wards-fill",
-      type: "fill",
-      source: "wards",
-      paint: {
-        "fill-color": colorExpr as any,
-        "fill-opacity": [
-          "case",
-          ["boolean", ["feature-state", "hover"], false], 0.9,
-          0.78
-        ],
-        "fill-antialias": true,
-      },
-    });
+      map.addLayer({
+        id: "wards-fill",
+        type: "fill",
+        source: "wards",
+        paint: {
+          "fill-color": colorExpr as any,
+          "fill-opacity": [
+            "case",
+            ["boolean", ["feature-state", "hover"], false], 0.9,
+            0.78
+          ],
+          "fill-antialias": true,
+        },
+      });
 
-    map.addLayer({
-      id: "wards-border",
-      type: "line",
-      source: "wards",
-      paint: {
-        "line-color": borderExpr as any,
-        "line-width": [
-          "case",
-          ["boolean", ["feature-state", "hover"], false], 2.5,
-          1.2
-        ],
-        "line-opacity": 0.9,
-      },
-    });
+      map.addLayer({
+        id: "wards-border",
+        type: "line",
+        source: "wards",
+        paint: {
+          "line-color": borderExpr as any,
+          "line-width": [
+            "case",
+            ["boolean", ["feature-state", "hover"], false], 2.5,
+            1.2
+          ],
+          "line-opacity": 0.9,
+        },
+      });
 
-    // Hover interactions
-    let hoveredId: number | null = null;
+      // Hover interactions
+      let hoveredId: number | null = null;
 
-    map.on("mousemove", "wards-fill", (e) => {
-      map.getCanvas().style.cursor = "pointer";
-      if (e.features && e.features.length > 0) {
+      map.on("mousemove", "wards-fill", (e) => {
+        map.getCanvas().style.cursor = "pointer";
+        if (e.features && e.features.length > 0) {
+          if (hoveredId !== null) {
+            map.setFeatureState({ source: "wards", id: hoveredId }, { hover: false });
+          }
+          hoveredId = e.features[0].properties.ward_no;
+          map.setFeatureState({ source: "wards", id: hoveredId! }, { hover: true });
+
+          const p = e.features[0].properties;
+          const aqi = p.interpolated_aqi ?? 0;
+          if (popupRef.current) popupRef.current.remove();
+          popupRef.current = new maplibregl.Popup({ closeButton: false, closeOnClick: false, className: "ward-popup", maxWidth: "220px" })
+            .setLngLat(e.lngLat)
+            .setHTML(`
+              <div style="background:rgba(4,8,16,0.95);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 14px;font-family:'JetBrains Mono',monospace;">
+                <div style="color:#fff;font-weight:700;font-size:13px;margin-bottom:2px;font-family:'DM Sans',sans-serif">${p.ward_name}</div>
+                <div style="color:rgba(255,255,255,0.45);font-size:10px;margin-bottom:8px">Ward ${p.ward_no} · ${p.ac_name}</div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px">
+                  <span style="color:rgba(255,255,255,0.5);font-size:10px;letter-spacing:2px">AQI</span>
+                  <span style="color:${aqiToColor(aqi)};font-size:20px;font-weight:900;font-family:'Orbitron',monospace">${aqi || "—"}</span>
+                </div>
+                <div style="color:rgba(255,255,255,0.35);font-size:9px;margin-top:4px">Pop: ${p.total_pop?.toLocaleString?.() || "—"}</div>
+              </div>
+            `)
+            .addTo(map);
+        }
+      });
+
+      map.on("mouseleave", "wards-fill", () => {
+        map.getCanvas().style.cursor = "";
         if (hoveredId !== null) {
           map.setFeatureState({ source: "wards", id: hoveredId }, { hover: false });
         }
-        hoveredId = e.features[0].properties.ward_no;
-        map.setFeatureState({ source: "wards", id: hoveredId! }, { hover: true });
+        hoveredId = null;
+        if (popupRef.current) { popupRef.current.remove(); popupRef.current = null; }
+      });
 
-        const p = e.features[0].properties;
-        const aqi = p.interpolated_aqi ?? 0;
-        if (popupRef.current) popupRef.current.remove();
-        popupRef.current = new maplibregl.Popup({ closeButton: false, closeOnClick: false, className: "ward-popup", maxWidth: "220px" })
-          .setLngLat(e.lngLat)
-          .setHTML(`
-            <div style="background:rgba(4,8,16,0.95);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 14px;font-family:'JetBrains Mono',monospace;">
-              <div style="color:#fff;font-weight:700;font-size:13px;margin-bottom:2px;font-family:'DM Sans',sans-serif">${p.ward_name}</div>
-              <div style="color:rgba(255,255,255,0.45);font-size:10px;margin-bottom:8px">Ward ${p.ward_no} · ${p.ac_name}</div>
-              <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px">
-                <span style="color:rgba(255,255,255,0.5);font-size:10px;letter-spacing:2px">AQI</span>
-                <span style="color:${aqiToColor(aqi)};font-size:20px;font-weight:900;font-family:'Orbitron',monospace">${aqi || "—"}</span>
-              </div>
-              <div style="color:rgba(255,255,255,0.35);font-size:9px;margin-top:4px">Pop: ${p.total_pop?.toLocaleString?.() || "—"}</div>
-            </div>
-          `)
-          .addTo(map);
-      }
-    });
+      map.on("click", "wards-fill", (e) => {
+        if (e.features && e.features.length > 0) {
+          const p = e.features[0].properties;
+          const centroid = typeof p.centroid === "string" ? JSON.parse(p.centroid) : p.centroid;
+          onWardSelect?.({ ...p, centroid } as WardFeature["properties"]);
+        }
+      });
+    };
 
-    map.on("mouseleave", "wards-fill", () => {
-      map.getCanvas().style.cursor = "";
-      if (hoveredId !== null) {
-        map.setFeatureState({ source: "wards", id: hoveredId }, { hover: false });
-      }
-      hoveredId = null;
-      if (popupRef.current) { popupRef.current.remove(); popupRef.current = null; }
-    });
-
-    map.on("click", "wards-fill", (e) => {
-      if (e.features && e.features.length > 0) {
-        const p = e.features[0].properties;
-        const centroid = typeof p.centroid === "string" ? JSON.parse(p.centroid) : p.centroid;
-        onWardSelect?.({ ...p, centroid } as WardFeature["properties"]);
-      }
-    });
+    if (map.isStyleLoaded()) {
+      apply();
+    } else {
+      map.once("style.load", apply);
+    }
   }, [enrichedWards, showWards, mapLoaded, onWardSelect]);
 
   // Special zones
