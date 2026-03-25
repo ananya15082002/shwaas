@@ -247,7 +247,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
             <div className="mt-3 space-y-3">
               {/* Source already shown in highlighted badge above */}
 
-              {ai.summary && <p className="font-body text-sm leading-relaxed text-foreground">{ai.summary}</p>}
+              {ai.summary && <p className="font-body text-xs leading-relaxed text-foreground sm:text-sm">{ai.summary}</p>}
 
               <div className="flex items-center gap-2 flex-wrap">
                 {ai.health_risk && (
