@@ -324,7 +324,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
                   <span className="font-mono text-[9px] text-muted-foreground">{t("intel.recommendations")}</span>
                   <ul className="mt-1 space-y-1">
                     {ai.recommendations.map((r, i) => (
-                      <li key={i} className="rounded border border-border bg-secondary/30 px-2.5 py-1.5 font-body text-xs text-secondary-foreground">{r}</li>
+                      <li key={i} className="rounded border border-border bg-secondary/30 px-2 py-1.5 font-body text-[11px] text-secondary-foreground break-words sm:text-xs">{r}</li>
                     ))}
                   </ul>
                 </div>

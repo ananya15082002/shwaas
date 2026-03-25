@@ -168,9 +168,9 @@ const Index = () => {
                   </TabsList>
                 </div>
 
-                <TabsContent value="ward" className="flex-1 overflow-hidden">
+                <TabsContent value="ward" className="flex-1 overflow-hidden mt-0">
                   {displayWard ? (
-                    <div className="relative flex-1 h-full">
+                    <div className="h-full overflow-hidden">
                       <WardDetailPanel ward={displayWard} onClose={() => { setSelectedWard(null); setActiveTab("city"); }} />
                     </div>
                   ) : (
@@ -180,19 +180,19 @@ const Index = () => {
                   )}
                 </TabsContent>
 
-                <TabsContent value="city" className="flex-1 overflow-hidden">
+                <TabsContent value="city" className="flex-1 overflow-hidden mt-0">
                   <CityOverviewTab stations={stations} cityAqi={cityAqi} />
                 </TabsContent>
 
-                <TabsContent value="rankings" className="flex-1 overflow-hidden">
+                <TabsContent value="rankings" className="flex-1 overflow-hidden mt-0">
                   <WardRankings stations={stations} />
                 </TabsContent>
 
-                <TabsContent value="compare" className="flex-1 overflow-hidden">
+                <TabsContent value="compare" className="flex-1 overflow-hidden mt-0">
                   <CompareTab stations={stations} />
                 </TabsContent>
 
-                <TabsContent value="dictionary" className="flex-1 overflow-hidden">
+                <TabsContent value="dictionary" className="flex-1 overflow-hidden mt-0">
                   <DictionaryTab />
                 </TabsContent>
               </Tabs>
