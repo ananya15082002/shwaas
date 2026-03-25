@@ -126,7 +126,7 @@ function AnimatedEmoji({ emoji, category }: { emoji: string; category: string })
           50% { transform: translateY(-5px) scale(1.06); }
         }
       `}</style>
-      <span className="text-3xl select-none xs:text-4xl sm:text-5xl" style={style}>{emoji}</span>
+      <span className="text-2xl select-none xs:text-3xl sm:text-4xl" style={style}>{emoji}</span>
     </>
   );
 }
