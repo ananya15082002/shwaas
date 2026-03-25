@@ -175,11 +175,11 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
       </div>
 
       {/* Text area */}
-      <div className="flex flex-col gap-1 p-3 flex-1">
-        <p className="font-display text-[12px] font-bold leading-tight text-foreground line-clamp-2">
+      <div className="flex flex-col gap-0.5 p-2 flex-1 xs:p-2.5 sm:p-3 sm:gap-1">
+        <p className="font-display text-[10px] font-bold leading-tight text-foreground line-clamp-2 xs:text-[11px] sm:text-[12px]">
           {card.title}
         </p>
-        <p className="font-body text-[10px] leading-snug text-muted-foreground line-clamp-3">
+        <p className="font-body text-[9px] leading-snug text-muted-foreground line-clamp-3 xs:text-[10px]">
           {card.desc}
         </p>
       </div>
