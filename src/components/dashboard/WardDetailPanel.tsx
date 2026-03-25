@@ -283,7 +283,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
               {ai.vulnerable_impact && (
                 <div className="rounded-md border border-border bg-secondary/30 p-2.5">
                   <span className="font-mono text-[9px] text-muted-foreground">{t("ward.vulnerableImpact")}</span>
-                  <p className="mt-1 font-body text-xs text-secondary-foreground">{ai.vulnerable_impact}</p>
+                  <p className="mt-1 font-body text-[11px] text-secondary-foreground break-words sm:text-xs">{ai.vulnerable_impact}</p>
                 </div>
               )}
 
