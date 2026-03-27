@@ -11,6 +11,18 @@ import { getLandmarkIconSVG } from "@/lib/mapIcons";
 import { DELHI_POLLUTION_SOURCES } from "@/lib/delhiPollutionSources";
 import { POLLUTION_TYPE_IMAGES } from "@/lib/pollutionImages";
 
+function getGeoBounds(geometry: any): [[number, number], [number, number]] {
+  const coords: [number, number][] = [];
+  function collect(c: any) {
+    if (typeof c[0] === "number") coords.push(c as [number, number]);
+    else c.forEach(collect);
+  }
+  collect(geometry.coordinates);
+  const lngs = coords.map(c => c[0]);
+  const lats = coords.map(c => c[1]);
+  return [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]];
+}
+
 interface MapViewProps {
   stations: StationData[];
   selectedStation: StationData | null;
@@ -93,8 +105,14 @@ const [wardSearch, setWardSearch] = useState("");
   const zoomToWard = useCallback((wardProps: typeof wardList[0]) => {
     const map = mapRef.current;
     if (!map || !enrichedWards) return;
-    const [cLon, cLat] = wardProps.centroid;
-    map.flyTo({ center: [cLon, cLat], zoom: 14, duration: 1200, essential: true });
+    const feature = enrichedWards.features.find(f => f.properties.ward_no === wardProps.ward_no);
+    if (feature) {
+      const bounds = getGeoBounds(feature.geometry);
+      map.fitBounds(bounds, { padding: { top: 70, bottom: 90, left: 55, right: 55 }, pitch: 0, bearing: 0, duration: 1200, essential: true });
+    } else {
+      const [cLon, cLat] = wardProps.centroid;
+      map.flyTo({ center: [cLon, cLat], zoom: 14, duration: 1200, essential: true });
+    }
     onWardSelect?.(wardProps);
     setSearchOpen(false);
     setWardSearch("");
@@ -133,7 +151,13 @@ const [wardSearch, setWardSearch] = useState("");
       </div>`;
       const marker = new maplibregl.Marker({ element: el }).setLngLat([place.lon, place.lat]).addTo(map);
       placeMarkerRef.current = marker;
-      map.flyTo({ center: [place.lon, place.lat], zoom: 14, duration: 1200 });
+      const nearestFeature = nearest ? enrichedWards?.features.find(f => f.properties.ward_no === nearest.ward_no) : null;
+      if (nearestFeature) {
+        const bounds = getGeoBounds(nearestFeature.geometry);
+        map.fitBounds(bounds, { padding: { top: 70, bottom: 90, left: 55, right: 55 }, pitch: 0, bearing: 0, duration: 1200, essential: true });
+      } else {
+        map.flyTo({ center: [place.lon, place.lat], zoom: 14, duration: 1200 });
+      }
       setTimeout(() => { if (placeMarkerRef.current === marker) { marker.remove(); placeMarkerRef.current = null; } }, 10000);
     }
 
