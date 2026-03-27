@@ -531,67 +531,42 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     DELHI_LANDMARKS.forEach((lm) => {
       const imgSrc = LANDMARK_IMAGES[lm.name];
       const el = document.createElement("div");
-      el.style.cssText = "cursor:pointer;perspective:400px;";
+      el.style.cssText = "cursor:pointer;";
       el.innerHTML = `
         <div class="lm-card" style="
-          transform-style:preserve-3d;
-          transition:transform 0.4s cubic-bezier(.23,1,.32,1), box-shadow 0.4s;
-          width:36px;height:44px;
-          border-radius:7px;
+          transition:transform 0.3s, box-shadow 0.3s;
+          width:28px;height:28px;
+          border-radius:50%;
           overflow:hidden;
-          border:1.5px solid rgba(255,255,255,0.2);
-          box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 6px rgba(0,229,160,0.1);
-          position:relative;
+          border:2px solid rgba(255,255,255,0.3);
+          box-shadow:0 2px 8px rgba(0,0,0,0.5);
           background:#111;
         ">
-          <img src="${imgSrc || ''}" style="width:100%;height:28px;object-fit:cover;display:block;" />
-          <div style="
-            padding:1px 2px;
-            background:rgba(4,8,16,0.95);
-            text-align:center;
-          ">
-            <div style="
-              font-family:'DM Sans',sans-serif;
-              font-size:5px;
-              font-weight:700;
-              color:#fff;
-              line-height:1.2;
-              white-space:nowrap;
-              overflow:hidden;
-              text-overflow:ellipsis;
-            ">${lm.name}</div>
-            <div style="
-              font-family:'JetBrains Mono',monospace;
-              font-size:4px;
-              color:rgba(0,229,160,0.7);
-              letter-spacing:0.5px;
-              text-transform:uppercase;
-            ">${lm.type}</div>
-          </div>
+          <img src="${imgSrc || ''}" style="width:100%;height:100%;object-fit:cover;display:block;" />
         </div>
       `;
-      // 3D hover effect
+      el.title = lm.name;
       el.addEventListener("mouseenter", () => {
         const card = el.querySelector(".lm-card") as HTMLElement;
         if (card) {
-          card.style.transform = "rotateY(-6deg) rotateX(4deg) scale(1.4) translateY(-6px)";
-          card.style.boxShadow = "0 10px 24px rgba(0,0,0,0.7), 0 0 14px rgba(0,229,160,0.25)";
-          card.style.borderColor = "rgba(0,229,160,0.5)";
+          card.style.transform = "scale(1.5)";
+          card.style.boxShadow = "0 4px 16px rgba(0,0,0,0.7), 0 0 10px rgba(0,229,160,0.25)";
+          card.style.borderColor = "rgba(0,229,160,0.6)";
         }
       });
       el.addEventListener("mouseleave", () => {
         const card = el.querySelector(".lm-card") as HTMLElement;
         if (card) {
           card.style.transform = "";
-          card.style.boxShadow = "0 4px 12px rgba(0,0,0,0.5), 0 0 6px rgba(0,229,160,0.1)";
-          card.style.borderColor = "rgba(255,255,255,0.2)";
+          card.style.boxShadow = "0 2px 8px rgba(0,0,0,0.5)";
+          card.style.borderColor = "rgba(255,255,255,0.3)";
         }
       });
       el.addEventListener("click", () => {
         const nearest = findNearestWard(lm.lat, lm.lon);
         if (nearest) onEnterDashboard(nearest);
       });
-      const m = new maplibregl.Marker({ element: el, anchor: "bottom" }).setLngLat([lm.lon, lm.lat]).addTo(map);
+      const m = new maplibregl.Marker({ element: el }).setLngLat([lm.lon, lm.lat]).addTo(map);
       markers.push(m);
     });
     return () => markers.forEach((m) => m.remove());
