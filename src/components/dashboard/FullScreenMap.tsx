@@ -187,7 +187,7 @@ const [showSources, setShowSources] = useState(true);
     setPlaceResults([]);
   }, [findNearestWard]);
 
-  // Initialize map with cinematic flyTo
+  // Initialize map with cinematic flyTo - zoomed out to show full Delhi
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
@@ -195,12 +195,12 @@ const [showSources, setShowSources] = useState(true);
       container: containerRef.current,
       style: DARK_STYLE,
       center: DELHI_CENTER,
-      zoom: 10,
+      zoom: 9.5,
       minZoom: 9,
       maxZoom: 18,
       maxBounds: DELHI_BOUNDS,
       attributionControl: false,
-      pitch: 50,
+      pitch: 45,
       bearing: -10,
       antialias: true,
       fadeDuration: 300,
@@ -208,11 +208,11 @@ const [showSources, setShowSources] = useState(true);
 
     map.on("load", () => {
       setMapLoaded(true);
-      // Cinematic entrance zoom - show full Delhi first
+      // Cinematic entrance - keep zoomed out for full Delhi visibility
       map.flyTo({
         center: DELHI_CENTER,
-        zoom: 10.5,
-        pitch: 45,
+        zoom: 10,
+        pitch: 40,
         bearing: -10,
         duration: 3000,
         essential: true,
