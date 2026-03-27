@@ -383,7 +383,7 @@ async function callAI(prompt: string): Promise<string> {
         body: JSON.stringify({
           model: "google/gemini-2.5-flash-lite",
           messages: [
-            { role: "system", content: "You are a Delhi air quality ML engine. Return valid JSON only." },
+            { role: "system", content: "You are a Delhi air quality ML engine. Return valid JSON only. Follow all language instructions in the user prompt exactly." },
             { role: "user", content: prompt },
           ],
           temperature: 0.7,
@@ -468,7 +468,9 @@ Deno.serve(async (req) => {
     payload = await req.json();
     const { station, mode, ward, liveIaqi, language } = payload;
     const lang = language === "hi" ? "hi" : "en";
-    const langInstruction = lang === "hi" ? "\nIMPORTANT: Respond ENTIRELY in Hindi (Devanagari)." : "";
+    const langInstruction = lang === "hi"
+      ? "\nIMPORTANT: Respond ENTIRELY in Hindi (Devanagari script). Every text field — title, desc, summary, all strings — must be in Hindi only."
+      : "\nIMPORTANT: Respond ENTIRELY in English. Every text field must be in English only. Do NOT use any other language.";
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;

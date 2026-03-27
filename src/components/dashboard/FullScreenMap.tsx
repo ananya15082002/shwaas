@@ -21,6 +21,18 @@ const DELHI_CENTER: [number, number] = [77.209, 28.6139];
 const DELHI_BOUNDS: maplibregl.LngLatBoundsLike = [[76.5, 28.15], [77.7, 29.05]];
 const DARK_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 
+function getGeoBounds(geometry: any): [[number, number], [number, number]] {
+  const coords: [number, number][] = [];
+  function collect(c: any) {
+    if (typeof c[0] === "number") coords.push(c as [number, number]);
+    else c.forEach(collect);
+  }
+  collect(geometry.coordinates);
+  const lngs = coords.map(c => c[0]);
+  const lats = coords.map(c => c[1]);
+  return [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]];
+}
+
 function aqiToColor(aqi: number): string {
   if (!aqi || aqi === 0) return "#282D37";
   if (aqi <= 50) return "#00E5A0";
@@ -49,6 +61,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   const [tourIndex, setTourIndex] = useState(-1);
   const tourTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [zoomedInWard, setZoomedInWard] = useState<WardFeature["properties"] | null>(null);
+  const [zoomedPollutionSrc, setZoomedPollutionSrc] = useState<{ name: string; type: string; emoji: string } | null>(null);
 
   const { wardsGeoJSON } = useDelhiWards();
 
@@ -396,39 +409,33 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
           });
         }
         
-        // Add pollution source image near the ward
+        // Find nearest pollution source and store for overlay
         const nearbySrc = DELHI_POLLUTION_SOURCES
           .map(src => ({ ...src, dist: Math.sqrt(Math.pow(src.lat - cLat, 2) + Math.pow(src.lon - cLon, 2)) }))
           .sort((a, b) => a.dist - b.dist)[0];
-        
+
         if (nearbySrc && nearbySrc.dist < 0.08) {
-          const imgSrc = POLLUTION_TYPE_IMAGES[nearbySrc.type] || POLLUTION_TYPE_IMAGES.industrial;
-          const el = document.createElement("div");
-          el.style.cssText = "filter:drop-shadow(0 4px 16px rgba(0,0,0,0.8));pointer-events:none;";
-          el.innerHTML = `
-            <div style="width:52px;height:52px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,140,0,0.8);box-shadow:0 0 16px rgba(255,140,0,0.3);background:#111;">
-              <img src="${imgSrc}" style="width:100%;height:100%;object-fit:cover;display:block;" />
-            </div>
-            <div style="text-align:center;margin-top:3px;">
-              <span style="background:rgba(4,8,16,0.92);color:rgba(255,140,0,0.9);font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:700;padding:2px 5px;border-radius:4px;letter-spacing:0.5px;white-space:nowrap;">${nearbySrc.name.length > 20 ? nearbySrc.name.slice(0, 20) + '…' : nearbySrc.name}</span>
-            </div>
-          `;
-          const marker = new maplibregl.Marker({ element: el, anchor: "center" })
-            .setLngLat([nearbySrc.lon, nearbySrc.lat])
-            .addTo(map);
-          // Store for cleanup
-          (map as any)._pollClickMarker = marker;
+          setZoomedPollutionSrc(nearbySrc);
+        } else {
+          setZoomedPollutionSrc(nearbySrc ?? null);
         }
-        
-        // Moderate zoom - show ward + neighbors, then stop and show dashboard below
-        map.flyTo({
-          center: [cLon, cLat],
-          zoom: 12.5,
-          pitch: 45,
-          bearing: -10,
-          duration: 2000,
-          essential: true,
-        });
+
+        // After height transition completes (~700ms), resize map then fitBounds to show entire ward
+        setTimeout(() => {
+          map.resize();
+          if (feature) {
+            const bounds = getGeoBounds(feature.geometry);
+            map.fitBounds(bounds, {
+              padding: { top: 70, bottom: 90, left: 55, right: 55 },
+              pitch: 0,
+              bearing: 0,
+              duration: 1400,
+              essential: true,
+            });
+          } else {
+            map.flyTo({ center: [cLon, cLat], zoom: 14, pitch: 0, bearing: 0, duration: 1400, essential: true });
+          }
+        }, 750);
       }
     });
   }, [enrichedWards, mapLoaded, onEnterDashboard]);
@@ -576,6 +583,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     }
     setZoomedInWard(null);
     setSelectedWard(null);
+    setZoomedPollutionSrc(null);
   }, []);
 
   const aqiLevel = getAqiLevel(cityAqi);
@@ -843,6 +851,51 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
             <span className="font-mono text-[10px] tracking-wider text-muted-foreground bg-card/80 backdrop-blur-md border border-border/50 rounded-full px-3 py-1.5">
               {hoveredWard}
             </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Zoomed ward: name + pollution source pic overlay */}
+      <AnimatePresence>
+        {zoomedInWard && showUI && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, delay: 1.0 }}
+            className="absolute bottom-3 left-3 right-3 z-30 flex items-end justify-between pointer-events-none"
+          >
+            {/* Ward name + AQI */}
+            <div className="rounded-xl border border-white/20 bg-black/80 backdrop-blur-md px-3 py-2 max-w-[58%]">
+              <p className="font-mono text-[7px] tracking-[0.18em] text-white/40 mb-0.5 uppercase">Selected Ward</p>
+              <h3 className="font-display text-sm font-bold text-white leading-tight">{zoomedInWard.ward_name}</h3>
+              <p className="font-mono text-[8px] text-white/45 mt-0.5">Ward {zoomedInWard.ward_no} · {zoomedInWard.ac_name}</p>
+              <div className="flex items-baseline gap-1.5 mt-1.5 border-t border-white/10 pt-1.5">
+                <span className="font-mono text-[8px] text-white/40 tracking-widest">AQI</span>
+                <span className="font-display text-2xl font-black" style={{ color: aqiToColor(zoomedInWard.interpolated_aqi ?? 0) }}>
+                  {zoomedInWard.interpolated_aqi ?? "—"}
+                </span>
+              </div>
+            </div>
+
+            {/* Major pollution source pic */}
+            {zoomedPollutionSrc && (
+              <div className="rounded-xl overflow-hidden border border-orange-500/50 shadow-xl" style={{ width: 86, height: 86 }}>
+                <div className="relative w-full h-full">
+                  <img
+                    src={POLLUTION_TYPE_IMAGES[zoomedPollutionSrc.type] ?? POLLUTION_TYPE_IMAGES.industrial}
+                    alt={zoomedPollutionSrc.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 55%)" }} />
+                  <div className="absolute bottom-1 left-1 right-1">
+                    <p className="font-mono text-[6px] font-bold leading-tight line-clamp-2" style={{ color: "rgba(255,180,60,0.95)" }}>
+                      {zoomedPollutionSrc.emoji} {zoomedPollutionSrc.name}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
