@@ -23,7 +23,13 @@ export function Navbar({ lastUpdated, onRefresh, loading, onLogoClick, onBackToM
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3">
-        <div className="flex items-center gap-2 cursor-pointer sm:gap-3" onClick={onLogoClick} title="Replay intro">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {onBackToMap && (
+            <button onClick={onBackToMap} title="Back to Delhi Map" className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/50 bg-secondary/50 text-muted-foreground transition-all hover:text-primary hover:border-primary/50">
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+          )}
+          <div className="flex items-center gap-2 cursor-pointer sm:gap-3" onClick={onLogoClick} title="Replay intro">
           <Wind className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
           <div>
             <h1 className="font-display text-xs font-bold tracking-wider text-primary sm:text-sm md:text-base">
