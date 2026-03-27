@@ -63,7 +63,7 @@ const getAdvice = (aqi: number, lang: "en" | "hi") => {
   };
   return {
     level: "hazardous",
-    color: "#FF0033",
+    color: "#7E0023",
     general: lang === "en" ? "EMERGENCY! Everyone should stay indoors. Wear N95 if going out." : "आपातकाल! सभी घर में रहें। बाहर जाएँ तो N95 पहनें।",
     groups: [
       { icon: Baby, label: lang === "en" ? "Children" : "बच्चे", advice: lang === "en" ? "Do NOT go outside under any circumstances" : "किसी भी हालत में बाहर न जाएँ" },
