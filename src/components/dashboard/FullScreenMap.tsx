@@ -310,8 +310,28 @@ const [showSources, setShowSources] = useState(true);
 
         const p = e.features[0].properties;
         const aqi = p.interpolated_aqi ?? 0;
+        const centroidRaw = typeof p.centroid === "string" ? JSON.parse(p.centroid) : p.centroid;
+        const [cLon, cLat] = centroidRaw || [e.lngLat.lng, e.lngLat.lat];
+        // Find nearby pollution sources
+        const nearbySources = DELHI_POLLUTION_SOURCES
+          .map(src => ({ ...src, dist: Math.sqrt(Math.pow(src.lat - cLat, 2) + Math.pow(src.lon - cLon, 2)) }))
+          .filter(s => s.dist < 0.04)
+          .sort((a, b) => a.dist - b.dist)
+          .slice(0, 3);
+        const sourcesHTML = nearbySources.length > 0
+          ? `<div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;margin-top:6px;">
+              <div style="color:rgba(255,140,0,0.8);font-size:8px;letter-spacing:1.5px;margin-bottom:4px;font-weight:700">⚠ POLLUTION SOURCES</div>
+              ${nearbySources.map(s => `<div style="display:flex;align-items:center;gap:5px;margin-top:3px;">
+                <span style="font-size:10px">${s.emoji}</span>
+                <div>
+                  <div style="color:rgba(255,255,255,0.75);font-size:9px;font-weight:600">${s.name}</div>
+                  <div style="color:rgba(255,255,255,0.35);font-size:7px">${s.description}</div>
+                </div>
+              </div>`).join("")}
+            </div>`
+          : "";
         if (popupRef.current) popupRef.current.remove();
-        popupRef.current = new maplibregl.Popup({ closeButton: false, closeOnClick: false, className: "ward-popup", maxWidth: "240px" })
+        popupRef.current = new maplibregl.Popup({ closeButton: false, closeOnClick: false, className: "ward-popup", maxWidth: "260px" })
           .setLngLat(e.lngLat)
           .setHTML(`
             <div style="background:rgba(4,8,16,0.95);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 16px;font-family:'JetBrains Mono',monospace;backdrop-filter:blur(12px);">
@@ -322,7 +342,8 @@ const [showSources, setShowSources] = useState(true);
                 <span style="color:${aqiToColor(aqi)};font-size:22px;font-weight:900;font-family:'Orbitron',monospace">${aqi || "—"}</span>
               </div>
               <div style="color:rgba(255,255,255,0.35);font-size:9px;margin-top:4px">POP: ${p.total_pop?.toLocaleString?.() || "—"}</div>
-              <div style="color:rgba(0,229,160,0.6);font-size:9px;margin-top:4px;letter-spacing:1.5px">CLICK TO EXPLORE →</div>
+              ${sourcesHTML}
+              <div style="color:rgba(0,229,160,0.6);font-size:9px;margin-top:6px;letter-spacing:1.5px">CLICK TO EXPLORE →</div>
             </div>
           `)
           .addTo(map);
