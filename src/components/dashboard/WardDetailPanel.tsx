@@ -7,7 +7,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useWardLiveData } from "@/hooks/useWardLiveData";
 import { useWardHistory } from "@/hooks/useWardHistory";
 import { WardTrendChart } from "@/components/dashboard/WardTrendChart";
-import { HealthAdvisoryCards } from "@/components/dashboard/HealthAdvisoryCards";
 import { AdvisoryCards, AdvisoryCard } from "@/components/dashboard/AdvisoryCards";
 
 function getFallbackCards(sourceType: string, aqi: number, lang: "en" | "hi"): AdvisoryCard[] {
@@ -370,8 +369,6 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
         </div>
 
         <WeatherInfo iaqi={iaqi} />
-
-        <HealthAdvisoryCards aqi={displayAqi} />
 
         {!aiLoading && (
           <div className="rounded-lg border border-border bg-card/30 p-3">
