@@ -25,25 +25,65 @@ function getDelhiContext(): string {
   else if (hour >= 16 && hour < 19) timeOfDay = "evening";
   else if (hour >= 19 && hour < 22) timeOfDay = "late evening";
 
-  let festivalContext = "";
-  if (month === 9 && day >= 15) festivalContext = "Dussehra period - Ravana effigy burning increases PM.";
-  if (month === 10 && day <= 15) festivalContext = "Diwali season - firecracker pollution expected.";
-  if (month === 10 && day >= 20) festivalContext = "Post-Diwali haze - stubble burning peaks.";
-  if (month === 0) festivalContext = "Lohri/Makar Sankranti bonfires may increase PM.";
-  if (month === 2 && day >= 15) festivalContext = "Holi period emissions possible.";
+  // Comprehensive festival calendar (approximate windows — dates shift yearly)
+  const festivals: string[] = [];
+
+  // January
+  if (month === 0 && day <= 15) festivals.push("Lohri/Makar Sankranti — bonfires may increase PM locally.");
+  if (month === 0 && day === 26) festivals.push("Republic Day — parade area traffic diversions, low vehicular pollution in central Delhi.");
+
+  // February-March: Basant Panchami, Maha Shivratri, Holi
+  if (month === 1 && day >= 1 && day <= 10) festivals.push("Basant Panchami season.");
+  if (month === 1 && day >= 20 || (month === 2 && day <= 5)) festivals.push("Maha Shivratri — night temple gatherings, incense/dhoop increases local PM.");
+  if (month === 2 && day >= 10 && day <= 20) festivals.push("Holi period — bonfire (Holika Dahan) and color powder can spike PM10 temporarily.");
+
+  // March-April: Navratri (Chaitra), Ram Navami, Eid-ul-Fitr (shifts yearly)
+  if (month === 2 && day >= 22 || (month === 3 && day <= 10)) festivals.push("Chaitra Navratri — yagna/havan smoke may increase localized PM.");
+  if (month === 3 && day >= 1 && day <= 20) festivals.push("Ram Navami / possible Eid-ul-Fitr window — mixed traffic patterns, cooking emissions from gatherings.");
+
+  // May-June: Eid-ul-Fitr / Eid-ul-Adha window (shifts yearly)
+  if (month === 4 || month === 5) festivals.push("Possible Eid period — community cooking, traffic surges near mosques.");
+
+  // July-August: Eid-ul-Adha, Raksha Bandhan, Independence Day, Janmashtami
+  if (month === 6 && day >= 10) festivals.push("Possible Eid-ul-Adha — community gatherings, cooking emissions.");
+  if (month === 7 && day <= 5) festivals.push("Possible Eid-ul-Adha window.");
+  if (month === 7 && day >= 10 && day <= 20) festivals.push("Raksha Bandhan — increased market traffic and vehicle movement.");
+  if (month === 7 && day === 15) festivals.push("Independence Day — Red Fort area traffic diversions.");
+  if (month === 7 && day >= 22) festivals.push("Janmashtami — night celebrations, temple areas congested.");
+
+  // September: Ganesh Chaturthi
+  if (month === 8 && day >= 5 && day <= 20) festivals.push("Ganesh Chaturthi — idol immersion processions affect traffic corridors.");
+
+  // September-October: Navratri (Sharad), Dussehra
+  if (month === 8 && day >= 20 || (month === 9 && day <= 5)) festivals.push("Sharad Navratri — pandal activities, increased evening foot traffic and generator use.");
+  if (month === 9 && day >= 5 && day <= 15) festivals.push("Dussehra — Ravana effigy burning spikes PM10/PM2.5 sharply for 1-2 days.");
+  if (month === 9 && day >= 16 && day <= 25) festivals.push("Karwa Chauth / pre-Diwali shopping — heavy market traffic.");
+
+  // October-November: Diwali, Chhath Puja, Guru Purab
+  if (month === 9 && day >= 26 || (month === 10 && day <= 5)) festivals.push("Diwali season — firecracker pollution spikes PM2.5/PM10 to hazardous levels, SO2 also rises.");
+  if (month === 10 && day >= 5 && day <= 12) festivals.push("Post-Diwali haze persists. Chhath Puja — riverside gatherings, biomass burning.");
+  if (month === 10 && day >= 12 && day <= 20) festivals.push("Guru Nanak Jayanti — gurudwara area traffic and langar cooking emissions.");
+  if (month === 10 && day >= 20) festivals.push("Post-Diwali + stubble burning convergence — worst air quality window of the year.");
+
+  // December: Christmas, New Year
+  if (month === 11 && day >= 20) festivals.push("Christmas/New Year — bonfire parties, increased nightlife traffic in central Delhi.");
+
+  const festivalContext = festivals.length > 0 ? festivals.join(" ") : "No major festival impact currently.";
 
   let cropBurning = "";
-  if (month === 9 || month === 10) cropBurning = "CRITICAL: Paddy stubble burning from Punjab/Haryana/UP.";
-  if (month === 3 || month === 4) cropBurning = "Wheat stubble burning possible.";
+  if (month === 9 || month === 10) cropBurning = "CRITICAL: Paddy stubble burning from Punjab/Haryana/UP — transboundary smoke.";
+  if (month === 3 || month === 4) cropBurning = "Wheat stubble burning possible from neighboring states.";
 
   let weatherPattern = "";
-  if (season === "winter") weatherPattern = "Temperature inversion trapping pollutants. Low winds. Fog/smog.";
-  if (season === "monsoon") weatherPattern = "Rain washout reducing PM. High humidity affects O3.";
-  if (season === "summer") weatherPattern = "High temps increasing O3. Dust storms possible from Rajasthan.";
-  if (season === "post-monsoon") weatherPattern = "Temps dropping, inversion layers forming.";
+  if (season === "winter") weatherPattern = "Temperature inversion trapping pollutants near surface. Low wind speed. Fog/smog likely. Cold temperatures (5-15°C) keep people indoors.";
+  if (season === "monsoon") weatherPattern = "Rain washout actively reducing PM. High humidity (70-95%) suppresses dust but increases O3 formation. Waterlogging may slow traffic.";
+  if (season === "summer") weatherPattern = "High temps (38-46°C) intensifying O3 photochemistry. Dust storms possible from Rajasthan/Thar. Heat island effect in urban core.";
+  if (season === "spring") weatherPattern = "Moderate temps (22-35°C), transitional winds. Pollen season — allergenic particles add to PM10. Dust picking up.";
+  if (season === "pre-monsoon") weatherPattern = "Peak heat (40-47°C), thunderstorm dust squalls, high O3. Occasional nor'westers bring temporary relief.";
+  if (season === "post-monsoon") weatherPattern = "Temps dropping rapidly (18-28°C), calm winds, inversion layers forming — pollutant trapping begins.";
 
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  return `Time: ${timeOfDay} (${hour}:00 IST), ${months[month]}, Season: ${season}. ${festivalContext} ${cropBurning} ${weatherPattern}`.trim();
+  return `Time: ${timeOfDay} (${hour}:00 IST), Date: ${day} ${months[month]}, Season: ${season}. Festivals: ${festivalContext} ${cropBurning} Weather: ${weatherPattern}`.trim();
 }
 
 function makeCacheKey(mode: string, ward: any, station: any, lang: string): string {
@@ -95,22 +135,27 @@ govt policy: factory_shutdown | school_closure | emergency_alert
 trees: tree_peepal | tree_neem | tree_arjun | tree_ashoka
 health: n95_mask | air_purifier | stay_indoors`;
 
-  return `You are an ML-trained Delhi air quality prediction engine. Return ONLY valid JSON, no markdown.${langInstruction}
+  return `You are an ML-trained Delhi air quality prediction engine with deep knowledge of Delhi's geography, festivals, weather patterns, and pollution sources. Return ONLY valid JSON, no markdown.${langInstruction}
 Context: ${delhiContext}
 Ward: ${ward?.ward_name ?? "Unknown"} (No.${ward?.ward_no ?? "N/A"}), AC: ${ward?.ac_name ?? "N/A"}, Pop: ${ward?.total_pop?.toLocaleString?.() ?? "N/A"}, AQI: ${ward?.interpolated_aqi ?? "N/A"}, Nearest Station: ${ward?.nearest_station_dist ?? "N/A"}m
 Live: ${iaqiStr}
 Delhi hotspots: Industrial(Okhla,Wazirpur,Naraina,Bawana), Landfills(Ghazipur,Bhalswa,Okhla), Traffic(ITO,Ashram,Anand Vihar)
 ${visualKeys}
-Advisory card generation rules:
-1. Analyze the live pollutant values to identify the dominant source RIGHT NOW (high NO2+CO at rush hour = vehicular; high PM10 = construction/dust; high SO2 = industrial; low wind + high all = inversion)
-2. Generate 5-7 cards that DIRECTLY address what the live data is showing — be specific (mention the pollutant value or time context in desc)
-3. Mix: 2-3 citizen cards + 2-3 govt cards + 1 tree card always
-4. Each card picks ONE visual_key from the allowed list above
-5. title: max 4 words. desc: 1 sentence, actionable, situation-specific
-6. target must be exactly "citizen" or "govt"
-7. If Hindi lang: title and desc in Devanagari Hindi
+CRITICAL ANALYSIS RULES:
+1. READ THE LIVE POLLUTANT VALUES CAREFULLY. Identify which pollutant is highest and WHY based on: time of day, season, weather, nearby sources, festivals
+2. summary MUST mention: (a) current temperature/weather feel (b) the dominant pollutant with its actual value (c) the specific real-world cause RIGHT NOW (not generic)
+3. For seasonal_factor: mention the CURRENT season effect + any active festival/event from context. Do NOT just say "Holi" if it's not Holi season. Use the actual date context provided.
+4. pollution_source must be hyper-specific: e.g. "Morning vehicular rush on NH-24 corridor" not just "vehicular"
+5. For advisory_cards: Generate 5-7 cards that DIRECTLY address what the live data is showing — mention actual pollutant values or time context in desc
+6. Mix: 2-3 citizen cards + 2-3 govt cards + 1 tree card always
+7. Each card picks ONE visual_key from the allowed list above
+8. title: max 4 words. desc: 1 sentence, actionable, situation-specific
+9. target must be exactly "citizen" or "govt"
+10. If Hindi lang: title and desc in Devanagari Hindi
+11. trend_reason must reference specific data patterns (e.g. "PM2.5 at 85 with low wind 1.2m/s = accumulation")
+12. predicted_next_hours: use time-of-day + weather to make a specific 4-6hr prediction
 Return JSON:
-{"summary":"3-4 sentences with seasonal context","health_risk":"LOW|MODERATE|HIGH|SEVERE|CRITICAL","pollution_source":"specific 5-10 words","source_type":"vehicular|industrial|stubble_burning|construction|waste_burning|dust|weather_inversion|mixed","source_icon":"emoji","confidence":75,"trend":"RISING|STABLE|FALLING","trend_reason":"why","vulnerable_impact":"1-2 sentences","key_concerns":["c1","c2","c3"],"recommendations":["r1","r2","r3"],"admin_action":"1 specific action","citizen_tip":"1 tip for right now","local_insight":"ward-specific insight","seasonal_factor":"seasonal effect","anomaly":false,"anomaly_detail":"","pm25_status":"SAFE|ELEVATED|DANGEROUS","predicted_next_hours":"4-6hr forecast","advisory_cards":[{"visual_key":"metro","title":"Take Metro Today","desc":"NO2 at 68ppb — vehicular rush is the cause. Skip your car, take metro.","target":"citizen","category":"transport"}]}`;
+{"summary":"3-4 sentences: weather/temp feel + dominant pollutant with value + specific cause + health implication","health_risk":"LOW|MODERATE|HIGH|SEVERE|CRITICAL","pollution_source":"specific 5-15 words with location/cause","source_type":"vehicular|industrial|stubble_burning|construction|waste_burning|dust|weather_inversion|mixed","source_icon":"emoji","confidence":75,"trend":"RISING|STABLE|FALLING","trend_reason":"data-backed reason mentioning actual values","vulnerable_impact":"1-2 sentences","key_concerns":["c1","c2","c3"],"recommendations":["r1","r2","r3"],"admin_action":"1 specific action","citizen_tip":"1 tip for right now","local_insight":"ward-specific insight with geography","seasonal_factor":"current season + festival/event effect on air quality","anomaly":false,"anomaly_detail":"","pm25_status":"SAFE|ELEVATED|DANGEROUS","predicted_next_hours":"specific 4-6hr forecast with reasoning","advisory_cards":[{"visual_key":"metro","title":"Take Metro Today","desc":"NO2 at 68ppb — vehicular rush is the cause. Skip your car, take metro.","target":"citizen","category":"transport"}]}`;
 }
 
 function buildStationPrompt(station: any, delhiContext: string, langInstruction: string): string {
