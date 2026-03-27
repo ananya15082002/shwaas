@@ -8,6 +8,8 @@ import { assignAQIToWards, aqiToFillColor, aqiToBorderColor } from "@/lib/wardAq
 import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
 import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
 import { getLandmarkIconSVG } from "@/lib/mapIcons";
+import { DELHI_POLLUTION_SOURCES } from "@/lib/delhiPollutionSources";
+import { POLLUTION_TYPE_IMAGES } from "@/lib/pollutionImages";
 
 interface MapViewProps {
   stations: StationData[];
