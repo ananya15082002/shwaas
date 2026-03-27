@@ -150,11 +150,13 @@ const [wardSearch, setWardSearch] = useState("");
       center: DELHI_CENTER,
       zoom: 10.5,
       minZoom: 9,
+      maxZoom: 18,
       maxBounds: DELHI_BOUNDS,
       attributionControl: false,
-      pitch: 45,
+      pitch: 40,
       bearing: -10,
       antialias: true,
+      fadeDuration: 200,
     });
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "bottom-right");
