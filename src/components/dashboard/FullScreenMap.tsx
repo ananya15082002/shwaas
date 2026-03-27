@@ -432,7 +432,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       layout: {
         "text-field": ["get", "ward_name"],
         "text-size": ["interpolate", ["linear"], ["zoom"], 10, 6, 11, 8, 12, 10, 14, 13, 16, 15],
-        "text-font": ["Open Sans Regular", "Arial Unicode MS Regular"],
+        "text-font": ["Noto Sans Regular", "Arial Unicode MS Regular"],
         "text-max-width": 6,
         "text-allow-overlap": false,
         "text-ignore-placement": false,
