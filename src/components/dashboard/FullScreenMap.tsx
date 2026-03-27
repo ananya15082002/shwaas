@@ -255,7 +255,7 @@ const [showSources, setShowSources] = useState(true);
     }, labelLayer?.id);
 
     return () => {
-      if (map.getLayer("3d-buildings")) map.removeLayer("3d-buildings");
+      if (map.getStyle() && map.getLayer("3d-buildings")) map.removeLayer("3d-buildings");
     };
   }, [mapLoaded]);
 
@@ -388,8 +388,12 @@ const [showSources, setShowSources] = useState(true);
     });
 
     return () => {
-      if (map.getLayer("ward-labels")) map.removeLayer("ward-labels");
-      if (map.getSource("ward-centroids")) map.removeSource("ward-centroids");
+      try {
+        if (map.getStyle()) {
+          if (map.getLayer("ward-labels")) map.removeLayer("ward-labels");
+          if (map.getSource("ward-centroids")) map.removeSource("ward-centroids");
+        }
+      } catch {}
     };
   }, [enrichedWards, mapLoaded]);
 
