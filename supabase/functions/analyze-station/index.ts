@@ -190,7 +190,8 @@ ANALYSIS RULES:
 8. trend_reason: cite actual numbers (e.g. "PM2.5 at 142 + humidity 78% + wind 0.8m/s = accumulation trap")
 9. predicted_next_hours: specific forecast using time-of-day + weather data
 10. admin_action: ONE specific action the ward officer/MCD can do TODAY, not a generic policy
-11. If Hindi: all text fields in Devanagari Hindi only
+
+FINAL LANGUAGE CHECK BEFORE OUTPUT: Re-read every string you are about to write. If LANGUAGE=ENGLISH, replace any Devanagari/Hindi word with its English equivalent. If LANGUAGE=HINDI, replace any English word with Hindi. No mixing allowed.
 
 Return JSON:
 {"summary":"3-4 sentences","health_risk":"LOW|MODERATE|HIGH|SEVERE|CRITICAL","pollution_source":"specific 5-15 words","source_type":"vehicular|industrial|stubble_burning|construction|waste_burning|dust|weather_inversion|mixed","source_icon":"emoji","confidence":75,"trend":"RISING|STABLE|FALLING","trend_reason":"data-cited reason","vulnerable_impact":"1-2 sentences","key_concerns":["c1","c2","c3"],"recommendations":["r1","r2","r3"],"admin_action":"1 specific ward-level action today","citizen_tip":"1 tip for right now","local_insight":"ward-specific geography insight","seasonal_factor":"current season + active event effect","anomaly":false,"anomaly_detail":"","pm25_status":"SAFE|ELEVATED|DANGEROUS","predicted_next_hours":"specific 4-6hr forecast","advisory_cards":[{"visual_key":"metro","title":"Skip Car AM Rush","desc":"NO2 at 68ppb on this corridor 8-10 AM — metro cuts your personal exposure by 60%.","target":"citizen","category":"transport"}]}`;
@@ -511,8 +512,8 @@ Deno.serve(async (req) => {
     const { station, mode, ward, liveIaqi, language } = payload;
     const lang = language === "hi" ? "hi" : "en";
     const langInstruction = lang === "hi"
-      ? "\nIMPORTANT: Respond ENTIRELY in Hindi (Devanagari script). Every text field — title, desc, summary, all strings — must be in Hindi only."
-      : "\nIMPORTANT: Respond ENTIRELY in English. Every text field must be in English only. Do NOT use any other language.";
+      ? "\nLANGUAGE=HINDI. Every single string value in the JSON — summary, title, desc, pollution_source, trend_reason, recommendations, key_concerns, admin_action, citizen_tip, local_insight, seasonal_factor, vulnerable_impact, predicted_next_hours, anomaly_detail — must be written in Hindi Devanagari script only. No English words allowed in any field."
+      : "\nLANGUAGE=ENGLISH. Every single string value in the JSON — summary, title, desc, pollution_source, trend_reason, recommendations, key_concerns, admin_action, citizen_tip, local_insight, seasonal_factor, vulnerable_impact, predicted_next_hours, anomaly_detail — must be written in English only. Hindi/Devanagari characters are strictly forbidden. Do not use मास्क, पहनें, or any Hindi word.";
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
