@@ -132,8 +132,8 @@ export function WardRankings({ stations }: WardRankingsProps) {
               { label: "Moderate (51-100)", color: "#FFD600", min: 51, max: 100 },
               { label: "Sensitive (101-150)", color: "#FF8C00", min: 101, max: 150 },
               { label: "Unhealthy (151-200)", color: "#FF3D3D", min: 151, max: 200 },
-              { label: "Very Unhealthy (201-300)", color: "#C62BFF", min: 201, max: 300 },
-              { label: "Hazardous (300+)", color: "#FF0033", min: 301, max: 999 },
+              { label: "Very Unhealthy (201-300)", color: "#8B3A8F", min: 201, max: 300 },
+              { label: "Hazardous (300+)", color: "#7E0023", min: 301, max: 999 },
             ].map((band) => {
               const count = sorted.filter((w) => {
                 const a = w.interpolated_aqi ?? 0;

@@ -44,7 +44,7 @@ export function getAqiLevel(aqi: number): AqiLevel {
   if (aqi <= 100) return { label: "Moderate", color: "#ffeb3b", bgClass: "bg-aqi-moderate", textClass: "text-aqi-moderate", description: "Acceptable air quality" };
   if (aqi <= 150) return { label: "Unhealthy for Sensitive Groups", color: "#ff9800", bgClass: "bg-aqi-sensitive", textClass: "text-aqi-sensitive", description: "Sensitive groups may experience effects" };
   if (aqi <= 200) return { label: "Unhealthy", color: "#f44336", bgClass: "bg-aqi-unhealthy", textClass: "text-aqi-unhealthy", description: "Everyone may experience health effects" };
-  if (aqi <= 300) return { label: "Very Unhealthy", color: "#9c27b0", bgClass: "bg-aqi-very-unhealthy", textClass: "text-aqi-very-unhealthy", description: "Health alert: serious health effects" };
+  if (aqi <= 300) return { label: "Very Unhealthy", color: "#8B3A8F", bgClass: "bg-aqi-very-unhealthy", textClass: "text-aqi-very-unhealthy", description: "Health alert: serious health effects" };
   return { label: "Hazardous", color: "#7e0023", bgClass: "bg-aqi-hazardous", textClass: "text-aqi-hazardous", description: "Emergency conditions" };
 }
 

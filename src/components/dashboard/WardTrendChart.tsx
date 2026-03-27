@@ -16,7 +16,7 @@ function aqiToColor(aqi: number): string {
   if (aqi <= 150) return "#FFD600";
   if (aqi <= 200) return "#FF8C00";
   if (aqi <= 300) return "#FF3D71";
-  return "#C62BFF";
+  return "#7E0023";
 }
 
 // Generate hourly-style data points from daily forecast for a smoother chart

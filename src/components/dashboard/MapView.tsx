@@ -29,8 +29,8 @@ function aqiToColor(aqi: number): string {
   if (aqi <= 100) return "#FFD600";
   if (aqi <= 150) return "#FF8C00";
   if (aqi <= 200) return "#FF3D3D";
-  if (aqi <= 300) return "#C62BFF";
-  return "#FF0033";
+  if (aqi <= 300) return "#8B3A8F";
+  return "#7E0023";
 }
 
 export function MapView({ stations, selectedStation, onSelectStation, onBoundsChange, onWardSelect, activeWard }: MapViewProps) {
@@ -450,8 +450,8 @@ const [wardSearch, setWardSearch] = useState("");
             0.4, "#FFD600",
             0.6, "#FF8C00",
             0.8, "#FF3D3D",
-            0.9, "#C62BFF",
-            1.0, "#FF0033",
+            0.9, "#8B3A8F",
+            1.0, "#7E0023",
           ],
         },
       });
@@ -633,8 +633,8 @@ const [wardSearch, setWardSearch] = useState("");
                     { label: "Moderate", range: "51–100", color: "#FFD600" },
                     { label: "Sensitive", range: "101–150", color: "#FF8C00" },
                     { label: "Unhealthy", range: "151–200", color: "#FF3D3D" },
-                    { label: "Very Unhealthy", range: "201–300", color: "#C62BFF" },
-                    { label: "Hazardous", range: "300+", color: "#FF0033" },
+                    { label: "Very Unhealthy", range: "201–300", color: "#8B3A8F" },
+                    { label: "Hazardous", range: "300+", color: "#7E0023" },
                   ].map((item) => (
                     <div key={item.label} className="flex items-center gap-2">
                       <span className="inline-block h-2.5 w-5 rounded-sm" style={{ background: item.color }} />
@@ -647,7 +647,7 @@ const [wardSearch, setWardSearch] = useState("");
             ) : (
               <button onClick={() => setShowLegend(true)} className="flex items-center gap-1.5 rounded-full border border-border bg-card/90 px-3 py-1.5 font-mono text-[11px] text-muted-foreground backdrop-blur-sm transition-colors hover:text-foreground">
                 <div className="flex gap-0.5">
-                  {["#00E5A0", "#FFD600", "#FF8C00", "#FF3D3D", "#C62BFF"].map((c) => (
+                  {["#00E5A0", "#FFD600", "#FF8C00", "#FF3D3D", "#8B3A8F"].map((c) => (
                     <span key={c} className="inline-block h-2.5 w-1.5 rounded-sm" style={{ background: c }} />
                   ))}
                 </div>

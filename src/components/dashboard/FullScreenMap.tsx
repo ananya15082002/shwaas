@@ -28,8 +28,8 @@ function aqiToColor(aqi: number): string {
   if (aqi <= 100) return "#FFD600";
   if (aqi <= 150) return "#FF8C00";
   if (aqi <= 200) return "#FF3D3D";
-  if (aqi <= 300) return "#C62BFF";
-  return "#FF0033";
+  if (aqi <= 300) return "#8B3A8F";
+  return "#7E0023";
 }
 
 export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScreenMapProps) {
@@ -823,8 +823,8 @@ const [showSources, setShowSources] = useState(true);
                 { color: "#FFD600", label: "Mod" },
                 { color: "#FF8C00", label: "Sens" },
                 { color: "#FF3D3D", label: "Unhl" },
-                { color: "#C62BFF", label: "V.Unhl" },
-                { color: "#FF0033", label: "Haz" },
+                { color: "#8B3A8F", label: "V.Unhl" },
+                { color: "#7E0023", label: "Haz" },
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-1 px-1" title={item.label}>
                   <span className="inline-block h-2 w-3 rounded-sm" style={{ background: item.color }} />
