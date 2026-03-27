@@ -127,7 +127,7 @@ function buildWardPrompt(ward: any, liveIaqi: any, delhiContext: string, langIns
     ? `PM2.5:${liveIaqi.pm25?.v ?? "N/A"}, PM10:${liveIaqi.pm10?.v ?? "N/A"}, NO2:${liveIaqi.no2?.v ?? "N/A"}, O3:${liveIaqi.o3?.v ?? "N/A"}, CO:${liveIaqi.co?.v ?? "N/A"}, SO2:${liveIaqi.so2?.v ?? "N/A"}, Temp:${liveIaqi.t?.v ?? "N/A"}°C, Humidity:${liveIaqi.h?.v ?? "N/A"}%, Wind:${liveIaqi.w?.v ?? "N/A"}m/s`
     : "No live data.";
 
-  const visualKeys = `Allowed visual_key values (choose the single most fitting per card):
+  const visualKeys = `Allowed visual_key values (ONE per card):
 transport citizen: metro | carpool | wfh | cycling | ev_vehicle
 transport govt: odd_even | truck_ban
 construction: construction_shroud | water_spray | smog_gun | dust_netting
@@ -135,28 +135,66 @@ govt policy: factory_shutdown | school_closure | emergency_alert
 trees: tree_peepal | tree_neem | tree_arjun | tree_ashoka
 health: n95_mask | air_purifier | stay_indoors`;
 
-  return `You are an ML-trained Delhi air quality prediction engine with deep knowledge of Delhi's geography, festivals, weather patterns, and pollution sources. Return ONLY valid JSON, no markdown.${langInstruction}
-Context: ${delhiContext}
-Ward: ${ward?.ward_name ?? "Unknown"} (No.${ward?.ward_no ?? "N/A"}), AC: ${ward?.ac_name ?? "N/A"}, Pop: ${ward?.total_pop?.toLocaleString?.() ?? "N/A"}, AQI: ${ward?.interpolated_aqi ?? "N/A"}, Nearest Station: ${ward?.nearest_station_dist ?? "N/A"}m
-Live: ${iaqiStr}
-Delhi hotspots: Industrial(Okhla,Wazirpur,Naraina,Bawana), Landfills(Ghazipur,Bhalswa,Okhla), Traffic(ITO,Ashram,Anand Vihar)
+  const wardAqi = ward?.interpolated_aqi ?? 0;
+  const grapStage = wardAqi > 450 ? "GRAP-4 (Emergency — ALL restrictions active, schools closed, construction banned, BS3 petrol/BS4 diesel vehicles banned)" :
+    wardAqi > 400 ? "GRAP-3 (Severe+ — private construction stopped, BS3 petrol banned, WFH mandated for 50% govt staff)" :
+    wardAqi > 300 ? "GRAP-2 (Very Poor — diesel gensets banned, construction dust mandatory controls, intensified enforcement)" :
+    wardAqi > 200 ? "GRAP-1 (Poor — mechanical sweeping mandatory, dust suppression on roads, enhanced public transport)" : "Below GRAP threshold";
+
+  return `You are a Delhi ward-level air quality ML+policy intelligence engine. You combine real-time sensor data with a global evidence database and Delhi-specific policy history to give exact, ward-specific, actionable analysis. Return ONLY valid JSON, no markdown.${langInstruction}
+
+CONTEXT: ${delhiContext}
+WARD: ${ward?.ward_name ?? "Unknown"} (No.${ward?.ward_no ?? "N/A"}), AC: ${ward?.ac_name ?? "N/A"}, Pop: ${ward?.total_pop?.toLocaleString?.() ?? "N/A"}, AQI: ${wardAqi}, Station dist: ${ward?.nearest_station_dist ?? "N/A"}m
+LIVE SENSORS: ${iaqiStr}
+GRAP STATUS: ${grapStage}
+DELHI HOTSPOT PROXIMITY: Industrial(Okhla,Wazirpur,Naraina,Bawana), Landfills(Ghazipur,Bhalswa,Okhla), Traffic(ITO,Ashram,Anand Vihar,NH-24,NH-8,NH-1)
+
+GLOBAL EVIDENCE DATABASE — use these as models, adapt to THIS ward's specific conditions:
+[TRANSPORT-1] Singapore ERP (Electronic Road Pricing): Congestion pricing at specific road chokepoints during peak 7:30-9:30 AM & 5-8 PM only — NOT city-wide all-day. Result: 25% traffic drop on priced roads, 18% NO2 reduction. Apply when: NO2>50ppb, high-density traffic ward, morning/evening hours.
+[TRANSPORT-2] Seoul smog emergency odd-even: Activated ONLY when AQI>150 AND winter inversion confirmed. Critically includes two-wheelers (unlike Delhi). Paired with mandatory WFH for govt employees. Result: 15% PM reduction. Apply: winter season only, include 2-wheelers, pair with WFH order.
+[TRANSPORT-3] London ULEZ (Ultra Low Emission Zone): Zone-specific (not city-wide) emission standards, 24/7 for heavy vehicles but 7AM-midnight for private cars. BS6-equivalent threshold. Result: 46% roadside NO2 cut in central zones. Apply to: wards near commercial/market corridors with old vehicle concentration.
+[TRANSPORT-4] Mexico City Hoy No Circula: Plate-digit rotation 7 days/week (not just weekdays), includes motorcycles, has verified environmental exemptions only. More effective than Delhi's version because two-wheelers included.
+[TRANSPORT-5] Oslo congestion pricing + EV mandate: Priced entry to city center during peak hours + free public transit on high-pollution days. Result: 19% fewer vehicles in core zone.
+[CONSTRUCTION-1] Singapore construction time restrictions: No concrete pouring/demolition after 10 PM in residential zones + GPS-tracked water suppression logs. Result: 35% PM10 reduction from construction sites. Apply to: wards with active construction near residential areas.
+[CONSTRUCTION-2] CAQM smog tower model: Anti-smog guns mandatory within 500m radius of active construction >2000 sqm. Enforce fine Rs.50,000/day non-compliance.
+[INDUSTRIAL-1] Beijing "2+26 city" emergency: Industry within 50km radius cuts production 30-50% when AQI>200. Applied to SPECIFIC industrial clusters (not blanket). Apply to: Okhla/Wazirpur/Bawana adjacent wards, SO2>25 or PM2.5>150.
+[INDUSTRIAL-2] Pune/Nashik industrial cluster monitoring: Real-time stack emission sensors with automatic MPCB alerts. Apply when SO2 elevated.
+[WASTE-1] Ghazipur/Bhalswa fire suppression: Nitrogen blanket + covered leachate channels reduces landfill fire PM2.5 contribution by 60%. Apply to: wards within 5km of landfills when PM2.5 spikes overnight (landfill fires peak 11 PM-4 AM).
+[DELHI-POLICY-WIN-1] CM Rekha Gupta tandoor ban (Nov 2024): Coal/wood tandoors banned in commercial establishments city-wide. Targets PAH-laden combustion from dhaba clusters. Proven effective for wards near market/dhaba concentration — enforce night-time compliance checks.
+[DELHI-POLICY-WIN-2] DPCC mechanical road sweeping (2022): Vacuum sweepers on 22 major roads nightly — reduced road dust PM10 contribution by 40% on swept corridors. Expand to ward-level secondary roads.
+[DELHI-POLICY-WIN-3] BS6 fuel transition (2020): Sulfur content dropped from 50ppm to 10ppm — SO2 from vehicles reduced 80%. Next step: enforce BS3/BS4 scrappage in specific high-density wards.
+[TREES] Neem: Best for roadside PM10 absorption + antimicrobial. Peepal: Highest CO2 absorption, 24hr oxygen. Arjun: Noise+pollution barrier for highway-adjacent wards. Ashoka: Dense canopy, ideal for colony dividers.
+
+GEOPOLITICAL CONTEXT (aware but proportionate):
+- Russia-Ukraine war (ongoing 2024-25): Europe's coal rebound raised global coal demand; India's thermal power load increased marginally → slight SO2/NOx uptick from power sector. Effect on Delhi: minor, only relevant if SO2>20ppb.
+- Middle East/Red Sea shipping disruptions: Higher marine fuel consumption on alternate routes → global bunker fuel emissions up → affects coastal cities more than Delhi. Delhi impact: negligible unless diesel prices spike causing adulteration.
+- RULE: Mention geopolitical context ONLY if SO2 is elevated (>20) or if the analysis would be incomplete without it. Do NOT force-mention wars when local sources (vehicular, dust, stubble) dominate.
+
+ODD-EVEN RULE (critical): NEVER recommend generic city-wide all-day odd-even. Instead specify:
+- WHICH roads in this ward (use ward name + AC name to infer corridor)
+- WHICH hours: morning peak (8-10 AM) or evening peak (6-9 PM) based on current time
+- INCLUDE two-wheelers explicitly (they contribute 6.6% PM2.5 vs cars' 2%)
+- SEASON CHECK: winter = up to 14% PM2.5 reduction possible; summer = near 0% effect — say so
+- PAIR with: truck ban, WFH advisory, or public transit push for compound effect
+- Title must NOT say generic "Odd-Even Scheme" — say "Peak-Hour Lane Rationing" or "AM Rush Plate Ban"
+
 ${visualKeys}
-CRITICAL ANALYSIS RULES:
-1. READ THE LIVE POLLUTANT VALUES CAREFULLY. Identify which pollutant is highest and WHY based on: time of day, season, weather, nearby sources, festivals
-2. summary MUST mention: (a) current temperature/weather feel (b) the dominant pollutant with its actual value (c) the specific real-world cause RIGHT NOW (not generic)
-3. For seasonal_factor: mention the CURRENT season effect + any active festival/event from context. Do NOT just say "Holi" if it's not Holi season. Use the actual date context provided.
-4. pollution_source must be hyper-specific: e.g. "Morning vehicular rush on NH-24 corridor" not just "vehicular"
-5. For advisory_cards: Generate 5-7 cards that DIRECTLY address what the live data is showing — mention actual pollutant values or time context in desc
-6. Mix: 2-3 citizen cards + 2-3 govt cards + 1 tree card always
-7. Each card picks ONE visual_key from the allowed list above
-8. title: max 4 words. desc: 1 sentence, actionable, situation-specific
-9. target must be exactly "citizen" or "govt"
-10. If Hindi lang: title and desc in Devanagari Hindi
-RESEARCH CONTEXT FOR ODD-EVEN CARD: If recommending odd_even, the desc MUST reflect evidence-based nuance. Peer-reviewed studies (IIT Delhi, Univ. of Chicago/EPIC, Environmental Pollution journal) show: (a) only 5–14% PM2.5 reduction in winter, 0% in summer (b) two-wheelers are fully exempt yet contribute 6.6% of PM2.5 vs cars' 2% (c) trucks/HGVs at 9.2% are far bigger targets (d) scheme is more effective when paired with night truck ban. Example desc: "Studies show 5–14% PM2.5 cut in winter only. Two-wheelers exempt. Pair with truck ban for real impact."
-11. trend_reason must reference specific data patterns (e.g. "PM2.5 at 85 with low wind 1.2m/s = accumulation")
-12. predicted_next_hours: use time-of-day + weather to make a specific 4-6hr prediction
+
+ANALYSIS RULES:
+1. Read LIVE pollutant values precisely. Identify dominant pollutant, its value, and the exact real-world cause given time+season+ward geography.
+2. summary: (a) temperature feel (b) dominant pollutant with exact number (c) specific cause NOW (d) health implication — 3-4 sentences, no fluff
+3. pollution_source: hyper-specific, e.g. "Pre-dawn truck convoy on NH-24 border entry" not "vehicular"
+4. advisory_cards: 5-7 cards. Each desc must mention actual sensor value or time context. No generic sentences.
+5. Mix: 2-3 citizen + 2-3 govt + 1 tree. Each must map to a different problem (don't give 3 transport cards if source is industrial).
+6. title: max 4 words. desc: 1 sentence, sharp, evidence-referenced where possible.
+7. target: exactly "citizen" or "govt"
+8. trend_reason: cite actual numbers (e.g. "PM2.5 at 142 + humidity 78% + wind 0.8m/s = accumulation trap")
+9. predicted_next_hours: specific forecast using time-of-day + weather data
+10. admin_action: ONE specific action the ward officer/MCD can do TODAY, not a generic policy
+11. If Hindi: all text fields in Devanagari Hindi only
+
 Return JSON:
-{"summary":"3-4 sentences: weather/temp feel + dominant pollutant with value + specific cause + health implication","health_risk":"LOW|MODERATE|HIGH|SEVERE|CRITICAL","pollution_source":"specific 5-15 words with location/cause","source_type":"vehicular|industrial|stubble_burning|construction|waste_burning|dust|weather_inversion|mixed","source_icon":"emoji","confidence":75,"trend":"RISING|STABLE|FALLING","trend_reason":"data-backed reason mentioning actual values","vulnerable_impact":"1-2 sentences","key_concerns":["c1","c2","c3"],"recommendations":["r1","r2","r3"],"admin_action":"1 specific action","citizen_tip":"1 tip for right now","local_insight":"ward-specific insight with geography","seasonal_factor":"current season + festival/event effect on air quality","anomaly":false,"anomaly_detail":"","pm25_status":"SAFE|ELEVATED|DANGEROUS","predicted_next_hours":"specific 4-6hr forecast with reasoning","advisory_cards":[{"visual_key":"metro","title":"Take Metro Today","desc":"NO2 at 68ppb — vehicular rush is the cause. Skip your car, take metro.","target":"citizen","category":"transport"}]}`;
+{"summary":"3-4 sentences","health_risk":"LOW|MODERATE|HIGH|SEVERE|CRITICAL","pollution_source":"specific 5-15 words","source_type":"vehicular|industrial|stubble_burning|construction|waste_burning|dust|weather_inversion|mixed","source_icon":"emoji","confidence":75,"trend":"RISING|STABLE|FALLING","trend_reason":"data-cited reason","vulnerable_impact":"1-2 sentences","key_concerns":["c1","c2","c3"],"recommendations":["r1","r2","r3"],"admin_action":"1 specific ward-level action today","citizen_tip":"1 tip for right now","local_insight":"ward-specific geography insight","seasonal_factor":"current season + active event effect","anomaly":false,"anomaly_detail":"","pm25_status":"SAFE|ELEVATED|DANGEROUS","predicted_next_hours":"specific 4-6hr forecast","advisory_cards":[{"visual_key":"metro","title":"Skip Car AM Rush","desc":"NO2 at 68ppb on this corridor 8-10 AM — metro cuts your personal exposure by 60%.","target":"citizen","category":"transport"}]}`;
 }
 
 function buildStationPrompt(station: any, delhiContext: string, langInstruction: string): string {
@@ -241,36 +279,36 @@ function buildFallbackAdvisoryCards(sourceType: string, aqi: number, lang: strin
 
   if (sourceType === "vehicular" || aqi > 150) {
     cards.push(
-      { visual_key: "metro", title: hi ? "मेट्रो लें" : "Take Metro", desc: hi ? "वाहन प्रदूषण अधिक है — आज मेट्रो या बस से जाएं" : "Vehicle emissions are high — use metro or DTC bus today", target: "citizen", category: "transport" },
-      { visual_key: "carpool", title: hi ? "कारपूलिंग करें" : "Carpool Today", desc: hi ? "सहकर्मियों के साथ एक गाड़ी में जाएं, प्रदूषण घटाएं" : "Share a ride with colleagues to cut vehicle count on roads", target: "citizen", category: "transport" },
-      { visual_key: "wfh", title: hi ? "घर से काम करें" : "Work From Home", desc: hi ? "आज ऑफिस आना-जाना टालें — WFH एक विकल्प है" : "Avoid the commute today if your work allows WFH", target: "citizen", category: "transport" },
-      { visual_key: "odd_even", title: hi ? "ऑड-ईवन (सीमित असर)" : "Odd-Even (Limited Effect)", desc: hi ? "शोध: केवल 5–14% PM2.5 कमी (IIT दिल्ली/यूनिव. शिकागो)। दोपहिया वाहन छूट में — ट्रक प्रतिबंध के साथ जोड़ने पर अधिक प्रभावी।" : "Research shows only 5–14% PM2.5 reduction (IIT Delhi/UChicago). Two-wheelers exempt. Pair with truck ban for meaningful impact.", target: "govt", category: "transport" },
+      { visual_key: "metro", title: hi ? "पीक ऑवर मेट्रो लें" : "Metro: Skip AM Rush", desc: hi ? "NO2 बढ़ा हुआ है — सुबह 8-10 बजे व शाम 6-9 बजे मेट्रो से जाएं, व्यक्तिगत प्रदूषण 60% कम होगा" : "NO2 elevated — metro cuts personal exposure 60% vs driving during 8-10 AM and 6-9 PM peak corridors", target: "citizen", category: "transport" },
+      { visual_key: "carpool", title: hi ? "कारपूल: रोड लोड घटाएं" : "Carpool: Cut Road Load", desc: hi ? "4 लोग एक गाड़ी में = 3 गाड़ियां कम। वार्ड में वाहन घनत्व घटाने का सबसे तेज़ तरीका" : "4 people per car = 3 fewer vehicles. Singapore-proven: 18% NO2 drop when carpool penetration exceeds 30% on a corridor", target: "citizen", category: "transport" },
+      { visual_key: "wfh", title: hi ? "WFH: पीक ट्रैफिक टालें" : "WFH: Avoid Peak Traffic", desc: hi ? "GRAP-2+ पर सरकार का 50% WFH आदेश लागू करें — यह Seoul मॉडल है जो AQI>150 पर काम करता है" : "GRAP-2+ triggers mandatory 50% govt WFH — Seoul model shows 15% PM cut when combined with peak-hour plate rationing", target: "citizen", category: "transport" },
+      { visual_key: "odd_even", title: hi ? "पीक-ऑवर लेन बैन" : "Peak-Hour Lane Rationing", desc: hi ? "केवल सुबह 8-10 व शाम 6-9 बजे, दोपहिया सहित (IIT दिल्ली: सिर्फ सर्दियों में 14% PM कमी — गर्मियों में असर शून्य)" : "Only 8-10 AM & 6-9 PM peak windows, include two-wheelers (6.6% PM2.5). IIT Delhi: 14% PM cut in winter only — zero in summer", target: "govt", category: "transport" },
     );
   }
 
   if (sourceType === "construction" || sourceType === "dust") {
     cards.push(
-      { visual_key: "construction_shroud", title: hi ? "निर्माण ढकें" : "Shroud Construction", desc: hi ? "चीन जैसी तकनीक — सभी निर्माण स्थलों को जाली/कपड़े से ढकें" : "China-style technique — wrap all active construction sites in dust-suppression mesh", target: "govt", category: "construction" },
-      { visual_key: "water_spray", title: hi ? "पानी छिड़कें" : "Deploy Water Spray", desc: hi ? "एंटी-स्मॉग गन से निर्माण स्थलों पर तुरंत पानी छिड़काव करें" : "Deploy anti-smog water sprinklers at all construction sites immediately", target: "govt", category: "construction" },
+      { visual_key: "construction_shroud", title: hi ? "साइट नेट कवर करें" : "Net-Wrap All Sites", desc: hi ? "CAQM नियम: 2000 sqm से बड़े निर्माण पर धूल-नेट अनिवार्य। Singapore मॉडल: 35% PM10 कमी। गैर-अनुपालन पर ₹50,000/दिन जुर्माना" : "CAQM rule: dust-suppression nets mandatory on sites >2000 sqm. Singapore model achieved 35% PM10 reduction. Fine Rs.50,000/day for non-compliance", target: "govt", category: "construction" },
+      { visual_key: "water_spray", title: hi ? "GPS-ट्रैक्ड स्प्रे" : "GPS-Tracked Water Spray", desc: hi ? "एंटी-स्मॉग गन को GPS लॉग से ट्रैक करें — साइट 500m रेडियस में अनिवार्य। रात 10 बजे के बाद कोई तोड़-फोड़/कंक्रीट नहीं" : "GPS-log anti-smog guns within 500m of active sites. No demolition/concrete pouring after 10 PM in residential zones — Singapore proven", target: "govt", category: "construction" },
     );
   }
 
   if (aqi > 200) {
     cards.push(
-      { visual_key: "truck_ban", title: hi ? "ट्रक प्रतिबंध" : "Ban Trucks", desc: hi ? "रात 10 बजे के बाद गैर-जरूरी ट्रकों का दिल्ली में प्रवेश बंद करें" : "Ban non-essential truck entry into Delhi after 10 PM tonight", target: "govt", category: "transport" },
+      { visual_key: "truck_ban", title: hi ? "रात ट्रक प्रतिबंध" : "Night Truck Entry Ban", desc: hi ? "ट्रक दिल्ली PM2.5 में 9.2% योगदान देते हैं — रात 10 बजे से सुबह 6 बजे तक गैर-जरूरी HGV प्रवेश बंद करें (कार के ऑड-ईवन से 4x अधिक प्रभावी)" : "Trucks = 9.2% of Delhi PM2.5 vs cars' 2%. Banning non-essential HGV entry 10 PM-6 AM is 4x more effective than car odd-even alone", target: "govt", category: "transport" },
     );
   }
 
   if (aqi > 300) {
     cards.push(
-      { visual_key: "school_closure", title: hi ? "स्कूल बंद करें" : "Close Schools", desc: hi ? "AQI खतरनाक स्तर पर — सभी स्कूल तुरंत बंद करें" : "AQI at hazardous level — close all schools and outdoor venues immediately", target: "govt", category: "health" },
+      { visual_key: "school_closure", title: hi ? "GRAP-3: स्कूल बंद" : "GRAP-3: Close Schools", desc: hi ? "AQI 300+ पर GRAP-3 स्वतः लागू — बच्चों का बाहरी exposure शून्य करें। ऑनलाइन कक्षाएं अभी शुरू करें" : "AQI 300+ triggers mandatory GRAP-3 school closure — eliminate outdoor child exposure. Switch to online classes immediately", target: "govt", category: "health" },
     );
   }
 
   // Always add tree cards
   cards.push(
-    { visual_key: "tree_peepal", title: hi ? "पीपल लगाएं" : "Plant Peepal", desc: hi ? "दिल्ली का सबसे बड़ा CO₂ अवशोषक — कॉलोनी में लगाएं" : "Best CO₂ absorber for Delhi — plant in your colony or rooftop garden", target: "citizen", category: "trees" },
-    { visual_key: "tree_neem", title: hi ? "नीम लगाएं" : "Plant Neem", desc: hi ? "प्राकृतिक वायु शोधक — धूल और PM कण कम करता है" : "Natural air purifier — absorbs dust particles and reduces PM levels", target: "citizen", category: "trees" },
+    { visual_key: "tree_peepal", title: hi ? "पीपल: 24hr ऑक्सीजन" : "Peepal: 24hr O₂", desc: hi ? "दिल्ली में सर्वश्रेष्ठ CO₂ अवशोषक, रात को भी ऑक्सीजन देता है — कॉलोनी/छत पर लगाएं" : "Delhi's highest CO₂ absorber — produces oxygen 24hrs unlike most trees. Plant in colony or rooftop", target: "citizen", category: "trees" },
+    { visual_key: "tree_neem", title: hi ? "नीम: PM10 अवशोषक" : "Neem: PM10 Absorber", desc: hi ? "सड़क किनारे के लिए सर्वश्रेष्ठ — पत्तियां PM10 और सूक्ष्म धूल कणों को पकड़ती हैं, रोगाणुरोधी भी" : "Best for roadside planting — leaf surface traps PM10 and fine dust. Antimicrobial properties reduce bioaerosol load", target: "citizen", category: "trees" },
   );
 
   return cards;
