@@ -388,8 +388,12 @@ const [showSources, setShowSources] = useState(true);
     });
 
     return () => {
-      if (map.getLayer("ward-labels")) map.removeLayer("ward-labels");
-      if (map.getSource("ward-centroids")) map.removeSource("ward-centroids");
+      try {
+        if (map.getStyle()) {
+          if (map.getLayer("ward-labels")) map.removeLayer("ward-labels");
+          if (map.getSource("ward-centroids")) map.removeSource("ward-centroids");
+        }
+      } catch {}
     };
   }, [enrichedWards, mapLoaded]);
 
