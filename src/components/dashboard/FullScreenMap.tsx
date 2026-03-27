@@ -365,21 +365,11 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         const p = e.features[0].properties;
         const centroid = typeof p.centroid === "string" ? JSON.parse(p.centroid) : p.centroid;
         const wardProps = { ...p, centroid } as WardFeature["properties"];
-        const [cLon, cLat] = centroid;
         
         if (popupRef.current) { popupRef.current.remove(); popupRef.current = null; }
         
-        // Cinematic zoom into ward, then auto-enter dashboard
-        map.flyTo({ center: [cLon, cLat], zoom: 15, pitch: 60, bearing: -15, duration: 2200, essential: true });
-        setSelectedWard(wardProps);
-        setZoomedInWard(wardProps);
-        
-        // After zoom animation completes, enter dashboard
-        const onMoveEnd = () => {
-          map.off("moveend", onMoveEnd);
-          onEnterDashboard(wardProps);
-        };
-        map.once("moveend", onMoveEnd);
+        // Directly enter dashboard with selected ward
+        onEnterDashboard(wardProps);
       }
     });
   }, [enrichedWards, mapLoaded, onEnterDashboard]);
@@ -409,20 +399,22 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       source: "ward-centroids",
       layout: {
         "text-field": ["get", "ward_name"],
-        "text-size": ["interpolate", ["linear"], ["zoom"], 10, 6, 11, 8, 12, 10, 14, 13, 16, 15],
-        "text-font": ["Noto Sans Regular", "Arial Unicode MS Regular"],
-        "text-max-width": 6,
+        "text-size": ["interpolate", ["linear"], ["zoom"], 10, 8, 11, 10, 12, 12, 14, 14, 16, 16],
+        "text-font": ["Noto Sans Bold", "Arial Unicode MS Bold"],
+        "text-max-width": 7,
         "text-allow-overlap": false,
         "text-ignore-placement": false,
-        "text-padding": 2,
+        "text-padding": 4,
         "text-anchor": "center",
+        "text-transform": "uppercase",
+        "text-letter-spacing": 0.05,
       },
       paint: {
         "text-color": "#FFFFFF",
-        "text-halo-color": "rgba(0,0,0,1)",
-        "text-halo-width": 2.5,
-        "text-halo-blur": 1,
-        "text-opacity": ["interpolate", ["linear"], ["zoom"], 9.5, 0, 10.5, 0.5, 11.5, 0.75, 13, 0.9, 15, 1],
+        "text-halo-color": "rgba(0,0,0,0.95)",
+        "text-halo-width": 3,
+        "text-halo-blur": 0.5,
+        "text-opacity": ["interpolate", ["linear"], ["zoom"], 9.5, 0, 10.5, 0.6, 12, 0.85, 14, 1],
       },
     });
 
