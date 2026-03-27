@@ -544,9 +544,12 @@ Deno.serve(async (req) => {
     }
 
     const aqi = ward?.interpolated_aqi ?? station?.aqi ?? 0;
-    saveToCache(supabaseAdmin, cacheKey, mode, ward, aqi, parsed).catch((e) =>
-      console.error("Cache save error:", e),
-    );
+    // Don't cache heuristic fallbacks — retry AI on next request
+    if (parsed?._source !== "heuristic_fallback") {
+      saveToCache(supabaseAdmin, cacheKey, mode, ward, aqi, parsed).catch((e) =>
+        console.error("Cache save error:", e),
+      );
+    }
 
     return new Response(JSON.stringify(parsed), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
