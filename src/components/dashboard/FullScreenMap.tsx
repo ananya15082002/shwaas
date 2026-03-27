@@ -2,15 +2,12 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, Navigation, ZoomIn, ZoomOut, Locate, MapPin, Plane, Square, Factory, ArrowLeft } from "lucide-react";
+import { Search, X, Navigation, ZoomIn, ZoomOut, Locate, MapPin, Plane, Square, ArrowLeft } from "lucide-react";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
 import { assignAQIToWards, aqiToBorderColor, getAQICategory } from "@/lib/wardAqi";
-import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
 import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
-import { DELHI_POLLUTION_SOURCES, getSourceTypeColor } from "@/lib/delhiPollutionSources";
-import { getPollutionIconSVG } from "@/lib/mapIcons";
-import { LANDMARK_IMAGES } from "@/lib/landmarkImages";
+import { DELHI_POLLUTION_SOURCES } from "@/lib/delhiPollutionSources";
 import { POLLUTION_TYPE_IMAGES } from "@/lib/pollutionImages";
 
 interface FullScreenMapProps {
@@ -46,7 +43,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   const [searchingPlaces, setSearchingPlaces] = useState(false);
   const placeSearchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [showSources, setShowSources] = useState(true);
+  
   const [tourActive, setTourActive] = useState(false);
   const [tourIndex, setTourIndex] = useState(-1);
   const tourTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -368,8 +365,83 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         
         if (popupRef.current) { popupRef.current.remove(); popupRef.current = null; }
         
-        // Directly enter dashboard with selected ward
-        onEnterDashboard(wardProps);
+        // Zoom to ward with highlight, then enter dashboard
+        const [cLon, cLat] = centroid;
+        setSelectedWard(wardProps);
+        setZoomedInWard(wardProps);
+        
+        // Add white boundary highlight for clicked ward
+        const feature = enrichedWards?.features.find(f => f.properties.ward_no === wardProps.ward_no);
+        if (feature) {
+          if (map.getLayer("click-highlight-border")) map.removeLayer("click-highlight-border");
+          if (map.getLayer("click-highlight-glow")) map.removeLayer("click-highlight-glow");
+          if (map.getSource("click-highlight")) map.removeSource("click-highlight");
+          
+          map.addSource("click-highlight", {
+            type: "geojson",
+            data: { type: "FeatureCollection", features: [feature] } as any,
+          });
+          map.addLayer({
+            id: "click-highlight-glow",
+            type: "line",
+            source: "click-highlight",
+            paint: { "line-color": "#FFFFFF", "line-width": 8, "line-opacity": 0.25, "line-blur": 6 },
+          });
+          map.addLayer({
+            id: "click-highlight-border",
+            type: "line",
+            source: "click-highlight",
+            paint: { "line-color": "#FFFFFF", "line-width": 2.5, "line-opacity": 0.95 },
+          });
+        }
+        
+        // Add pollution source image near the ward
+        const nearbySrc = DELHI_POLLUTION_SOURCES
+          .map(src => ({ ...src, dist: Math.sqrt(Math.pow(src.lat - cLat, 2) + Math.pow(src.lon - cLon, 2)) }))
+          .sort((a, b) => a.dist - b.dist)[0];
+        
+        if (nearbySrc && nearbySrc.dist < 0.08) {
+          const imgSrc = POLLUTION_TYPE_IMAGES[nearbySrc.type] || POLLUTION_TYPE_IMAGES.industrial;
+          const el = document.createElement("div");
+          el.style.cssText = "filter:drop-shadow(0 4px 16px rgba(0,0,0,0.8));pointer-events:none;";
+          el.innerHTML = `
+            <div style="width:52px;height:52px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,140,0,0.8);box-shadow:0 0 16px rgba(255,140,0,0.3);background:#111;">
+              <img src="${imgSrc}" style="width:100%;height:100%;object-fit:cover;display:block;" />
+            </div>
+            <div style="text-align:center;margin-top:3px;">
+              <span style="background:rgba(4,8,16,0.92);color:rgba(255,140,0,0.9);font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:700;padding:2px 5px;border-radius:4px;letter-spacing:0.5px;white-space:nowrap;">${nearbySrc.name.length > 20 ? nearbySrc.name.slice(0, 20) + '…' : nearbySrc.name}</span>
+            </div>
+          `;
+          const marker = new maplibregl.Marker({ element: el, anchor: "center" })
+            .setLngLat([nearbySrc.lon, nearbySrc.lat])
+            .addTo(map);
+          // Store for cleanup
+          (map as any)._pollClickMarker = marker;
+        }
+        
+        // Moderate zoom - show ward + neighbors
+        map.flyTo({
+          center: [cLon, cLat],
+          zoom: 12.5,
+          pitch: 45,
+          bearing: -10,
+          duration: 2000,
+          essential: true,
+        });
+        
+        // After animation, enter dashboard
+        map.once("moveend", () => {
+          setTimeout(() => {
+            // Cleanup
+            if ((map as any)._pollClickMarker) { (map as any)._pollClickMarker.remove(); (map as any)._pollClickMarker = null; }
+            try {
+              if (map.getLayer("click-highlight-border")) map.removeLayer("click-highlight-border");
+              if (map.getLayer("click-highlight-glow")) map.removeLayer("click-highlight-glow");
+              if (map.getSource("click-highlight")) map.removeSource("click-highlight");
+            } catch {}
+            onEnterDashboard(wardProps);
+          }, 800);
+        });
       }
     });
   }, [enrichedWards, mapLoaded, onEnterDashboard]);
@@ -494,86 +566,8 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     });
   }, [mapLoaded, stationsWithCoords, onEnterDashboard]);
 
-  // Landmark markers with real 3D image popups
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !mapLoaded) return;
-    const markers: maplibregl.Marker[] = [];
-    DELHI_LANDMARKS.forEach((lm) => {
-      const imgSrc = LANDMARK_IMAGES[lm.name];
-      const el = document.createElement("div");
-      el.style.cssText = "cursor:pointer;";
-      el.innerHTML = `
-        <div class="lm-card" style="
-          transition:transform 0.3s, box-shadow 0.3s;
-          width:28px;height:28px;
-          border-radius:50%;
-          overflow:hidden;
-          border:2px solid rgba(255,255,255,0.3);
-          box-shadow:0 2px 8px rgba(0,0,0,0.5);
-          background:#111;
-        ">
-          <img src="${imgSrc || ''}" style="width:100%;height:100%;object-fit:cover;display:block;" />
-        </div>
-      `;
-      el.title = lm.name;
-      el.addEventListener("mouseenter", () => {
-        const card = el.querySelector(".lm-card") as HTMLElement;
-        if (card) {
-          card.style.transform = "scale(1.5)";
-          card.style.boxShadow = "0 4px 16px rgba(0,0,0,0.7), 0 0 10px rgba(0,229,160,0.25)";
-          card.style.borderColor = "rgba(0,229,160,0.6)";
-        }
-      });
-      el.addEventListener("mouseleave", () => {
-        const card = el.querySelector(".lm-card") as HTMLElement;
-        if (card) {
-          card.style.transform = "";
-          card.style.boxShadow = "0 2px 8px rgba(0,0,0,0.5)";
-          card.style.borderColor = "rgba(255,255,255,0.3)";
-        }
-      });
-      el.addEventListener("click", () => {
-        const nearest = findNearestWard(lm.lat, lm.lon);
-        if (nearest) onEnterDashboard(nearest);
-      });
-      const m = new maplibregl.Marker({ element: el }).setLngLat([lm.lon, lm.lat]).addTo(map);
-      markers.push(m);
-    });
-    return () => markers.forEach((m) => m.remove());
-  }, [mapLoaded, findNearestWard, onEnterDashboard]);
 
-  // Pollution source markers
-  const pollSourceMarkersRef = useRef<maplibregl.Marker[]>([]);
-  useEffect(() => {
-    const map = mapRef.current;
-    pollSourceMarkersRef.current.forEach((m) => m.remove());
-    pollSourceMarkersRef.current = [];
-    if (!map || !mapLoaded || !showSources) return;
 
-    DELHI_POLLUTION_SOURCES.forEach((src) => {
-      const color = getSourceTypeColor(src.type);
-      const el = document.createElement("div");
-      el.innerHTML = `<div style="cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${color}20;border:2px solid ${color};filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));transition:transform 0.2s;color:${color};">${getPollutionIconSVG(src.type, color)}</div>`;
-      el.title = `${src.name} - ${src.description}`;
-      el.addEventListener("mouseenter", () => { el.style.transform = "scale(1.3)"; });
-      el.addEventListener("mouseleave", () => { el.style.transform = "scale(1)"; });
-      el.addEventListener("click", () => {
-        const nearest = findNearestWard(src.lat, src.lon);
-        if (nearest) {
-          setSelectedWard(nearest);
-          map.flyTo({ center: [src.lon, src.lat], zoom: 14, duration: 1200 });
-        }
-      });
-      const m = new maplibregl.Marker({ element: el }).setLngLat([src.lon, src.lat]).addTo(map);
-      pollSourceMarkersRef.current.push(m);
-    });
-
-    return () => {
-      pollSourceMarkersRef.current.forEach((m) => m.remove());
-      pollSourceMarkersRef.current = [];
-    };
-  }, [mapLoaded, showSources, findNearestWard]);
 
   const resetView = () => {
     mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10, pitch: 40, bearing: -10, duration: 1500 });
@@ -693,18 +687,6 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
                 <Icon className="h-4 w-4" />
               </button>
             ))}
-<button
-              onClick={() => setShowSources((v) => !v)}
-              title={showSources ? "Hide pollution sources" : "Show pollution sources"}
-              className="flex h-10 w-10 items-center justify-center rounded-lg border backdrop-blur-md transition-all"
-              style={{
-                background: showSources ? "rgba(255,107,53,0.15)" : "rgba(4,8,16,0.8)",
-                borderColor: showSources ? "rgba(255,107,53,0.5)" : "rgba(255,255,255,0.1)",
-                color: showSources ? "#FF6B35" : "rgba(255,255,255,0.5)",
-              }}
-            >
-              <Factory className="h-4 w-4" />
-            </button>
             <button
               onClick={tourActive ? stopTour : startTour}
               title={tourActive ? "Stop tour" : "Fly tour: Top 5 polluted"}

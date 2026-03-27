@@ -58,6 +58,11 @@ const Index = () => {
     music.changeMode("dashboard");
   };
 
+  const handleBackToMap = () => {
+    setShowFullMap(true);
+    setDashboardReady(false);
+  };
+
   const handleReplay = () => {
     replay();
     setShowFullMap(false);
@@ -104,7 +109,7 @@ const Index = () => {
         className="flex h-screen flex-col bg-background"
         style={{ pointerEvents: showDashboard ? "auto" : "none" }}
       >
-        <Navbar lastUpdated={lastUpdated} onRefresh={refresh} loading={loading} onLogoClick={handleReplay} />
+        <Navbar lastUpdated={lastUpdated} onRefresh={refresh} loading={loading} onLogoClick={handleReplay} onBackToMap={handleBackToMap} />
 
         {error ? (
           <ErrorState message={error} onRetry={refresh} />
