@@ -25,25 +25,65 @@ function getDelhiContext(): string {
   else if (hour >= 16 && hour < 19) timeOfDay = "evening";
   else if (hour >= 19 && hour < 22) timeOfDay = "late evening";
 
-  let festivalContext = "";
-  if (month === 9 && day >= 15) festivalContext = "Dussehra period - Ravana effigy burning increases PM.";
-  if (month === 10 && day <= 15) festivalContext = "Diwali season - firecracker pollution expected.";
-  if (month === 10 && day >= 20) festivalContext = "Post-Diwali haze - stubble burning peaks.";
-  if (month === 0) festivalContext = "Lohri/Makar Sankranti bonfires may increase PM.";
-  if (month === 2 && day >= 15) festivalContext = "Holi period emissions possible.";
+  // Comprehensive festival calendar (approximate windows — dates shift yearly)
+  const festivals: string[] = [];
+
+  // January
+  if (month === 0 && day <= 15) festivals.push("Lohri/Makar Sankranti — bonfires may increase PM locally.");
+  if (month === 0 && day === 26) festivals.push("Republic Day — parade area traffic diversions, low vehicular pollution in central Delhi.");
+
+  // February-March: Basant Panchami, Maha Shivratri, Holi
+  if (month === 1 && day >= 1 && day <= 10) festivals.push("Basant Panchami season.");
+  if (month === 1 && day >= 20 || (month === 2 && day <= 5)) festivals.push("Maha Shivratri — night temple gatherings, incense/dhoop increases local PM.");
+  if (month === 2 && day >= 10 && day <= 20) festivals.push("Holi period — bonfire (Holika Dahan) and color powder can spike PM10 temporarily.");
+
+  // March-April: Navratri (Chaitra), Ram Navami, Eid-ul-Fitr (shifts yearly)
+  if (month === 2 && day >= 22 || (month === 3 && day <= 10)) festivals.push("Chaitra Navratri — yagna/havan smoke may increase localized PM.");
+  if (month === 3 && day >= 1 && day <= 20) festivals.push("Ram Navami / possible Eid-ul-Fitr window — mixed traffic patterns, cooking emissions from gatherings.");
+
+  // May-June: Eid-ul-Fitr / Eid-ul-Adha window (shifts yearly)
+  if (month === 4 || month === 5) festivals.push("Possible Eid period — community cooking, traffic surges near mosques.");
+
+  // July-August: Eid-ul-Adha, Raksha Bandhan, Independence Day, Janmashtami
+  if (month === 6 && day >= 10) festivals.push("Possible Eid-ul-Adha — community gatherings, cooking emissions.");
+  if (month === 7 && day <= 5) festivals.push("Possible Eid-ul-Adha window.");
+  if (month === 7 && day >= 10 && day <= 20) festivals.push("Raksha Bandhan — increased market traffic and vehicle movement.");
+  if (month === 7 && day === 15) festivals.push("Independence Day — Red Fort area traffic diversions.");
+  if (month === 7 && day >= 22) festivals.push("Janmashtami — night celebrations, temple areas congested.");
+
+  // September: Ganesh Chaturthi
+  if (month === 8 && day >= 5 && day <= 20) festivals.push("Ganesh Chaturthi — idol immersion processions affect traffic corridors.");
+
+  // September-October: Navratri (Sharad), Dussehra
+  if (month === 8 && day >= 20 || (month === 9 && day <= 5)) festivals.push("Sharad Navratri — pandal activities, increased evening foot traffic and generator use.");
+  if (month === 9 && day >= 5 && day <= 15) festivals.push("Dussehra — Ravana effigy burning spikes PM10/PM2.5 sharply for 1-2 days.");
+  if (month === 9 && day >= 16 && day <= 25) festivals.push("Karwa Chauth / pre-Diwali shopping — heavy market traffic.");
+
+  // October-November: Diwali, Chhath Puja, Guru Purab
+  if (month === 9 && day >= 26 || (month === 10 && day <= 5)) festivals.push("Diwali season — firecracker pollution spikes PM2.5/PM10 to hazardous levels, SO2 also rises.");
+  if (month === 10 && day >= 5 && day <= 12) festivals.push("Post-Diwali haze persists. Chhath Puja — riverside gatherings, biomass burning.");
+  if (month === 10 && day >= 12 && day <= 20) festivals.push("Guru Nanak Jayanti — gurudwara area traffic and langar cooking emissions.");
+  if (month === 10 && day >= 20) festivals.push("Post-Diwali + stubble burning convergence — worst air quality window of the year.");
+
+  // December: Christmas, New Year
+  if (month === 11 && day >= 20) festivals.push("Christmas/New Year — bonfire parties, increased nightlife traffic in central Delhi.");
+
+  const festivalContext = festivals.length > 0 ? festivals.join(" ") : "No major festival impact currently.";
 
   let cropBurning = "";
-  if (month === 9 || month === 10) cropBurning = "CRITICAL: Paddy stubble burning from Punjab/Haryana/UP.";
-  if (month === 3 || month === 4) cropBurning = "Wheat stubble burning possible.";
+  if (month === 9 || month === 10) cropBurning = "CRITICAL: Paddy stubble burning from Punjab/Haryana/UP — transboundary smoke.";
+  if (month === 3 || month === 4) cropBurning = "Wheat stubble burning possible from neighboring states.";
 
   let weatherPattern = "";
-  if (season === "winter") weatherPattern = "Temperature inversion trapping pollutants. Low winds. Fog/smog.";
-  if (season === "monsoon") weatherPattern = "Rain washout reducing PM. High humidity affects O3.";
-  if (season === "summer") weatherPattern = "High temps increasing O3. Dust storms possible from Rajasthan.";
-  if (season === "post-monsoon") weatherPattern = "Temps dropping, inversion layers forming.";
+  if (season === "winter") weatherPattern = "Temperature inversion trapping pollutants near surface. Low wind speed. Fog/smog likely. Cold temperatures (5-15°C) keep people indoors.";
+  if (season === "monsoon") weatherPattern = "Rain washout actively reducing PM. High humidity (70-95%) suppresses dust but increases O3 formation. Waterlogging may slow traffic.";
+  if (season === "summer") weatherPattern = "High temps (38-46°C) intensifying O3 photochemistry. Dust storms possible from Rajasthan/Thar. Heat island effect in urban core.";
+  if (season === "spring") weatherPattern = "Moderate temps (22-35°C), transitional winds. Pollen season — allergenic particles add to PM10. Dust picking up.";
+  if (season === "pre-monsoon") weatherPattern = "Peak heat (40-47°C), thunderstorm dust squalls, high O3. Occasional nor'westers bring temporary relief.";
+  if (season === "post-monsoon") weatherPattern = "Temps dropping rapidly (18-28°C), calm winds, inversion layers forming — pollutant trapping begins.";
 
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  return `Time: ${timeOfDay} (${hour}:00 IST), ${months[month]}, Season: ${season}. ${festivalContext} ${cropBurning} ${weatherPattern}`.trim();
+  return `Time: ${timeOfDay} (${hour}:00 IST), Date: ${day} ${months[month]}, Season: ${season}. Festivals: ${festivalContext} ${cropBurning} Weather: ${weatherPattern}`.trim();
 }
 
 function makeCacheKey(mode: string, ward: any, station: any, lang: string): string {
