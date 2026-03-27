@@ -46,10 +46,11 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   const [searchingPlaces, setSearchingPlaces] = useState(false);
   const placeSearchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-const [showSources, setShowSources] = useState(true);
+  const [showSources, setShowSources] = useState(true);
   const [tourActive, setTourActive] = useState(false);
   const [tourIndex, setTourIndex] = useState(-1);
   const tourTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [zoomedInWard, setZoomedInWard] = useState<WardFeature["properties"] | null>(null);
 
   const { wardsGeoJSON } = useDelhiWards();
 
