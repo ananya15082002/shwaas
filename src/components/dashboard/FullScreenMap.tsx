@@ -442,8 +442,7 @@ const [showSources, setShowSources] = useState(true);
     DELHI_POLLUTION_SOURCES.forEach((src) => {
       const color = getSourceTypeColor(src.type);
       const el = document.createElement("div");
-      el.style.cssText = `cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${color}25;border:2px solid ${color};font-size:14px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));transition:transform 0.2s;`;
-      el.textContent = src.emoji;
+      el.innerHTML = `<div style="cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${color}20;border:2px solid ${color};filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));transition:transform 0.2s;color:${color};">${getPollutionIconSVG(src.type, color)}</div>`;
       el.title = `${src.name} - ${src.description}`;
       el.addEventListener("mouseenter", () => { el.style.transform = "scale(1.3)"; });
       el.addEventListener("mouseleave", () => { el.style.transform = "scale(1)"; });
