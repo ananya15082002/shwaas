@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, Navigation, ZoomIn, ZoomOut, Locate, MapPin, Plane, Square, Factory } from "lucide-react";
+import { Search, X, Navigation, ZoomIn, ZoomOut, Locate, MapPin, Plane, Square, Factory, ArrowLeft } from "lucide-react";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
 import { assignAQIToWards, aqiToBorderColor, getAQICategory } from "@/lib/wardAqi";
@@ -11,6 +11,7 @@ import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
 import { DELHI_POLLUTION_SOURCES, getSourceTypeColor } from "@/lib/delhiPollutionSources";
 import { getPollutionIconSVG } from "@/lib/mapIcons";
 import { LANDMARK_IMAGES } from "@/lib/landmarkImages";
+import { POLLUTION_TYPE_IMAGES } from "@/lib/pollutionImages";
 
 interface FullScreenMapProps {
   stations: StationData[];
@@ -45,10 +46,11 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   const [searchingPlaces, setSearchingPlaces] = useState(false);
   const placeSearchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-const [showSources, setShowSources] = useState(true);
+  const [showSources, setShowSources] = useState(true);
   const [tourActive, setTourActive] = useState(false);
   const [tourIndex, setTourIndex] = useState(-1);
   const tourTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [zoomedInWard, setZoomedInWard] = useState<WardFeature["properties"] | null>(null);
 
   const { wardsGeoJSON } = useDelhiWards();
 
@@ -362,7 +364,44 @@ const [showSources, setShowSources] = useState(true);
       if (e.features && e.features.length > 0) {
         const p = e.features[0].properties;
         const centroid = typeof p.centroid === "string" ? JSON.parse(p.centroid) : p.centroid;
-        onEnterDashboard({ ...p, centroid } as WardFeature["properties"]);
+        const wardProps = { ...p, centroid } as WardFeature["properties"];
+        const [cLon, cLat] = centroid;
+        
+        // Zoom into the ward
+        map.flyTo({ center: [cLon, cLat], zoom: 14.5, pitch: 55, bearing: -15, duration: 1800, essential: true });
+        setZoomedInWard(wardProps);
+        setSelectedWard(wardProps);
+        if (popupRef.current) { popupRef.current.remove(); popupRef.current = null; }
+        
+        // Find and show nearest pollution source with image
+        const nearbySources = DELHI_POLLUTION_SOURCES
+          .map(src => ({ ...src, dist: Math.sqrt(Math.pow(src.lat - cLat, 2) + Math.pow(src.lon - cLon, 2)) }))
+          .filter(s => s.dist < 0.05)
+          .sort((a, b) => a.dist - b.dist)
+          .slice(0, 1);
+        
+        // Show pollution source image popup on the source location
+        if (nearbySources.length > 0) {
+          const src = nearbySources[0];
+          const imgSrc = POLLUTION_TYPE_IMAGES[src.type] || POLLUTION_TYPE_IMAGES.industrial;
+          setTimeout(() => {
+            if (!mapRef.current) return;
+            const popup = new maplibregl.Popup({ closeButton: true, closeOnClick: true, className: "ward-popup", maxWidth: "220px", anchor: "bottom" })
+              .setLngLat([src.lon, src.lat])
+              .setHTML(`
+                <div style="background:rgba(4,8,16,0.95);border:1px solid rgba(255,140,0,0.3);border-radius:10px;overflow:hidden;backdrop-filter:blur(12px);">
+                  <img src="${imgSrc}" style="width:100%;height:100px;object-fit:cover;display:block;" />
+                  <div style="padding:8px 12px;">
+                    <div style="color:rgba(255,140,0,0.9);font-size:8px;letter-spacing:1.5px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-bottom:2px">⚠ POLLUTION SOURCE</div>
+                    <div style="color:#fff;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;">${src.emoji} ${src.name}</div>
+                    <div style="color:rgba(255,255,255,0.5);font-size:9px;margin-top:2px;font-family:'JetBrains Mono',monospace;">${src.description}</div>
+                    <div style="color:rgba(255,255,255,0.3);font-size:8px;margin-top:4px;text-transform:uppercase;letter-spacing:1px">${src.type}</div>
+                  </div>
+                </div>
+              `)
+              .addTo(mapRef.current);
+          }, 2000);
+        }
       }
     });
   }, [enrichedWards, mapLoaded, onEnterDashboard]);
@@ -393,7 +432,7 @@ const [showSources, setShowSources] = useState(true);
       layout: {
         "text-field": ["get", "ward_name"],
         "text-size": ["interpolate", ["linear"], ["zoom"], 10, 6, 11, 8, 12, 10, 14, 13, 16, 15],
-        "text-font": ["Open Sans Regular", "Arial Unicode MS Regular"],
+        "text-font": ["Noto Sans Regular", "Arial Unicode MS Regular"],
         "text-max-width": 6,
         "text-allow-overlap": false,
         "text-ignore-placement": false,
@@ -492,67 +531,42 @@ const [showSources, setShowSources] = useState(true);
     DELHI_LANDMARKS.forEach((lm) => {
       const imgSrc = LANDMARK_IMAGES[lm.name];
       const el = document.createElement("div");
-      el.style.cssText = "cursor:pointer;perspective:400px;";
+      el.style.cssText = "cursor:pointer;";
       el.innerHTML = `
         <div class="lm-card" style="
-          transform-style:preserve-3d;
-          transition:transform 0.4s cubic-bezier(.23,1,.32,1), box-shadow 0.4s;
-          width:36px;height:44px;
-          border-radius:7px;
+          transition:transform 0.3s, box-shadow 0.3s;
+          width:28px;height:28px;
+          border-radius:50%;
           overflow:hidden;
-          border:1.5px solid rgba(255,255,255,0.2);
-          box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 6px rgba(0,229,160,0.1);
-          position:relative;
+          border:2px solid rgba(255,255,255,0.3);
+          box-shadow:0 2px 8px rgba(0,0,0,0.5);
           background:#111;
         ">
-          <img src="${imgSrc || ''}" style="width:100%;height:28px;object-fit:cover;display:block;" />
-          <div style="
-            padding:1px 2px;
-            background:rgba(4,8,16,0.95);
-            text-align:center;
-          ">
-            <div style="
-              font-family:'DM Sans',sans-serif;
-              font-size:5px;
-              font-weight:700;
-              color:#fff;
-              line-height:1.2;
-              white-space:nowrap;
-              overflow:hidden;
-              text-overflow:ellipsis;
-            ">${lm.name}</div>
-            <div style="
-              font-family:'JetBrains Mono',monospace;
-              font-size:4px;
-              color:rgba(0,229,160,0.7);
-              letter-spacing:0.5px;
-              text-transform:uppercase;
-            ">${lm.type}</div>
-          </div>
+          <img src="${imgSrc || ''}" style="width:100%;height:100%;object-fit:cover;display:block;" />
         </div>
       `;
-      // 3D hover effect
+      el.title = lm.name;
       el.addEventListener("mouseenter", () => {
         const card = el.querySelector(".lm-card") as HTMLElement;
         if (card) {
-          card.style.transform = "rotateY(-6deg) rotateX(4deg) scale(1.4) translateY(-6px)";
-          card.style.boxShadow = "0 10px 24px rgba(0,0,0,0.7), 0 0 14px rgba(0,229,160,0.25)";
-          card.style.borderColor = "rgba(0,229,160,0.5)";
+          card.style.transform = "scale(1.5)";
+          card.style.boxShadow = "0 4px 16px rgba(0,0,0,0.7), 0 0 10px rgba(0,229,160,0.25)";
+          card.style.borderColor = "rgba(0,229,160,0.6)";
         }
       });
       el.addEventListener("mouseleave", () => {
         const card = el.querySelector(".lm-card") as HTMLElement;
         if (card) {
           card.style.transform = "";
-          card.style.boxShadow = "0 4px 12px rgba(0,0,0,0.5), 0 0 6px rgba(0,229,160,0.1)";
-          card.style.borderColor = "rgba(255,255,255,0.2)";
+          card.style.boxShadow = "0 2px 8px rgba(0,0,0,0.5)";
+          card.style.borderColor = "rgba(255,255,255,0.3)";
         }
       });
       el.addEventListener("click", () => {
         const nearest = findNearestWard(lm.lat, lm.lon);
         if (nearest) onEnterDashboard(nearest);
       });
-      const m = new maplibregl.Marker({ element: el, anchor: "bottom" }).setLngLat([lm.lon, lm.lat]).addTo(map);
+      const m = new maplibregl.Marker({ element: el }).setLngLat([lm.lon, lm.lat]).addTo(map);
       markers.push(m);
     });
     return () => markers.forEach((m) => m.remove());
@@ -593,7 +607,14 @@ const [showSources, setShowSources] = useState(true);
   const resetView = () => {
     mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10, pitch: 40, bearing: -10, duration: 1500 });
     setSelectedWard(null);
+    setZoomedInWard(null);
   };
+
+  const handleBackFromZoom = useCallback(() => {
+    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10, pitch: 40, bearing: -10, duration: 1500 });
+    setZoomedInWard(null);
+    setSelectedWard(null);
+  }, []);
 
   const aqiLevel = getAqiLevel(cityAqi);
 
@@ -786,6 +807,17 @@ const [showSources, setShowSources] = useState(true);
         )}
       </AnimatePresence>
 
+      {/* Back button when zoomed into a ward */}
+      <AnimatePresence>
+        {zoomedInWard && showUI && (
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }} className="absolute top-20 left-4 z-30 sm:top-24">
+            <button onClick={handleBackFromZoom} className="flex items-center gap-2 rounded-full border border-border/50 bg-card/90 px-4 py-2 font-mono text-[11px] text-foreground backdrop-blur-md transition-all hover:bg-primary/10 hover:border-primary/50">
+              <ArrowLeft className="h-3.5 w-3.5" /> BACK TO DELHI
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Selected ward card */}
       <AnimatePresence>
         {selectedWard && (
@@ -796,7 +828,7 @@ const [showSources, setShowSources] = useState(true);
                   <h3 className="font-display text-base font-bold text-foreground">{selectedWard.ward_name}</h3>
                   <p className="font-mono text-[10px] tracking-wider text-muted-foreground">WARD {selectedWard.ward_no} · {selectedWard.ac_name}</p>
                 </div>
-                <button onClick={() => setSelectedWard(null)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+                <button onClick={() => { setSelectedWard(null); setZoomedInWard(null); }} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
               </div>
               <div className="flex items-baseline justify-between border-t border-border/30 pt-3">
                 <span className="font-mono text-[10px] tracking-widest text-muted-foreground">AQI</span>
@@ -805,9 +837,16 @@ const [showSources, setShowSources] = useState(true);
               <div className="mt-2 flex items-center justify-between text-muted-foreground">
                 <span className="font-mono text-[9px] tracking-wider">POP: {selectedWard.total_pop?.toLocaleString() || "—"}</span>
               </div>
-              <button onClick={() => onEnterDashboard(selectedWard)} className="mt-3 w-full rounded-lg border border-primary/40 bg-primary/10 py-2 font-mono text-[11px] tracking-[0.15em] text-primary transition-all hover:bg-primary/20 hover:border-primary/70">
-                EXPLORE THIS WARD →
-              </button>
+              <div className="mt-3 flex gap-2">
+                {zoomedInWard && (
+                  <button onClick={handleBackFromZoom} className="flex-1 rounded-lg border border-border/40 bg-secondary/30 py-2 font-mono text-[11px] tracking-[0.1em] text-muted-foreground transition-all hover:bg-secondary/50">
+                    ← BACK
+                  </button>
+                )}
+                <button onClick={() => onEnterDashboard(selectedWard)} className="flex-1 rounded-lg border border-primary/40 bg-primary/10 py-2 font-mono text-[11px] tracking-[0.15em] text-primary transition-all hover:bg-primary/20 hover:border-primary/70">
+                  EXPLORE →
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
