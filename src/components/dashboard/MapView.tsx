@@ -633,8 +633,8 @@ const [wardSearch, setWardSearch] = useState("");
                     { label: "Moderate", range: "51–100", color: "#FFD600" },
                     { label: "Sensitive", range: "101–150", color: "#FF8C00" },
                     { label: "Unhealthy", range: "151–200", color: "#FF3D3D" },
-                    { label: "Very Unhealthy", range: "201–300", color: "#C62BFF" },
-                    { label: "Hazardous", range: "300+", color: "#FF0033" },
+                    { label: "Very Unhealthy", range: "201–300", color: "#8B3A8F" },
+                    { label: "Hazardous", range: "300+", color: "#7E0023" },
                   ].map((item) => (
                     <div key={item.label} className="flex items-center gap-2">
                       <span className="inline-block h-2.5 w-5 rounded-sm" style={{ background: item.color }} />
