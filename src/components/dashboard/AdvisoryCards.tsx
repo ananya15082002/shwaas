@@ -149,10 +149,16 @@ function LottieCard({ card }: { card: AdvisoryCard }) {
             : `linear-gradient(135deg, ${colors.bg}, hsl(var(--background) / 0.55))`,
         }}
       >
-        {lottieUrl
-          ? <LottieEmbed url={lottieUrl} emoji={emoji} category={card.category} />
-          : <AnimatedEmoji emoji={emoji} category={card.category} />
-        }
+        <div
+          className="flex h-10 w-10 items-center justify-center rounded-xl xs:h-12 xs:w-12 sm:h-14 sm:w-14"
+          style={{
+            background: `${iconColor}15`,
+            border: `1.5px solid ${iconColor}40`,
+            color: iconColor,
+            filter: `drop-shadow(0 4px 12px ${iconColor}30)`,
+          }}
+          dangerouslySetInnerHTML={{ __html: getAdvisoryIconSVG(card.visual_key, 28) }}
+        />
 
         <div
           className="absolute right-1 top-1 flex items-center gap-0.5 rounded-full px-1 py-0.5 sm:right-2 sm:top-2 sm:px-1.5"
