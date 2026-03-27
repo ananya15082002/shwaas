@@ -86,7 +86,7 @@ const [showSources, setShowSources] = useState(true);
     setTourIndex(-1);
     if (tourTimerRef.current) clearTimeout(tourTimerRef.current);
     tourTimerRef.current = null;
-    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 11, pitch: 50, bearing: -10, duration: 1500 });
+    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10, pitch: 40, bearing: -10, duration: 1500 });
   }, []);
 
   useEffect(() => {
