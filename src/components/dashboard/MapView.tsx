@@ -5,9 +5,7 @@ import { Search, X, Flame, MapPin } from "lucide-react";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
 import { assignAQIToWards, aqiToFillColor, aqiToBorderColor } from "@/lib/wardAqi";
-import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
 import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
-import { getLandmarkIconSVG } from "@/lib/mapIcons";
 import { DELHI_POLLUTION_SOURCES } from "@/lib/delhiPollutionSources";
 import { POLLUTION_TYPE_IMAGES } from "@/lib/pollutionImages";
 
@@ -53,7 +51,6 @@ export function MapView({ stations, selectedStation, onSelectStation, onBoundsCh
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const activeMarkerRef = useRef<maplibregl.Marker | null>(null);
   const placeMarkerRef = useRef<maplibregl.Marker | null>(null);
-  const landmarkMarkersRef = useRef<maplibregl.Marker[]>([]);
   const [showWards, setShowWards] = useState(true);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
@@ -502,33 +499,6 @@ const [wardSearch, setWardSearch] = useState("");
     }
   }, [enrichedWards, showHeatmap, mapLoaded]);
 
-  // Landmark markers
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !mapLoaded) return;
-
-    landmarkMarkersRef.current.forEach((m) => m.remove());
-    landmarkMarkersRef.current = [];
-
-    DELHI_LANDMARKS.forEach((lm) => {
-      const el = document.createElement("div");
-      const typeColor = lm.type === "transport" ? "#00B4D8" : lm.type === "monument" ? "#FFD600" : lm.type === "govt" ? "#00E5A0" : lm.type === "religious" ? "#C4A0FF" : lm.type === "park" ? "#4ADE80" : "#FF8C00";
-      el.innerHTML = `<div style="cursor:pointer;display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:rgba(4,8,16,0.85);border:1.5px solid ${typeColor};filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));transition:transform 0.2s;color:${typeColor};">${getLandmarkIconSVG(lm.type, typeColor)}</div>`;
-      el.addEventListener("mouseenter", () => { el.firstElementChild && ((el.firstElementChild as HTMLElement).style.transform = "scale(1.2)"); });
-      el.addEventListener("mouseleave", () => { el.firstElementChild && ((el.firstElementChild as HTMLElement).style.transform = "scale(1)"); });
-      el.addEventListener("click", () => {
-        const nearest = findNearestWard(lm.lat, lm.lon);
-        if (nearest) onWardSelect?.(nearest);
-      });
-      const m = new maplibregl.Marker({ element: el }).setLngLat([lm.lon, lm.lat]).addTo(map);
-      landmarkMarkersRef.current.push(m);
-    });
-
-    return () => {
-      landmarkMarkersRef.current.forEach((m) => m.remove());
-      landmarkMarkersRef.current = [];
-    };
-  }, [mapLoaded, findNearestWard, onWardSelect]);
 
   // Active ward pin
   useEffect(() => {
