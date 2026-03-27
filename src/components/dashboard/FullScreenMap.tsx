@@ -440,10 +440,11 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         "text-anchor": "center",
       },
       paint: {
-        "text-color": "rgba(255,255,255,0.7)",
-        "text-halo-color": "rgba(0,0,0,0.85)",
-        "text-halo-width": 1.5,
-        "text-opacity": ["interpolate", ["linear"], ["zoom"], 9.5, 0.15, 10.5, 0.35, 11.5, 0.55, 13, 0.8, 15, 1],
+        "text-color": "#FFFFFF",
+        "text-halo-color": "rgba(0,0,0,1)",
+        "text-halo-width": 2.5,
+        "text-halo-blur": 1,
+        "text-opacity": ["interpolate", ["linear"], ["zoom"], 9.5, 0, 10.5, 0.5, 11.5, 0.75, 13, 0.9, 15, 1],
       },
     });
 
