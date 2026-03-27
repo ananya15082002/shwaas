@@ -310,8 +310,28 @@ const [showSources, setShowSources] = useState(true);
 
         const p = e.features[0].properties;
         const aqi = p.interpolated_aqi ?? 0;
+        const centroidRaw = typeof p.centroid === "string" ? JSON.parse(p.centroid) : p.centroid;
+        const [cLon, cLat] = centroidRaw || [e.lngLat.lng, e.lngLat.lat];
+        // Find nearby pollution sources
+        const nearbySources = DELHI_POLLUTION_SOURCES
+          .map(src => ({ ...src, dist: Math.sqrt(Math.pow(src.lat - cLat, 2) + Math.pow(src.lon - cLon, 2)) }))
+          .filter(s => s.dist < 0.04)
+          .sort((a, b) => a.dist - b.dist)
+          .slice(0, 3);
+        const sourcesHTML = nearbySources.length > 0
+          ? `<div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;margin-top:6px;">
+              <div style="color:rgba(255,140,0,0.8);font-size:8px;letter-spacing:1.5px;margin-bottom:4px;font-weight:700">⚠ POLLUTION SOURCES</div>
+              ${nearbySources.map(s => `<div style="display:flex;align-items:center;gap:5px;margin-top:3px;">
+                <span style="font-size:10px">${s.emoji}</span>
+                <div>
+                  <div style="color:rgba(255,255,255,0.75);font-size:9px;font-weight:600">${s.name}</div>
+                  <div style="color:rgba(255,255,255,0.35);font-size:7px">${s.description}</div>
+                </div>
+              </div>`).join("")}
+            </div>`
+          : "";
         if (popupRef.current) popupRef.current.remove();
-        popupRef.current = new maplibregl.Popup({ closeButton: false, closeOnClick: false, className: "ward-popup", maxWidth: "240px" })
+        popupRef.current = new maplibregl.Popup({ closeButton: false, closeOnClick: false, className: "ward-popup", maxWidth: "260px" })
           .setLngLat(e.lngLat)
           .setHTML(`
             <div style="background:rgba(4,8,16,0.95);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 16px;font-family:'JetBrains Mono',monospace;backdrop-filter:blur(12px);">
@@ -322,7 +342,8 @@ const [showSources, setShowSources] = useState(true);
                 <span style="color:${aqiToColor(aqi)};font-size:22px;font-weight:900;font-family:'Orbitron',monospace">${aqi || "—"}</span>
               </div>
               <div style="color:rgba(255,255,255,0.35);font-size:9px;margin-top:4px">POP: ${p.total_pop?.toLocaleString?.() || "—"}</div>
-              <div style="color:rgba(0,229,160,0.6);font-size:9px;margin-top:4px;letter-spacing:1.5px">CLICK TO EXPLORE →</div>
+              ${sourcesHTML}
+              <div style="color:rgba(0,229,160,0.6);font-size:9px;margin-top:6px;letter-spacing:1.5px">CLICK TO EXPLORE →</div>
             </div>
           `)
           .addTo(map);
@@ -371,7 +392,7 @@ const [showSources, setShowSources] = useState(true);
       source: "ward-centroids",
       layout: {
         "text-field": ["get", "ward_name"],
-        "text-size": ["interpolate", ["linear"], ["zoom"], 10, 0, 11, 7, 12, 9, 14, 12, 16, 14],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 10, 6, 11, 8, 12, 10, 14, 13, 16, 15],
         "text-font": ["Open Sans Regular", "Arial Unicode MS Regular"],
         "text-max-width": 6,
         "text-allow-overlap": false,
@@ -380,10 +401,10 @@ const [showSources, setShowSources] = useState(true);
         "text-anchor": "center",
       },
       paint: {
-        "text-color": "rgba(255,255,255,0.45)",
-        "text-halo-color": "rgba(0,0,0,0.7)",
-        "text-halo-width": 1.2,
-        "text-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0, 11, 0.3, 12, 0.6, 14, 0.85],
+        "text-color": "rgba(255,255,255,0.7)",
+        "text-halo-color": "rgba(0,0,0,0.85)",
+        "text-halo-width": 1.5,
+        "text-opacity": ["interpolate", ["linear"], ["zoom"], 9.5, 0.15, 10.5, 0.35, 11.5, 0.55, 13, 0.8, 15, 1],
       },
     });
 
@@ -471,28 +492,28 @@ const [showSources, setShowSources] = useState(true);
     DELHI_LANDMARKS.forEach((lm) => {
       const imgSrc = LANDMARK_IMAGES[lm.name];
       const el = document.createElement("div");
-      el.style.cssText = "cursor:pointer;perspective:600px;";
+      el.style.cssText = "cursor:pointer;perspective:400px;";
       el.innerHTML = `
         <div class="lm-card" style="
           transform-style:preserve-3d;
           transition:transform 0.4s cubic-bezier(.23,1,.32,1), box-shadow 0.4s;
-          width:56px;height:68px;
-          border-radius:10px;
+          width:36px;height:44px;
+          border-radius:7px;
           overflow:hidden;
-          border:2px solid rgba(255,255,255,0.2);
-          box-shadow:0 8px 24px rgba(0,0,0,0.6), 0 0 12px rgba(0,229,160,0.15);
+          border:1.5px solid rgba(255,255,255,0.2);
+          box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 6px rgba(0,229,160,0.1);
           position:relative;
           background:#111;
         ">
-          <img src="${imgSrc || ''}" style="width:100%;height:46px;object-fit:cover;display:block;" />
+          <img src="${imgSrc || ''}" style="width:100%;height:28px;object-fit:cover;display:block;" />
           <div style="
-            padding:2px 4px;
+            padding:1px 2px;
             background:rgba(4,8,16,0.95);
             text-align:center;
           ">
             <div style="
               font-family:'DM Sans',sans-serif;
-              font-size:7px;
+              font-size:5px;
               font-weight:700;
               color:#fff;
               line-height:1.2;
@@ -502,26 +523,20 @@ const [showSources, setShowSources] = useState(true);
             ">${lm.name}</div>
             <div style="
               font-family:'JetBrains Mono',monospace;
-              font-size:6px;
+              font-size:4px;
               color:rgba(0,229,160,0.7);
-              letter-spacing:1px;
+              letter-spacing:0.5px;
               text-transform:uppercase;
             ">${lm.type}</div>
           </div>
-          <div style="
-            position:absolute;top:0;left:0;right:0;bottom:0;
-            border-radius:10px;
-            background:linear-gradient(135deg,rgba(0,229,160,0.08) 0%,transparent 50%);
-            pointer-events:none;
-          "></div>
         </div>
       `;
       // 3D hover effect
       el.addEventListener("mouseenter", () => {
         const card = el.querySelector(".lm-card") as HTMLElement;
         if (card) {
-          card.style.transform = "rotateY(-8deg) rotateX(5deg) scale(1.3) translateY(-8px)";
-          card.style.boxShadow = "0 16px 40px rgba(0,0,0,0.7), 0 0 20px rgba(0,229,160,0.3)";
+          card.style.transform = "rotateY(-6deg) rotateX(4deg) scale(1.4) translateY(-6px)";
+          card.style.boxShadow = "0 10px 24px rgba(0,0,0,0.7), 0 0 14px rgba(0,229,160,0.25)";
           card.style.borderColor = "rgba(0,229,160,0.5)";
         }
       });
@@ -529,7 +544,7 @@ const [showSources, setShowSources] = useState(true);
         const card = el.querySelector(".lm-card") as HTMLElement;
         if (card) {
           card.style.transform = "";
-          card.style.boxShadow = "0 8px 24px rgba(0,0,0,0.6), 0 0 12px rgba(0,229,160,0.15)";
+          card.style.boxShadow = "0 4px 12px rgba(0,0,0,0.5), 0 0 6px rgba(0,229,160,0.1)";
           card.style.borderColor = "rgba(255,255,255,0.2)";
         }
       });
