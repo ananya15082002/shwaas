@@ -580,13 +580,20 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
 
   const aqiLevel = getAqiLevel(cityAqi);
 
+  // Resize map when switching between full and split layout
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    setTimeout(() => map.resize(), 100);
+  }, [zoomedInWard]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.8 }}
-      className="fixed inset-0 z-[90] bg-background"
+      className="fixed inset-0 z-[90] bg-background flex flex-col"
     >
       <style>{`
         .ward-popup .maplibregl-popup-content { background: transparent !important; box-shadow: none !important; padding: 0 !important; }
@@ -594,12 +601,14 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         .maplibregl-ctrl-attrib { display: none !important; }
       `}</style>
 
-      <div ref={containerRef} className="absolute inset-0" />
+      {/* Map container - full when no ward zoomed, ~45% when split */}
+      <div className={`relative transition-all duration-700 ease-in-out ${zoomedInWard ? "h-[40vh] sm:h-[45vh]" : "flex-1"}`}>
+        <div ref={containerRef} className="absolute inset-0" />
 
-      {/* Top gradient */}
-      <div className="absolute inset-x-0 top-0 z-10 h-32 pointer-events-none" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)" }} />
-      {/* Bottom gradient */}
-      <div className="absolute inset-x-0 bottom-0 z-10 h-40 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)" }} />
+        {/* Top gradient */}
+        <div className="absolute inset-x-0 top-0 z-10 h-32 pointer-events-none" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)" }} />
+        {/* Bottom gradient */}
+        {!zoomedInWard && <div className="absolute inset-x-0 bottom-0 z-10 h-40 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)" }} />}
 
       {/* Header */}
       <AnimatePresence>
