@@ -9,6 +9,7 @@ import { assignAQIToWards, aqiToBorderColor, getAQICategory } from "@/lib/wardAq
 import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
 import { DELHI_POLLUTION_SOURCES } from "@/lib/delhiPollutionSources";
 import { POLLUTION_TYPE_IMAGES } from "@/lib/pollutionImages";
+import { WardDetailPanel } from "@/components/dashboard/WardDetailPanel";
 
 interface FullScreenMapProps {
   stations: StationData[];
@@ -419,7 +420,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
           (map as any)._pollClickMarker = marker;
         }
         
-        // Moderate zoom - show ward + neighbors
+        // Moderate zoom - show ward + neighbors, then stop and show dashboard below
         map.flyTo({
           center: [cLon, cLat],
           zoom: 12.5,
@@ -427,20 +428,6 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
           bearing: -10,
           duration: 2000,
           essential: true,
-        });
-        
-        // After animation, enter dashboard
-        map.once("moveend", () => {
-          setTimeout(() => {
-            // Cleanup
-            if ((map as any)._pollClickMarker) { (map as any)._pollClickMarker.remove(); (map as any)._pollClickMarker = null; }
-            try {
-              if (map.getLayer("click-highlight-border")) map.removeLayer("click-highlight-border");
-              if (map.getLayer("click-highlight-glow")) map.removeLayer("click-highlight-glow");
-              if (map.getSource("click-highlight")) map.removeSource("click-highlight");
-            } catch {}
-            onEnterDashboard(wardProps);
-          }, 800);
         });
       }
     });
@@ -576,12 +563,29 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   };
 
   const handleBackFromZoom = useCallback(() => {
-    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10, pitch: 40, bearing: -10, duration: 1500 });
+    const map = mapRef.current;
+    if (map) {
+      // Cleanup highlight and markers
+      if ((map as any)._pollClickMarker) { (map as any)._pollClickMarker.remove(); (map as any)._pollClickMarker = null; }
+      try {
+        if (map.getLayer("click-highlight-border")) map.removeLayer("click-highlight-border");
+        if (map.getLayer("click-highlight-glow")) map.removeLayer("click-highlight-glow");
+        if (map.getSource("click-highlight")) map.removeSource("click-highlight");
+      } catch {}
+      map.flyTo({ center: DELHI_CENTER, zoom: 10, pitch: 40, bearing: -10, duration: 1500 });
+    }
     setZoomedInWard(null);
     setSelectedWard(null);
   }, []);
 
   const aqiLevel = getAqiLevel(cityAqi);
+
+  // Resize map when switching between full and split layout
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    setTimeout(() => map.resize(), 100);
+  }, [zoomedInWard]);
 
   return (
     <motion.div
@@ -589,7 +593,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.8 }}
-      className="fixed inset-0 z-[90] bg-background"
+      className="fixed inset-0 z-[90] bg-background flex flex-col"
     >
       <style>{`
         .ward-popup .maplibregl-popup-content { background: transparent !important; box-shadow: none !important; padding: 0 !important; }
@@ -597,16 +601,18 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         .maplibregl-ctrl-attrib { display: none !important; }
       `}</style>
 
-      <div ref={containerRef} className="absolute inset-0" />
+      {/* Map container - full when no ward zoomed, ~45% when split */}
+      <div className={`relative transition-all duration-700 ease-in-out ${zoomedInWard ? "h-[40vh] sm:h-[45vh]" : "flex-1"}`}>
+        <div ref={containerRef} className="absolute inset-0" />
 
-      {/* Top gradient */}
-      <div className="absolute inset-x-0 top-0 z-10 h-32 pointer-events-none" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)" }} />
-      {/* Bottom gradient */}
-      <div className="absolute inset-x-0 bottom-0 z-10 h-40 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)" }} />
+        {/* Top gradient */}
+        <div className="absolute inset-x-0 top-0 z-10 h-32 pointer-events-none" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)" }} />
+        {/* Bottom gradient */}
+        {!zoomedInWard && <div className="absolute inset-x-0 bottom-0 z-10 h-40 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)" }} />}
 
       {/* Header */}
       <AnimatePresence>
-        {showUI && (
+        {showUI && !zoomedInWard && (
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="absolute top-0 inset-x-0 z-20 flex items-center justify-between px-3 py-2 xs:py-3 sm:px-6 sm:py-4">
             <div>
               <h1 className="font-display text-xs font-bold tracking-[0.08em] text-foreground xs:text-sm sm:text-lg sm:tracking-[0.15em]">
@@ -622,9 +628,20 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         )}
       </AnimatePresence>
 
-      {/* Search */}
+      {/* Back button when zoomed into a ward */}
       <AnimatePresence>
-        {showUI && (
+        {zoomedInWard && showUI && (
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }} className="absolute top-3 left-3 z-30">
+            <button onClick={handleBackFromZoom} className="flex items-center gap-2 rounded-full border border-border/50 bg-card/90 px-3 py-1.5 font-mono text-[10px] text-foreground backdrop-blur-md transition-all hover:bg-primary/10 hover:border-primary/50 sm:px-4 sm:py-2 sm:text-[11px]">
+              <ArrowLeft className="h-3.5 w-3.5" /> BACK TO DELHI
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Search - only when not zoomed */}
+      <AnimatePresence>
+        {showUI && !zoomedInWard && (
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="absolute left-4 top-20 z-20 right-4 sm:right-auto">
             {searchOpen ? (
               <div className="w-full sm:w-72 rounded-xl border border-border/50 bg-card/95 backdrop-blur-md shadow-2xl">
@@ -674,9 +691,9 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         )}
       </AnimatePresence>
 
-      {/* Map controls */}
+      {/* Map controls - only when not zoomed */}
       <AnimatePresence>
-        {showUI && (
+        {showUI && !zoomedInWard && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.5 }} className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-2">
             {[
               { icon: ZoomIn, action: () => mapRef.current?.zoomIn(), label: "Zoom in" },
@@ -742,7 +759,6 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
               <div className="mt-2 font-mono text-[9px] text-muted-foreground">
                 Pop: {top5Polluted[tourIndex].total_pop?.toLocaleString() || "—"}
               </div>
-              {/* Progress dots */}
               <div className="flex items-center justify-center gap-1.5 mt-3">
                 {top5Polluted.map((_, i) => (
                   <div
@@ -760,20 +776,9 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         )}
       </AnimatePresence>
 
-      {/* Back button when zoomed into a ward */}
+      {/* Selected ward card - only when NOT zoomed (zoomed shows dashboard below) */}
       <AnimatePresence>
-        {zoomedInWard && showUI && (
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }} className="absolute top-20 left-4 z-30 sm:top-24">
-            <button onClick={handleBackFromZoom} className="flex items-center gap-2 rounded-full border border-border/50 bg-card/90 px-4 py-2 font-mono text-[11px] text-foreground backdrop-blur-md transition-all hover:bg-primary/10 hover:border-primary/50">
-              <ArrowLeft className="h-3.5 w-3.5" /> BACK TO DELHI
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Selected ward card */}
-      <AnimatePresence>
-        {selectedWard && (
+        {selectedWard && !zoomedInWard && (
           <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} transition={{ duration: 0.3 }} className="absolute bottom-28 left-3 z-20 w-[min(18rem,calc(100vw-1.5rem))] sm:left-4 sm:w-72">
             <div className="rounded-xl border border-border/50 bg-card/95 backdrop-blur-md p-4 shadow-2xl">
               <div className="flex items-start justify-between mb-3">
@@ -790,24 +795,14 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
               <div className="mt-2 flex items-center justify-between text-muted-foreground">
                 <span className="font-mono text-[9px] tracking-wider">POP: {selectedWard.total_pop?.toLocaleString() || "—"}</span>
               </div>
-              <div className="mt-3 flex gap-2">
-                {zoomedInWard && (
-                  <button onClick={handleBackFromZoom} className="flex-1 rounded-lg border border-border/40 bg-secondary/30 py-2 font-mono text-[11px] tracking-[0.1em] text-muted-foreground transition-all hover:bg-secondary/50">
-                    ← BACK
-                  </button>
-                )}
-                <button onClick={() => onEnterDashboard(selectedWard)} className="flex-1 rounded-lg border border-primary/40 bg-primary/10 py-2 font-mono text-[11px] tracking-[0.15em] text-primary transition-all hover:bg-primary/20 hover:border-primary/70">
-                  EXPLORE →
-                </button>
-              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* AQI Legend */}
+      {/* AQI Legend - only when not zoomed */}
       <AnimatePresence>
-        {showUI && (
+        {showUI && !zoomedInWard && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.6 }} className="absolute bottom-6 left-4 z-20">
             <div className="flex items-center gap-1 rounded-full border border-border/50 bg-card/80 px-3 py-1.5 backdrop-blur-md">
               {[
@@ -828,9 +823,9 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         )}
       </AnimatePresence>
 
-      {/* Enter Dashboard */}
+      {/* Enter Dashboard - only when not zoomed */}
       <AnimatePresence>
-        {showUI && (
+        {showUI && !zoomedInWard && (
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.8 }} className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
             <button onClick={() => onEnterDashboard(selectedWard ?? undefined)} className="group flex items-center gap-2 rounded-full border border-primary/40 bg-card/90 px-4 py-2 font-mono text-[10px] tracking-[0.15em] text-primary backdrop-blur-md transition-all hover:bg-primary/15 hover:border-primary/70 hover:shadow-[0_0_30px_rgba(0,229,160,0.2)] xs:gap-3 xs:px-6 xs:py-2.5 xs:text-xs sm:px-8 sm:py-3 sm:tracking-[0.2em]">
               <span className="inline-block h-2 w-2 rounded-full bg-primary animate-pulse-live" />
@@ -843,11 +838,28 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
 
       {/* Hovered ward name */}
       <AnimatePresence>
-        {showUI && hoveredWard && (
+        {showUI && hoveredWard && !zoomedInWard && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute bottom-6 right-4 z-20">
             <span className="font-mono text-[10px] tracking-wider text-muted-foreground bg-card/80 backdrop-blur-md border border-border/50 rounded-full px-3 py-1.5">
               {hoveredWard}
             </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      </div>{/* End map container */}
+
+      {/* Ward Dashboard Panel - shown below map when zoomed into a ward */}
+      <AnimatePresence>
+        {zoomedInWard && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="flex-1 min-h-0 overflow-hidden bg-background border-t border-border/50"
+          >
+            <WardDetailPanel ward={zoomedInWard} onClose={handleBackFromZoom} />
           </motion.div>
         )}
       </AnimatePresence>
