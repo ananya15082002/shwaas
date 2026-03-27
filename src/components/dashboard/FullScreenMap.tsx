@@ -365,8 +365,83 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         
         if (popupRef.current) { popupRef.current.remove(); popupRef.current = null; }
         
-        // Directly enter dashboard with selected ward
-        onEnterDashboard(wardProps);
+        // Zoom to ward with highlight, then enter dashboard
+        const [cLon, cLat] = centroid;
+        setSelectedWard(wardProps);
+        setZoomedInWard(wardProps);
+        
+        // Add white boundary highlight for clicked ward
+        const feature = enrichedWards?.features.find(f => f.properties.ward_no === wardProps.ward_no);
+        if (feature) {
+          if (map.getLayer("click-highlight-border")) map.removeLayer("click-highlight-border");
+          if (map.getLayer("click-highlight-glow")) map.removeLayer("click-highlight-glow");
+          if (map.getSource("click-highlight")) map.removeSource("click-highlight");
+          
+          map.addSource("click-highlight", {
+            type: "geojson",
+            data: { type: "FeatureCollection", features: [feature] } as any,
+          });
+          map.addLayer({
+            id: "click-highlight-glow",
+            type: "line",
+            source: "click-highlight",
+            paint: { "line-color": "#FFFFFF", "line-width": 8, "line-opacity": 0.25, "line-blur": 6 },
+          });
+          map.addLayer({
+            id: "click-highlight-border",
+            type: "line",
+            source: "click-highlight",
+            paint: { "line-color": "#FFFFFF", "line-width": 2.5, "line-opacity": 0.95 },
+          });
+        }
+        
+        // Add pollution source image near the ward
+        const nearbySrc = DELHI_POLLUTION_SOURCES
+          .map(src => ({ ...src, dist: Math.sqrt(Math.pow(src.lat - cLat, 2) + Math.pow(src.lon - cLon, 2)) }))
+          .sort((a, b) => a.dist - b.dist)[0];
+        
+        if (nearbySrc && nearbySrc.dist < 0.08) {
+          const imgSrc = POLLUTION_TYPE_IMAGES[nearbySrc.type] || POLLUTION_TYPE_IMAGES.industrial;
+          const el = document.createElement("div");
+          el.style.cssText = "filter:drop-shadow(0 4px 16px rgba(0,0,0,0.8));pointer-events:none;";
+          el.innerHTML = `
+            <div style="width:52px;height:52px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,140,0,0.8);box-shadow:0 0 16px rgba(255,140,0,0.3);background:#111;">
+              <img src="${imgSrc}" style="width:100%;height:100%;object-fit:cover;display:block;" />
+            </div>
+            <div style="text-align:center;margin-top:3px;">
+              <span style="background:rgba(4,8,16,0.92);color:rgba(255,140,0,0.9);font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:700;padding:2px 5px;border-radius:4px;letter-spacing:0.5px;white-space:nowrap;">${nearbySrc.name.length > 20 ? nearbySrc.name.slice(0, 20) + '…' : nearbySrc.name}</span>
+            </div>
+          `;
+          const marker = new maplibregl.Marker({ element: el, anchor: "center" })
+            .setLngLat([nearbySrc.lon, nearbySrc.lat])
+            .addTo(map);
+          // Store for cleanup
+          (map as any)._pollClickMarker = marker;
+        }
+        
+        // Moderate zoom - show ward + neighbors
+        map.flyTo({
+          center: [cLon, cLat],
+          zoom: 12.5,
+          pitch: 45,
+          bearing: -10,
+          duration: 2000,
+          essential: true,
+        });
+        
+        // After animation, enter dashboard
+        map.once("moveend", () => {
+          setTimeout(() => {
+            // Cleanup
+            if ((map as any)._pollClickMarker) { (map as any)._pollClickMarker.remove(); (map as any)._pollClickMarker = null; }
+            try {
+              if (map.getLayer("click-highlight-border")) map.removeLayer("click-highlight-border");
+              if (map.getLayer("click-highlight-glow")) map.removeLayer("click-highlight-glow");
+              if (map.getSource("click-highlight")) map.removeSource("click-highlight");
+            } catch {}
+            onEnterDashboard(wardProps);
+          }, 800);
+        });
       }
     });
   }, [enrichedWards, mapLoaded, onEnterDashboard]);
