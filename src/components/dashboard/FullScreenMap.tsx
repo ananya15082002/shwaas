@@ -566,86 +566,8 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
     });
   }, [mapLoaded, stationsWithCoords, onEnterDashboard]);
 
-  // Landmark markers with real 3D image popups
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !mapLoaded) return;
-    const markers: maplibregl.Marker[] = [];
-    DELHI_LANDMARKS.forEach((lm) => {
-      const imgSrc = LANDMARK_IMAGES[lm.name];
-      const el = document.createElement("div");
-      el.style.cssText = "cursor:pointer;";
-      el.innerHTML = `
-        <div class="lm-card" style="
-          transition:transform 0.3s, box-shadow 0.3s;
-          width:28px;height:28px;
-          border-radius:50%;
-          overflow:hidden;
-          border:2px solid rgba(255,255,255,0.3);
-          box-shadow:0 2px 8px rgba(0,0,0,0.5);
-          background:#111;
-        ">
-          <img src="${imgSrc || ''}" style="width:100%;height:100%;object-fit:cover;display:block;" />
-        </div>
-      `;
-      el.title = lm.name;
-      el.addEventListener("mouseenter", () => {
-        const card = el.querySelector(".lm-card") as HTMLElement;
-        if (card) {
-          card.style.transform = "scale(1.5)";
-          card.style.boxShadow = "0 4px 16px rgba(0,0,0,0.7), 0 0 10px rgba(0,229,160,0.25)";
-          card.style.borderColor = "rgba(0,229,160,0.6)";
-        }
-      });
-      el.addEventListener("mouseleave", () => {
-        const card = el.querySelector(".lm-card") as HTMLElement;
-        if (card) {
-          card.style.transform = "";
-          card.style.boxShadow = "0 2px 8px rgba(0,0,0,0.5)";
-          card.style.borderColor = "rgba(255,255,255,0.3)";
-        }
-      });
-      el.addEventListener("click", () => {
-        const nearest = findNearestWard(lm.lat, lm.lon);
-        if (nearest) onEnterDashboard(nearest);
-      });
-      const m = new maplibregl.Marker({ element: el }).setLngLat([lm.lon, lm.lat]).addTo(map);
-      markers.push(m);
-    });
-    return () => markers.forEach((m) => m.remove());
-  }, [mapLoaded, findNearestWard, onEnterDashboard]);
 
-  // Pollution source markers
-  const pollSourceMarkersRef = useRef<maplibregl.Marker[]>([]);
-  useEffect(() => {
-    const map = mapRef.current;
-    pollSourceMarkersRef.current.forEach((m) => m.remove());
-    pollSourceMarkersRef.current = [];
-    if (!map || !mapLoaded || !showSources) return;
 
-    DELHI_POLLUTION_SOURCES.forEach((src) => {
-      const color = getSourceTypeColor(src.type);
-      const el = document.createElement("div");
-      el.innerHTML = `<div style="cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${color}20;border:2px solid ${color};filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));transition:transform 0.2s;color:${color};">${getPollutionIconSVG(src.type, color)}</div>`;
-      el.title = `${src.name} - ${src.description}`;
-      el.addEventListener("mouseenter", () => { el.style.transform = "scale(1.3)"; });
-      el.addEventListener("mouseleave", () => { el.style.transform = "scale(1)"; });
-      el.addEventListener("click", () => {
-        const nearest = findNearestWard(src.lat, src.lon);
-        if (nearest) {
-          setSelectedWard(nearest);
-          map.flyTo({ center: [src.lon, src.lat], zoom: 14, duration: 1200 });
-        }
-      });
-      const m = new maplibregl.Marker({ element: el }).setLngLat([src.lon, src.lat]).addTo(map);
-      pollSourceMarkersRef.current.push(m);
-    });
-
-    return () => {
-      pollSourceMarkersRef.current.forEach((m) => m.remove());
-      pollSourceMarkersRef.current = [];
-    };
-  }, [mapLoaded, showSources, findNearestWard]);
 
   const resetView = () => {
     mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10, pitch: 40, bearing: -10, duration: 1500 });
