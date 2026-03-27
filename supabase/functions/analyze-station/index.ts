@@ -149,34 +149,33 @@ LIVE SENSORS: ${iaqiStr}
 GRAP STATUS: ${grapStage}
 DELHI HOTSPOT PROXIMITY: Industrial(Okhla,Wazirpur,Naraina,Bawana), Landfills(Ghazipur,Bhalswa,Okhla), Traffic(ITO,Ashram,Anand Vihar,NH-24,NH-8,NH-1)
 
-GLOBAL EVIDENCE DATABASE — use these as models, adapt to THIS ward's specific conditions:
-[TRANSPORT-1] Singapore ERP (Electronic Road Pricing): Congestion pricing at specific road chokepoints during peak 7:30-9:30 AM & 5-8 PM only — NOT city-wide all-day. Result: 25% traffic drop on priced roads, 18% NO2 reduction. Apply when: NO2>50ppb, high-density traffic ward, morning/evening hours.
-[TRANSPORT-2] Seoul smog emergency odd-even: Activated ONLY when AQI>150 AND winter inversion confirmed. Critically includes two-wheelers (unlike Delhi). Paired with mandatory WFH for govt employees. Result: 15% PM reduction. Apply: winter season only, include 2-wheelers, pair with WFH order.
-[TRANSPORT-3] London ULEZ (Ultra Low Emission Zone): Zone-specific (not city-wide) emission standards, 24/7 for heavy vehicles but 7AM-midnight for private cars. BS6-equivalent threshold. Result: 46% roadside NO2 cut in central zones. Apply to: wards near commercial/market corridors with old vehicle concentration.
-[TRANSPORT-4] Mexico City Hoy No Circula: Plate-digit rotation 7 days/week (not just weekdays), includes motorcycles, has verified environmental exemptions only. More effective than Delhi's version because two-wheelers included.
-[TRANSPORT-5] Oslo congestion pricing + EV mandate: Priced entry to city center during peak hours + free public transit on high-pollution days. Result: 19% fewer vehicles in core zone.
-[CONSTRUCTION-1] Singapore construction time restrictions: No concrete pouring/demolition after 10 PM in residential zones + GPS-tracked water suppression logs. Result: 35% PM10 reduction from construction sites. Apply to: wards with active construction near residential areas.
-[CONSTRUCTION-2] CAQM smog tower model: Anti-smog guns mandatory within 500m radius of active construction >2000 sqm. Enforce fine Rs.50,000/day non-compliance.
-[INDUSTRIAL-1] Beijing "2+26 city" emergency: Industry within 50km radius cuts production 30-50% when AQI>200. Applied to SPECIFIC industrial clusters (not blanket). Apply to: Okhla/Wazirpur/Bawana adjacent wards, SO2>25 or PM2.5>150.
-[INDUSTRIAL-2] Pune/Nashik industrial cluster monitoring: Real-time stack emission sensors with automatic MPCB alerts. Apply when SO2 elevated.
-[WASTE-1] Ghazipur/Bhalswa fire suppression: Nitrogen blanket + covered leachate channels reduces landfill fire PM2.5 contribution by 60%. Apply to: wards within 5km of landfills when PM2.5 spikes overnight (landfill fires peak 11 PM-4 AM).
-[DELHI-POLICY-WIN-1] CM Rekha Gupta tandoor ban (Nov 2024): Coal/wood tandoors banned in commercial establishments city-wide. Targets PAH-laden combustion from dhaba clusters. Proven effective for wards near market/dhaba concentration — enforce night-time compliance checks.
-[DELHI-POLICY-WIN-2] DPCC mechanical road sweeping (2022): Vacuum sweepers on 22 major roads nightly — reduced road dust PM10 contribution by 40% on swept corridors. Expand to ward-level secondary roads.
-[DELHI-POLICY-WIN-3] BS6 fuel transition (2020): Sulfur content dropped from 50ppm to 10ppm — SO2 from vehicles reduced 80%. Next step: enforce BS3/BS4 scrappage in specific high-density wards.
-[TREES] Neem: Best for roadside PM10 absorption + antimicrobial. Peepal: Highest CO2 absorption, 24hr oxygen. Arjun: Noise+pollution barrier for highway-adjacent wards. Ashoka: Dense canopy, ideal for colony dividers.
+GLOBAL SOLUTIONS DATABASE — evidence-based interventions from cities worldwide. Use to frame specific, constructive recommendations:
+[TRANSPORT-1] Singapore ERP: Congestion pricing at specific road chokepoints during peak 7:30-9:30 AM & 5-8 PM. Result: 25% traffic drop on priced roads, 18% NO2 reduction. Recommend when: NO2>50ppb, high-density traffic ward, morning/evening hours.
+[TRANSPORT-2] Seoul smog-day odd-even: Activated on AQI>150 winter days, paired with WFH for govt employees and free public transit. Result: 15% PM reduction on active days. Key enhancement: extending to two-wheelers amplifies impact significantly.
+[TRANSPORT-3] London ULEZ: Zone-specific emission standards — heavy vehicles 24/7, private cars 7AM-midnight. Result: 46% roadside NO2 cut in Zone 1. Recommend for wards near commercial corridors with high vehicle density.
+[TRANSPORT-4] Mexico City Hoy No Circula: Plate-digit rotation includes motorcycles, 7 days/week. Broader vehicle coverage increases emission reduction proportionally.
+[TRANSPORT-5] Oslo peak pricing + free transit combo: Congestion charge on peak entry + zero-fare public transit on bad air days. Result: 19% fewer vehicles in core zone.
+[CONSTRUCTION-1] Singapore construction protocol: No demolition/concrete after 10 PM in residential zones + GPS-logged water suppression per site. Result: 35% PM10 reduction at monitored sites. Recommend for wards with active large construction.
+[CONSTRUCTION-2] CAQM smog gun rule: Anti-smog guns mandatory within 500m of construction sites >2000 sqm. Enforcement: Rs.50,000/day for non-compliance — already Delhi law, strengthen ward-level compliance.
+[INDUSTRIAL-1] Multi-city emergency protocol: Targeted production controls at specific industrial clusters when AQI>200. Recommend for Okhla/Wazirpur/Bawana adjacent wards when SO2>25 or PM2.5>150.
+[WASTE-1] Landfill fire suppression: Nitrogen blanket + covered leachate channels reduces fire-PM2.5 by 60%. Recommend for wards within 5km of Ghazipur/Bhalswa/Okhla landfills when overnight PM2.5 spikes (fires peak 11 PM-4 AM).
+[DELHI-WIN-1] CM Rekha Gupta tandoor ban (Nov 2024): Coal/wood tandoors banned in commercial establishments. A strong Delhi-specific step targeting PAH combustion near dhaba clusters — recommend strengthening night-time compliance checks in this ward.
+[DELHI-WIN-2] DPCC mechanical road sweeping (2022): Nightly vacuum sweepers reduced road dust PM10 by 40% on 22 major corridors. Recommend extending to this ward's secondary roads.
+[DELHI-WIN-3] BS6 fuel transition: Sulfur in fuel dropped from 50ppm to 10ppm, cutting vehicular SO2 by 80%. Next step for this ward: BS3/BS4 vehicle scrappage drive.
+[TREES] Neem: Best for roadside PM10 trapping + antimicrobial. Peepal: Highest CO2 absorption, produces O2 24hrs. Arjun: Highway noise+pollution barrier. Ashoka: Dense canopy for colony dividers.
 
-GEOPOLITICAL CONTEXT (aware but proportionate):
-- Russia-Ukraine war (ongoing 2024-25): Europe's coal rebound raised global coal demand; India's thermal power load increased marginally → slight SO2/NOx uptick from power sector. Effect on Delhi: minor, only relevant if SO2>20ppb.
-- Middle East/Red Sea shipping disruptions: Higher marine fuel consumption on alternate routes → global bunker fuel emissions up → affects coastal cities more than Delhi. Delhi impact: negligible unless diesel prices spike causing adulteration.
-- RULE: Mention geopolitical context ONLY if SO2 is elevated (>20) or if the analysis would be incomplete without it. Do NOT force-mention wars when local sources (vehicular, dust, stubble) dominate.
+GEOPOLITICAL CONTEXT (proportionate use):
+- Russia-Ukraine conflict (2024-25): Europe's increased coal use raised global coal demand; marginally elevated India thermal power sector SO2/NOx. Mention ONLY if live SO2>20ppb.
+- Middle East/Red Sea disruptions: Alternate shipping routes raised fuel consumption; negligible direct Delhi impact. Mention ONLY if context would otherwise be incomplete.
+- Default: Focus on Delhi's dominant local sources — vehicular, dust, industry, stubble burning.
 
-ODD-EVEN RULE (critical): NEVER recommend generic city-wide all-day odd-even. Instead specify:
-- WHICH roads in this ward (use ward name + AC name to infer corridor)
-- WHICH hours: morning peak (8-10 AM) or evening peak (6-9 PM) based on current time
-- INCLUDE two-wheelers explicitly (they contribute 6.6% PM2.5 vs cars' 2%)
-- SEASON CHECK: winter = up to 14% PM2.5 reduction possible; summer = near 0% effect — say so
-- PAIR with: truck ban, WFH advisory, or public transit push for compound effect
-- Title must NOT say generic "Odd-Even Scheme" — say "Peak-Hour Lane Rationing" or "AM Rush Plate Ban"
+ODD-EVEN RECOMMENDATION RULE: Always recommend odd-even as a targeted, time-bound intervention to maximize effectiveness:
+- SPECIFY which ward corridor (use ward + AC name to infer key road)
+- SPECIFY peak hours: morning (8-10 AM) or evening (6-9 PM) based on current time — not all-day
+- NOTE the season: winter inversion = higher impact; summer = lower impact due to atmospheric dispersion
+- ENHANCE with: truck entry restrictions, WFH for govt staff, or free/extra buses for compound effect
+- Frame as STRENGTHENING existing policy, not criticizing it: e.g. "Extend to peak hours on [road] and include two-wheelers for maximum coverage"
+- Title: use specific framing like "Peak-Hour Corridor Rationing" or "Morning Rush Plate Rotation"
 
 ${visualKeys}
 
@@ -282,20 +281,20 @@ function buildFallbackAdvisoryCards(sourceType: string, aqi: number, lang: strin
       { visual_key: "metro", title: hi ? "पीक ऑवर मेट्रो लें" : "Metro: Skip AM Rush", desc: hi ? "NO2 बढ़ा हुआ है — सुबह 8-10 बजे व शाम 6-9 बजे मेट्रो से जाएं, व्यक्तिगत प्रदूषण 60% कम होगा" : "NO2 elevated — metro cuts personal exposure 60% vs driving during 8-10 AM and 6-9 PM peak corridors", target: "citizen", category: "transport" },
       { visual_key: "carpool", title: hi ? "कारपूल: रोड लोड घटाएं" : "Carpool: Cut Road Load", desc: hi ? "4 लोग एक गाड़ी में = 3 गाड़ियां कम। वार्ड में वाहन घनत्व घटाने का सबसे तेज़ तरीका" : "4 people per car = 3 fewer vehicles. Singapore-proven: 18% NO2 drop when carpool penetration exceeds 30% on a corridor", target: "citizen", category: "transport" },
       { visual_key: "wfh", title: hi ? "WFH: पीक ट्रैफिक टालें" : "WFH: Avoid Peak Traffic", desc: hi ? "GRAP-2+ पर सरकार का 50% WFH आदेश लागू करें — यह Seoul मॉडल है जो AQI>150 पर काम करता है" : "GRAP-2+ triggers mandatory 50% govt WFH — Seoul model shows 15% PM cut when combined with peak-hour plate rationing", target: "citizen", category: "transport" },
-      { visual_key: "odd_even", title: hi ? "पीक-ऑवर लेन बैन" : "Peak-Hour Lane Rationing", desc: hi ? "केवल सुबह 8-10 व शाम 6-9 बजे, दोपहिया सहित (IIT दिल्ली: सिर्फ सर्दियों में 14% PM कमी — गर्मियों में असर शून्य)" : "Only 8-10 AM & 6-9 PM peak windows, include two-wheelers (6.6% PM2.5). IIT Delhi: 14% PM cut in winter only — zero in summer", target: "govt", category: "transport" },
+      { visual_key: "odd_even", title: hi ? "पीक-ऑवर कॉरिडोर रेशनिंग" : "Peak-Hour Corridor Rationing", desc: hi ? "सुबह 8-10 व शाम 6-9 बजे प्रमुख कॉरिडोर पर लागू करें, दोपहिया वाहन शामिल करें और अतिरिक्त DTC बसें चलाएं — Seoul मॉडल पर सर्दियों में सबसे प्रभावी" : "Activate on key ward corridors during 8-10 AM & 6-9 PM peaks, include two-wheelers and add DTC bus frequency — most effective in winter with WFH order combined", target: "govt", category: "transport" },
     );
   }
 
   if (sourceType === "construction" || sourceType === "dust") {
     cards.push(
-      { visual_key: "construction_shroud", title: hi ? "साइट नेट कवर करें" : "Net-Wrap All Sites", desc: hi ? "CAQM नियम: 2000 sqm से बड़े निर्माण पर धूल-नेट अनिवार्य। Singapore मॉडल: 35% PM10 कमी। गैर-अनुपालन पर ₹50,000/दिन जुर्माना" : "CAQM rule: dust-suppression nets mandatory on sites >2000 sqm. Singapore model achieved 35% PM10 reduction. Fine Rs.50,000/day for non-compliance", target: "govt", category: "construction" },
-      { visual_key: "water_spray", title: hi ? "GPS-ट्रैक्ड स्प्रे" : "GPS-Tracked Water Spray", desc: hi ? "एंटी-स्मॉग गन को GPS लॉग से ट्रैक करें — साइट 500m रेडियस में अनिवार्य। रात 10 बजे के बाद कोई तोड़-फोड़/कंक्रीट नहीं" : "GPS-log anti-smog guns within 500m of active sites. No demolition/concrete pouring after 10 PM in residential zones — Singapore proven", target: "govt", category: "construction" },
+      { visual_key: "construction_shroud", title: hi ? "निर्माण साइट धूल नेट" : "Site Dust-Net Coverage", desc: hi ? "CAQM नियम: 2000 sqm से बड़े सभी निर्माण स्थलों पर धूल-नेट अनिवार्य — वार्ड स्तर पर अनुपालन जांच आज ही करें" : "CAQM mandates dust-suppression nets on all sites >2000 sqm — conduct ward-level compliance inspection today for immediate PM10 reduction", target: "govt", category: "construction" },
+      { visual_key: "water_spray", title: hi ? "स्मॉग गन तैनाती" : "Anti-Smog Gun Deployment", desc: hi ? "सक्रिय निर्माण स्थलों के 500m दायरे में एंटी-स्मॉग गन चालू करें — रात 10 बजे के बाद तोड़-फोड़ व कंक्रीट कार्य बंद करें" : "Activate anti-smog guns within 500m of active construction — stop demolition and concrete pouring after 10 PM in residential areas", target: "govt", category: "construction" },
     );
   }
 
   if (aqi > 200) {
     cards.push(
-      { visual_key: "truck_ban", title: hi ? "रात ट्रक प्रतिबंध" : "Night Truck Entry Ban", desc: hi ? "ट्रक दिल्ली PM2.5 में 9.2% योगदान देते हैं — रात 10 बजे से सुबह 6 बजे तक गैर-जरूरी HGV प्रवेश बंद करें (कार के ऑड-ईवन से 4x अधिक प्रभावी)" : "Trucks = 9.2% of Delhi PM2.5 vs cars' 2%. Banning non-essential HGV entry 10 PM-6 AM is 4x more effective than car odd-even alone", target: "govt", category: "transport" },
+      { visual_key: "truck_ban", title: hi ? "रात HGV प्रवेश नियंत्रण" : "Night HGV Entry Control", desc: hi ? "गैर-जरूरी भारी वाहनों का रात 10 बजे से सुबह 6 बजे तक प्रवेश नियंत्रित करें — ट्रक-से-PM2.5 कमी के लिए सबसे तेज़ असरदार कदम" : "Restrict non-essential heavy goods vehicle entry 10 PM-6 AM — the fastest high-impact step to reduce overnight PM2.5 accumulation in this ward", target: "govt", category: "transport" },
     );
   }
 
