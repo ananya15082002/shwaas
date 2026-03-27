@@ -9,6 +9,7 @@ import { assignAQIToWards, aqiToBorderColor, getAQICategory } from "@/lib/wardAq
 import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
 import { DELHI_POLLUTION_SOURCES } from "@/lib/delhiPollutionSources";
 import { POLLUTION_TYPE_IMAGES } from "@/lib/pollutionImages";
+import { WardDetailPanel } from "@/components/dashboard/WardDetailPanel";
 
 interface FullScreenMapProps {
   stations: StationData[];
