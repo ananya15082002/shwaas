@@ -365,21 +365,11 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         const p = e.features[0].properties;
         const centroid = typeof p.centroid === "string" ? JSON.parse(p.centroid) : p.centroid;
         const wardProps = { ...p, centroid } as WardFeature["properties"];
-        const [cLon, cLat] = centroid;
         
         if (popupRef.current) { popupRef.current.remove(); popupRef.current = null; }
         
-        // Cinematic zoom into ward, then auto-enter dashboard
-        map.flyTo({ center: [cLon, cLat], zoom: 15, pitch: 60, bearing: -15, duration: 2200, essential: true });
-        setSelectedWard(wardProps);
-        setZoomedInWard(wardProps);
-        
-        // After zoom animation completes, enter dashboard
-        const onMoveEnd = () => {
-          map.off("moveend", onMoveEnd);
-          onEnterDashboard(wardProps);
-        };
-        map.once("moveend", onMoveEnd);
+        // Directly enter dashboard with selected ward
+        onEnterDashboard(wardProps);
       }
     });
   }, [enrichedWards, mapLoaded, onEnterDashboard]);
