@@ -572,7 +572,7 @@ const [showSources, setShowSources] = useState(true);
   }, [mapLoaded, showSources, findNearestWard]);
 
   const resetView = () => {
-    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10.5, pitch: 45, bearing: -10, duration: 1500 });
+    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10, pitch: 40, bearing: -10, duration: 1500 });
     setSelectedWard(null);
   };
 
