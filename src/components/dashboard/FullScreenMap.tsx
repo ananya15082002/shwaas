@@ -195,13 +195,14 @@ const [showSources, setShowSources] = useState(true);
       style: DARK_STYLE,
       center: DELHI_CENTER,
       zoom: 10,
-      minZoom: 8,
-      maxZoom: 16,
+      minZoom: 9,
+      maxZoom: 18,
       maxBounds: DELHI_BOUNDS,
       attributionControl: false,
-      pitch: 55,
-      bearing: -15,
+      pitch: 50,
+      bearing: -10,
       antialias: true,
+      fadeDuration: 300,
     });
 
     map.on("load", () => {
