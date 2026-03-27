@@ -346,7 +346,13 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
                     <span className="text-sm">⏱️</span>
                     <span className="font-mono text-[9px] text-muted-foreground">{lang === "hi" ? "अगले 4-6 घंटे" : "NEXT 4-6 HRS PREDICTION"}</span>
                   </div>
-                  <p className="mt-1 font-body text-xs text-muted-foreground">{ai.predicted_next_hours}</p>
+                  <p className="mt-1 font-body text-xs text-muted-foreground">
+                    {typeof ai.predicted_next_hours === "string"
+                      ? ai.predicted_next_hours
+                      : typeof ai.predicted_next_hours === "object" && ai.predicted_next_hours !== null
+                        ? Object.values(ai.predicted_next_hours).join(" · ")
+                        : String(ai.predicted_next_hours ?? "")}
+                  </p>
                 </div>
               )}
 
