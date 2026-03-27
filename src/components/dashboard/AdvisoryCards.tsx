@@ -1,6 +1,6 @@
 import React from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Building2, User } from "lucide-react";
+import { Building2, User, Zap } from "lucide-react";
 import { getAdvisoryIconSVG } from "@/lib/mapIcons";
 
 export interface AdvisoryCard {
