@@ -364,7 +364,44 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       if (e.features && e.features.length > 0) {
         const p = e.features[0].properties;
         const centroid = typeof p.centroid === "string" ? JSON.parse(p.centroid) : p.centroid;
-        onEnterDashboard({ ...p, centroid } as WardFeature["properties"]);
+        const wardProps = { ...p, centroid } as WardFeature["properties"];
+        const [cLon, cLat] = centroid;
+        
+        // Zoom into the ward
+        map.flyTo({ center: [cLon, cLat], zoom: 14.5, pitch: 55, bearing: -15, duration: 1800, essential: true });
+        setZoomedInWard(wardProps);
+        setSelectedWard(wardProps);
+        if (popupRef.current) { popupRef.current.remove(); popupRef.current = null; }
+        
+        // Find and show nearest pollution source with image
+        const nearbySources = DELHI_POLLUTION_SOURCES
+          .map(src => ({ ...src, dist: Math.sqrt(Math.pow(src.lat - cLat, 2) + Math.pow(src.lon - cLon, 2)) }))
+          .filter(s => s.dist < 0.05)
+          .sort((a, b) => a.dist - b.dist)
+          .slice(0, 1);
+        
+        // Show pollution source image popup on the source location
+        if (nearbySources.length > 0) {
+          const src = nearbySources[0];
+          const imgSrc = POLLUTION_TYPE_IMAGES[src.type] || POLLUTION_TYPE_IMAGES.industrial;
+          setTimeout(() => {
+            if (!mapRef.current) return;
+            const popup = new maplibregl.Popup({ closeButton: true, closeOnClick: true, className: "ward-popup", maxWidth: "220px", anchor: "bottom" })
+              .setLngLat([src.lon, src.lat])
+              .setHTML(`
+                <div style="background:rgba(4,8,16,0.95);border:1px solid rgba(255,140,0,0.3);border-radius:10px;overflow:hidden;backdrop-filter:blur(12px);">
+                  <img src="${imgSrc}" style="width:100%;height:100px;object-fit:cover;display:block;" />
+                  <div style="padding:8px 12px;">
+                    <div style="color:rgba(255,140,0,0.9);font-size:8px;letter-spacing:1.5px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-bottom:2px">⚠ POLLUTION SOURCE</div>
+                    <div style="color:#fff;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;">${src.emoji} ${src.name}</div>
+                    <div style="color:rgba(255,255,255,0.5);font-size:9px;margin-top:2px;font-family:'JetBrains Mono',monospace;">${src.description}</div>
+                    <div style="color:rgba(255,255,255,0.3);font-size:8px;margin-top:4px;text-transform:uppercase;letter-spacing:1px">${src.type}</div>
+                  </div>
+                </div>
+              `)
+              .addTo(mapRef.current);
+          }, 2000);
+        }
       }
     });
   }, [enrichedWards, mapLoaded, onEnterDashboard]);
