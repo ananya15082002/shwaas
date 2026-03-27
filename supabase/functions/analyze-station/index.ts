@@ -425,6 +425,7 @@ async function callAI(prompt: string): Promise<string> {
             { role: "user", content: prompt },
           ],
           temperature: 0.7,
+          max_tokens: 2048,
         }),
       });
 
@@ -454,8 +455,11 @@ async function callAI(prompt: string): Promise<string> {
         },
         body: JSON.stringify({
           model: "llama-3.3-70b-versatile",
-          messages: [{ role: "user", content: prompt }],
-          max_tokens: 1024,
+          messages: [
+            { role: "system", content: "You are a Delhi air quality ML engine. Return ONLY valid JSON, no markdown, no explanation. Complete the entire JSON object." },
+            { role: "user", content: prompt },
+          ],
+          max_tokens: 2048,
           temperature: 0.7,
         }),
       });
@@ -478,7 +482,7 @@ async function callAI(prompt: string): Promise<string> {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
+          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
         }),
       });
 
