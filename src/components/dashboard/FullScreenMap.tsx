@@ -9,7 +9,8 @@ import { assignAQIToWards, aqiToBorderColor, getAQICategory } from "@/lib/wardAq
 import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
 import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
 import { DELHI_POLLUTION_SOURCES, getSourceTypeColor } from "@/lib/delhiPollutionSources";
-import { getLandmarkIconSVG, getPollutionIconSVG } from "@/lib/mapIcons";
+import { getPollutionIconSVG } from "@/lib/mapIcons";
+import { LANDMARK_IMAGES } from "@/lib/landmarkImages";
 
 interface FullScreenMapProps {
   stations: StationData[];
@@ -85,7 +86,7 @@ const [showSources, setShowSources] = useState(true);
     setTourIndex(-1);
     if (tourTimerRef.current) clearTimeout(tourTimerRef.current);
     tourTimerRef.current = null;
-    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 11, pitch: 50, bearing: -10, duration: 1500 });
+    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10, pitch: 40, bearing: -10, duration: 1500 });
   }, []);
 
   useEffect(() => {
@@ -186,7 +187,7 @@ const [showSources, setShowSources] = useState(true);
     setPlaceResults([]);
   }, [findNearestWard]);
 
-  // Initialize map with cinematic flyTo
+  // Initialize map with cinematic flyTo - zoomed out to show full Delhi
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
@@ -194,12 +195,12 @@ const [showSources, setShowSources] = useState(true);
       container: containerRef.current,
       style: DARK_STYLE,
       center: DELHI_CENTER,
-      zoom: 10,
+      zoom: 9.5,
       minZoom: 9,
       maxZoom: 18,
       maxBounds: DELHI_BOUNDS,
       attributionControl: false,
-      pitch: 50,
+      pitch: 45,
       bearing: -10,
       antialias: true,
       fadeDuration: 300,
@@ -207,11 +208,11 @@ const [showSources, setShowSources] = useState(true);
 
     map.on("load", () => {
       setMapLoaded(true);
-      // Cinematic entrance zoom - show full Delhi first
+      // Cinematic entrance - keep zoomed out for full Delhi visibility
       map.flyTo({
         center: DELHI_CENTER,
-        zoom: 10.5,
-        pitch: 45,
+        zoom: 10,
+        pitch: 40,
         bearing: -10,
         duration: 3000,
         essential: true,
@@ -343,7 +344,55 @@ const [showSources, setShowSources] = useState(true);
         onEnterDashboard({ ...p, centroid } as WardFeature["properties"]);
       }
     });
+  }, [enrichedWards, mapLoaded, onEnterDashboard]);
+
+  // Ward name labels as a symbol layer
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded || !enrichedWards) return;
+
+    if (map.getLayer("ward-labels")) map.removeLayer("ward-labels");
+    if (map.getSource("ward-centroids")) map.removeSource("ward-centroids");
+
+    const labelFeatures = enrichedWards.features.map((f) => ({
+      type: "Feature" as const,
+      properties: { ward_name: f.properties.ward_name, ward_no: f.properties.ward_no },
+      geometry: { type: "Point" as const, coordinates: [f.properties.centroid[0], f.properties.centroid[1]] },
+    }));
+
+    map.addSource("ward-centroids", {
+      type: "geojson",
+      data: { type: "FeatureCollection", features: labelFeatures },
+    });
+
+    map.addLayer({
+      id: "ward-labels",
+      type: "symbol",
+      source: "ward-centroids",
+      layout: {
+        "text-field": ["get", "ward_name"],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 10, 0, 11, 7, 12, 9, 14, 12, 16, 14],
+        "text-font": ["Open Sans Regular", "Arial Unicode MS Regular"],
+        "text-max-width": 6,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-padding": 2,
+        "text-anchor": "center",
+      },
+      paint: {
+        "text-color": "rgba(255,255,255,0.45)",
+        "text-halo-color": "rgba(0,0,0,0.7)",
+        "text-halo-width": 1.2,
+        "text-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0, 11, 0.3, 12, 0.6, 14, 0.85],
+      },
+    });
+
+    return () => {
+      if (map.getLayer("ward-labels")) map.removeLayer("ward-labels");
+      if (map.getSource("ward-centroids")) map.removeSource("ward-centroids");
+    };
   }, [enrichedWards, mapLoaded]);
+
 
   // Special zones
   useEffect(() => {
@@ -410,22 +459,81 @@ const [showSources, setShowSources] = useState(true);
     });
   }, [mapLoaded, stationsWithCoords, onEnterDashboard]);
 
-  // Landmark markers
+  // Landmark markers with real 3D image popups
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
     const markers: maplibregl.Marker[] = [];
     DELHI_LANDMARKS.forEach((lm) => {
+      const imgSrc = LANDMARK_IMAGES[lm.name];
       const el = document.createElement("div");
-      const typeColor = lm.type === "transport" ? "#00B4D8" : lm.type === "monument" ? "#FFD600" : lm.type === "govt" ? "#00E5A0" : lm.type === "religious" ? "#C4A0FF" : lm.type === "park" ? "#4ADE80" : "#FF8C00";
-      el.innerHTML = `<div style="cursor:pointer;display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:rgba(4,8,16,0.85);border:1.5px solid ${typeColor};filter:drop-shadow(0 2px 8px rgba(0,0,0,0.6));transition:transform 0.2s;color:${typeColor};">${getLandmarkIconSVG(lm.type, typeColor)}</div>`;
-      el.addEventListener("mouseenter", () => { el.firstElementChild && ((el.firstElementChild as HTMLElement).style.transform = "scale(1.25)"); });
-      el.addEventListener("mouseleave", () => { el.firstElementChild && ((el.firstElementChild as HTMLElement).style.transform = "scale(1)"); });
+      el.style.cssText = "cursor:pointer;perspective:600px;";
+      el.innerHTML = `
+        <div class="lm-card" style="
+          transform-style:preserve-3d;
+          transition:transform 0.4s cubic-bezier(.23,1,.32,1), box-shadow 0.4s;
+          width:56px;height:68px;
+          border-radius:10px;
+          overflow:hidden;
+          border:2px solid rgba(255,255,255,0.2);
+          box-shadow:0 8px 24px rgba(0,0,0,0.6), 0 0 12px rgba(0,229,160,0.15);
+          position:relative;
+          background:#111;
+        ">
+          <img src="${imgSrc || ''}" style="width:100%;height:46px;object-fit:cover;display:block;" />
+          <div style="
+            padding:2px 4px;
+            background:rgba(4,8,16,0.95);
+            text-align:center;
+          ">
+            <div style="
+              font-family:'DM Sans',sans-serif;
+              font-size:7px;
+              font-weight:700;
+              color:#fff;
+              line-height:1.2;
+              white-space:nowrap;
+              overflow:hidden;
+              text-overflow:ellipsis;
+            ">${lm.name}</div>
+            <div style="
+              font-family:'JetBrains Mono',monospace;
+              font-size:6px;
+              color:rgba(0,229,160,0.7);
+              letter-spacing:1px;
+              text-transform:uppercase;
+            ">${lm.type}</div>
+          </div>
+          <div style="
+            position:absolute;top:0;left:0;right:0;bottom:0;
+            border-radius:10px;
+            background:linear-gradient(135deg,rgba(0,229,160,0.08) 0%,transparent 50%);
+            pointer-events:none;
+          "></div>
+        </div>
+      `;
+      // 3D hover effect
+      el.addEventListener("mouseenter", () => {
+        const card = el.querySelector(".lm-card") as HTMLElement;
+        if (card) {
+          card.style.transform = "rotateY(-8deg) rotateX(5deg) scale(1.3) translateY(-8px)";
+          card.style.boxShadow = "0 16px 40px rgba(0,0,0,0.7), 0 0 20px rgba(0,229,160,0.3)";
+          card.style.borderColor = "rgba(0,229,160,0.5)";
+        }
+      });
+      el.addEventListener("mouseleave", () => {
+        const card = el.querySelector(".lm-card") as HTMLElement;
+        if (card) {
+          card.style.transform = "";
+          card.style.boxShadow = "0 8px 24px rgba(0,0,0,0.6), 0 0 12px rgba(0,229,160,0.15)";
+          card.style.borderColor = "rgba(255,255,255,0.2)";
+        }
+      });
       el.addEventListener("click", () => {
         const nearest = findNearestWard(lm.lat, lm.lon);
         if (nearest) onEnterDashboard(nearest);
       });
-      const m = new maplibregl.Marker({ element: el }).setLngLat([lm.lon, lm.lat]).addTo(map);
+      const m = new maplibregl.Marker({ element: el, anchor: "bottom" }).setLngLat([lm.lon, lm.lat]).addTo(map);
       markers.push(m);
     });
     return () => markers.forEach((m) => m.remove());
@@ -464,7 +572,7 @@ const [showSources, setShowSources] = useState(true);
   }, [mapLoaded, showSources, findNearestWard]);
 
   const resetView = () => {
-    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10.5, pitch: 45, bearing: -10, duration: 1500 });
+    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10, pitch: 40, bearing: -10, duration: 1500 });
     setSelectedWard(null);
   };
 
