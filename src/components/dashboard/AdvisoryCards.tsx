@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import Lottie from "lottie-react";
+import React from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Building2, User } from "lucide-react";
+import { getAdvisoryIconSVG } from "@/lib/mapIcons";
 
 export interface AdvisoryCard {
   visual_key: string;
