@@ -33,20 +33,54 @@ export function AqiCalendar({ history }: AqiCalendarProps) {
       });
     }
 
+    // Use actual forecast dates if available, otherwise fall back to today-centered range
+    const availableDates = Object.keys(dailyAqi).sort();
     const today = new Date();
-    const days: { label: string; date: string; aqi: number; isToday: boolean }[] = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-      days.push({
+    const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+    let datesToShow: string[] = [];
+
+    if (availableDates.length >= 7) {
+      // Find today's index and center around it
+      const todayIdx = availableDates.indexOf(todayKey);
+      if (todayIdx >= 0) {
+        const start = Math.max(0, Math.min(todayIdx - 3, availableDates.length - 7));
+        datesToShow = availableDates.slice(start, start + 7);
+      } else {
+        datesToShow = availableDates.slice(0, 7);
+      }
+    } else if (availableDates.length > 0) {
+      // Pad with surrounding dates to make 7
+      const firstDate = new Date(availableDates[0]);
+      const lastDate = new Date(availableDates[availableDates.length - 1]);
+      const allDates = new Set(availableDates);
+      // Extend backwards then forwards to fill 7
+      let cursor = new Date(firstDate);
+      while (allDates.size < 7) {
+        cursor.setDate(cursor.getDate() - 1);
+        const k = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}-${String(cursor.getDate()).padStart(2, "0")}`;
+        allDates.add(k);
+      }
+      datesToShow = [...allDates].sort();
+      if (datesToShow.length > 7) datesToShow = datesToShow.slice(datesToShow.length - 7);
+    } else {
+      // No data at all — show past 7 days
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        datesToShow.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`);
+      }
+    }
+
+    return datesToShow.map((key) => {
+      const d = new Date(key + "T00:00:00");
+      return {
         label: dayNames[d.getDay()],
         date: String(d.getDate()),
         aqi: dailyAqi[key] ?? 0,
-        isToday: i === 0,
-      });
-    }
-    return days;
+        isToday: key === todayKey,
+      };
+    });
   }, [history, lang]);
 
   return (
