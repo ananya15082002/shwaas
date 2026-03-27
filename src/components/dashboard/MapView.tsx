@@ -531,6 +531,113 @@ const [wardSearch, setWardSearch] = useState("");
     activeMarkerRef.current = marker;
   }, [activeWard, mapLoaded]);
 
+  // Highlighted ward boundary (glowing border for active ward)
+  const highlightSourceRef = useRef(false);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded || !enrichedWards) return;
+    
+    const apply = () => {
+      if (!map.isStyleLoaded()) return;
+      if (map.getLayer("ward-highlight-border")) map.removeLayer("ward-highlight-border");
+      if (map.getLayer("ward-highlight-glow")) map.removeLayer("ward-highlight-glow");
+      if (map.getSource("ward-highlight")) map.removeSource("ward-highlight");
+      highlightSourceRef.current = false;
+      
+      if (!activeWard?.ward_no || activeWard.ward_no < 0) return;
+      
+      const feature = enrichedWards.features.find(f => f.properties.ward_no === activeWard.ward_no);
+      if (!feature) return;
+      
+      const aqi = activeWard.interpolated_aqi ?? 0;
+      const color = aqiToColor(aqi);
+      
+      map.addSource("ward-highlight", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [feature] } as any,
+      });
+      highlightSourceRef.current = true;
+      
+      // Outer glow
+      map.addLayer({
+        id: "ward-highlight-glow",
+        type: "line",
+        source: "ward-highlight",
+        paint: {
+          "line-color": color,
+          "line-width": 6,
+          "line-opacity": 0.3,
+          "line-blur": 4,
+        },
+      });
+      
+      // Sharp inner border
+      map.addLayer({
+        id: "ward-highlight-border",
+        type: "line",
+        source: "ward-highlight",
+        paint: {
+          "line-color": "#FFFFFF",
+          "line-width": 2.5,
+          "line-opacity": 0.9,
+        },
+      });
+    };
+    
+    if (map.isStyleLoaded()) apply();
+    else map.once("style.load", apply);
+    
+    return () => {
+      try {
+        if (map.getStyle()) {
+          if (map.getLayer("ward-highlight-border")) map.removeLayer("ward-highlight-border");
+          if (map.getLayer("ward-highlight-glow")) map.removeLayer("ward-highlight-glow");
+          if (map.getSource("ward-highlight")) map.removeSource("ward-highlight");
+        }
+      } catch {}
+    };
+  }, [activeWard, enrichedWards, mapLoaded]);
+
+  // Pollution source marker with real image on the active ward
+  const pollutionMarkerRef = useRef<maplibregl.Marker | null>(null);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (pollutionMarkerRef.current) { pollutionMarkerRef.current.remove(); pollutionMarkerRef.current = null; }
+    if (!map || !mapLoaded || !activeWard?.centroid) return;
+    
+    const [cLon, cLat] = activeWard.centroid;
+    const nearbySources = DELHI_POLLUTION_SOURCES
+      .map(src => ({ ...src, dist: Math.sqrt(Math.pow(src.lat - cLat, 2) + Math.pow(src.lon - cLon, 2)) }))
+      .sort((a, b) => a.dist - b.dist)
+      .slice(0, 1);
+    
+    if (nearbySources.length === 0) return;
+    const src = nearbySources[0];
+    if (src.dist > 0.06) return; // too far
+    
+    const imgSrc = POLLUTION_TYPE_IMAGES[src.type] || POLLUTION_TYPE_IMAGES.industrial;
+    
+    const el = document.createElement("div");
+    el.style.cssText = "cursor:pointer;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.7));";
+    el.innerHTML = `
+      <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,140,0,0.7);box-shadow:0 0 12px rgba(255,140,0,0.3);background:#111;">
+        <img src="${imgSrc}" style="width:100%;height:100%;object-fit:cover;display:block;" />
+      </div>
+      <div style="text-align:center;margin-top:3px;">
+        <span style="background:rgba(4,8,16,0.9);color:rgba(255,140,0,0.9);font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:700;padding:2px 5px;border-radius:4px;letter-spacing:0.5px;white-space:nowrap;">${src.name.length > 18 ? src.name.slice(0, 18) + '…' : src.name}</span>
+      </div>
+    `;
+    
+    const marker = new maplibregl.Marker({ element: el, anchor: "center" })
+      .setLngLat([src.lon, src.lat])
+      .addTo(map);
+    pollutionMarkerRef.current = marker;
+    
+    return () => {
+      if (pollutionMarkerRef.current) { pollutionMarkerRef.current.remove(); pollutionMarkerRef.current = null; }
+    };
+  }, [activeWard, mapLoaded]);
+
   return (
     <>
       <style>{`
