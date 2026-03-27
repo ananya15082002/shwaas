@@ -420,7 +420,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
           (map as any)._pollClickMarker = marker;
         }
         
-        // Moderate zoom - show ward + neighbors
+        // Moderate zoom - show ward + neighbors, then stop and show dashboard below
         map.flyTo({
           center: [cLon, cLat],
           zoom: 12.5,
@@ -428,20 +428,6 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
           bearing: -10,
           duration: 2000,
           essential: true,
-        });
-        
-        // After animation, enter dashboard
-        map.once("moveend", () => {
-          setTimeout(() => {
-            // Cleanup
-            if ((map as any)._pollClickMarker) { (map as any)._pollClickMarker.remove(); (map as any)._pollClickMarker = null; }
-            try {
-              if (map.getLayer("click-highlight-border")) map.removeLayer("click-highlight-border");
-              if (map.getLayer("click-highlight-glow")) map.removeLayer("click-highlight-glow");
-              if (map.getSource("click-highlight")) map.removeSource("click-highlight");
-            } catch {}
-            onEnterDashboard(wardProps);
-          }, 800);
         });
       }
     });
