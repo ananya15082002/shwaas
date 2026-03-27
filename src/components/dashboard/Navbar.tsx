@@ -39,6 +39,7 @@ export function Navbar({ lastUpdated, onRefresh, loading, onLogoClick, onBackToM
               {t("nav.subtitle")}
             </p>
           </div>
+          </div>
         </div>
 
         <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 md:gap-4">
