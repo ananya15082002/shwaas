@@ -28,8 +28,8 @@ function aqiToColor(aqi: number): string {
   if (aqi <= 100) return "#FFD600";
   if (aqi <= 150) return "#FF8C00";
   if (aqi <= 200) return "#FF3D3D";
-  if (aqi <= 300) return "#C62BFF";
-  return "#FF0033";
+  if (aqi <= 300) return "#8B3A8F";
+  return "#7E0023";
 }
 
 export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScreenMapProps) {

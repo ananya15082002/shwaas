@@ -13,8 +13,8 @@ const aqiColor = (aqi: number) => {
   if (aqi <= 100) return "#FFD600";
   if (aqi <= 150) return "#FF8C00";
   if (aqi <= 200) return "#FF3D3D";
-  if (aqi <= 300) return "#C62BFF";
-  return "#FF0033";
+  if (aqi <= 300) return "#8B3A8F";
+  return "#7E0023";
 };
 
 const DAYS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
