@@ -101,7 +101,7 @@ export function AdvisoryCards({ cards }: AdvisoryCardsProps) {
   return (
     <div className="min-w-0 w-full space-y-3">
       <div className="flex min-w-0 items-center gap-2">
-        <span className="text-base">⚡</span>
+        <Zap className="h-4 w-4 text-primary" />
         <h4 className="font-display text-xs font-bold uppercase tracking-widest text-primary">
           {lang === "hi" ? "रियल-टाइम एडवाइजरी" : "Real-Time Advisories"}
         </h4>
