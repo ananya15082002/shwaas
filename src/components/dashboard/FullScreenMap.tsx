@@ -563,7 +563,17 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   };
 
   const handleBackFromZoom = useCallback(() => {
-    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10, pitch: 40, bearing: -10, duration: 1500 });
+    const map = mapRef.current;
+    if (map) {
+      // Cleanup highlight and markers
+      if ((map as any)._pollClickMarker) { (map as any)._pollClickMarker.remove(); (map as any)._pollClickMarker = null; }
+      try {
+        if (map.getLayer("click-highlight-border")) map.removeLayer("click-highlight-border");
+        if (map.getLayer("click-highlight-glow")) map.removeLayer("click-highlight-glow");
+        if (map.getSource("click-highlight")) map.removeSource("click-highlight");
+      } catch {}
+      map.flyTo({ center: DELHI_CENTER, zoom: 10, pitch: 40, bearing: -10, duration: 1500 });
+    }
     setZoomedInWard(null);
     setSelectedWard(null);
   }, []);
