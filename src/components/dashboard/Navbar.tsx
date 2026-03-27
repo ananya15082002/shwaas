@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { RefreshCw, Wind, Radio, Languages } from "lucide-react";
+import { RefreshCw, Wind, Radio, Languages, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -8,9 +8,10 @@ interface NavbarProps {
   onRefresh: () => void;
   loading: boolean;
   onLogoClick?: () => void;
+  onBackToMap?: () => void;
 }
 
-export function Navbar({ lastUpdated, onRefresh, loading, onLogoClick }: NavbarProps) {
+export function Navbar({ lastUpdated, onRefresh, loading, onLogoClick, onBackToMap }: NavbarProps) {
   const [time, setTime] = useState(new Date());
   const { t, toggleLang, lang } = useLanguage();
 
