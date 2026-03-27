@@ -9,6 +9,7 @@ import { assignAQIToWards, aqiToBorderColor, getAQICategory } from "@/lib/wardAq
 import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
 import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
 import { DELHI_POLLUTION_SOURCES, getSourceTypeColor } from "@/lib/delhiPollutionSources";
+import { getLandmarkIconSVG, getPollutionIconSVG } from "@/lib/mapIcons";
 
 interface FullScreenMapProps {
   stations: StationData[];
@@ -194,13 +195,14 @@ const [showSources, setShowSources] = useState(true);
       style: DARK_STYLE,
       center: DELHI_CENTER,
       zoom: 10,
-      minZoom: 8,
-      maxZoom: 16,
+      minZoom: 9,
+      maxZoom: 18,
       maxBounds: DELHI_BOUNDS,
       attributionControl: false,
-      pitch: 55,
-      bearing: -15,
+      pitch: 50,
+      bearing: -10,
       antialias: true,
+      fadeDuration: 300,
     });
 
     map.on("load", () => {
@@ -415,8 +417,10 @@ const [showSources, setShowSources] = useState(true);
     const markers: maplibregl.Marker[] = [];
     DELHI_LANDMARKS.forEach((lm) => {
       const el = document.createElement("div");
-      el.style.cssText = "cursor:pointer;font-size:18px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));";
-      el.textContent = lm.emoji;
+      const typeColor = lm.type === "transport" ? "#00B4D8" : lm.type === "monument" ? "#FFD600" : lm.type === "govt" ? "#00E5A0" : lm.type === "religious" ? "#C4A0FF" : lm.type === "park" ? "#4ADE80" : "#FF8C00";
+      el.innerHTML = `<div style="cursor:pointer;display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:rgba(4,8,16,0.85);border:1.5px solid ${typeColor};filter:drop-shadow(0 2px 8px rgba(0,0,0,0.6));transition:transform 0.2s;color:${typeColor};">${getLandmarkIconSVG(lm.type, typeColor)}</div>`;
+      el.addEventListener("mouseenter", () => { el.firstElementChild && ((el.firstElementChild as HTMLElement).style.transform = "scale(1.25)"); });
+      el.addEventListener("mouseleave", () => { el.firstElementChild && ((el.firstElementChild as HTMLElement).style.transform = "scale(1)"); });
       el.addEventListener("click", () => {
         const nearest = findNearestWard(lm.lat, lm.lon);
         if (nearest) onEnterDashboard(nearest);
@@ -438,8 +442,7 @@ const [showSources, setShowSources] = useState(true);
     DELHI_POLLUTION_SOURCES.forEach((src) => {
       const color = getSourceTypeColor(src.type);
       const el = document.createElement("div");
-      el.style.cssText = `cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${color}25;border:2px solid ${color};font-size:14px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));transition:transform 0.2s;`;
-      el.textContent = src.emoji;
+      el.innerHTML = `<div style="cursor:pointer;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${color}20;border:2px solid ${color};filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));transition:transform 0.2s;color:${color};">${getPollutionIconSVG(src.type, color)}</div>`;
       el.title = `${src.name} - ${src.description}`;
       el.addEventListener("mouseenter", () => { el.style.transform = "scale(1.3)"; });
       el.addEventListener("mouseleave", () => { el.style.transform = "scale(1)"; });
@@ -711,7 +714,7 @@ const [showSources, setShowSources] = useState(true);
         {showUI && (
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.8 }} className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
             <button onClick={() => onEnterDashboard(selectedWard ?? undefined)} className="group flex items-center gap-2 rounded-full border border-primary/40 bg-card/90 px-4 py-2 font-mono text-[10px] tracking-[0.15em] text-primary backdrop-blur-md transition-all hover:bg-primary/15 hover:border-primary/70 hover:shadow-[0_0_30px_rgba(0,229,160,0.2)] xs:gap-3 xs:px-6 xs:py-2.5 xs:text-xs sm:px-8 sm:py-3 sm:tracking-[0.2em]">
-              <span className="animate-pulse-live">▶</span>
+              <span className="inline-block h-2 w-2 rounded-full bg-primary animate-pulse-live" />
               ENTER DASHBOARD
               <Navigation className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
             </button>

@@ -7,6 +7,7 @@ import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
 import { assignAQIToWards, aqiToFillColor, aqiToBorderColor } from "@/lib/wardAqi";
 import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
 import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
+import { getLandmarkIconSVG } from "@/lib/mapIcons";
 
 interface MapViewProps {
   stations: StationData[];
@@ -149,11 +150,13 @@ const [wardSearch, setWardSearch] = useState("");
       center: DELHI_CENTER,
       zoom: 10.5,
       minZoom: 9,
+      maxZoom: 18,
       maxBounds: DELHI_BOUNDS,
       attributionControl: false,
-      pitch: 45,
+      pitch: 40,
       bearing: -10,
       antialias: true,
+      fadeDuration: 200,
     });
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "bottom-right");
@@ -471,8 +474,10 @@ const [wardSearch, setWardSearch] = useState("");
 
     DELHI_LANDMARKS.forEach((lm) => {
       const el = document.createElement("div");
-      el.style.cssText = "cursor:pointer;font-size:16px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6));";
-      el.textContent = lm.emoji;
+      const typeColor = lm.type === "transport" ? "#00B4D8" : lm.type === "monument" ? "#FFD600" : lm.type === "govt" ? "#00E5A0" : lm.type === "religious" ? "#C4A0FF" : lm.type === "park" ? "#4ADE80" : "#FF8C00";
+      el.innerHTML = `<div style="cursor:pointer;display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:rgba(4,8,16,0.85);border:1.5px solid ${typeColor};filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));transition:transform 0.2s;color:${typeColor};">${getLandmarkIconSVG(lm.type, typeColor)}</div>`;
+      el.addEventListener("mouseenter", () => { el.firstElementChild && ((el.firstElementChild as HTMLElement).style.transform = "scale(1.2)"); });
+      el.addEventListener("mouseleave", () => { el.firstElementChild && ((el.firstElementChild as HTMLElement).style.transform = "scale(1)"); });
       el.addEventListener("click", () => {
         const nearest = findNearestWard(lm.lat, lm.lon);
         if (nearest) onWardSelect?.(nearest);
