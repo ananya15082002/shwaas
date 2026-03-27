@@ -255,7 +255,7 @@ const [showSources, setShowSources] = useState(true);
     }, labelLayer?.id);
 
     return () => {
-      if (map.getLayer("3d-buildings")) map.removeLayer("3d-buildings");
+      if (map.getStyle() && map.getLayer("3d-buildings")) map.removeLayer("3d-buildings");
     };
   }, [mapLoaded]);
 
