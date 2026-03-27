@@ -471,28 +471,28 @@ const [showSources, setShowSources] = useState(true);
     DELHI_LANDMARKS.forEach((lm) => {
       const imgSrc = LANDMARK_IMAGES[lm.name];
       const el = document.createElement("div");
-      el.style.cssText = "cursor:pointer;perspective:600px;";
+      el.style.cssText = "cursor:pointer;perspective:400px;";
       el.innerHTML = `
         <div class="lm-card" style="
           transform-style:preserve-3d;
           transition:transform 0.4s cubic-bezier(.23,1,.32,1), box-shadow 0.4s;
-          width:56px;height:68px;
-          border-radius:10px;
+          width:36px;height:44px;
+          border-radius:7px;
           overflow:hidden;
-          border:2px solid rgba(255,255,255,0.2);
-          box-shadow:0 8px 24px rgba(0,0,0,0.6), 0 0 12px rgba(0,229,160,0.15);
+          border:1.5px solid rgba(255,255,255,0.2);
+          box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 6px rgba(0,229,160,0.1);
           position:relative;
           background:#111;
         ">
-          <img src="${imgSrc || ''}" style="width:100%;height:46px;object-fit:cover;display:block;" />
+          <img src="${imgSrc || ''}" style="width:100%;height:28px;object-fit:cover;display:block;" />
           <div style="
-            padding:2px 4px;
+            padding:1px 2px;
             background:rgba(4,8,16,0.95);
             text-align:center;
           ">
             <div style="
               font-family:'DM Sans',sans-serif;
-              font-size:7px;
+              font-size:5px;
               font-weight:700;
               color:#fff;
               line-height:1.2;
@@ -502,18 +502,12 @@ const [showSources, setShowSources] = useState(true);
             ">${lm.name}</div>
             <div style="
               font-family:'JetBrains Mono',monospace;
-              font-size:6px;
+              font-size:4px;
               color:rgba(0,229,160,0.7);
-              letter-spacing:1px;
+              letter-spacing:0.5px;
               text-transform:uppercase;
             ">${lm.type}</div>
           </div>
-          <div style="
-            position:absolute;top:0;left:0;right:0;bottom:0;
-            border-radius:10px;
-            background:linear-gradient(135deg,rgba(0,229,160,0.08) 0%,transparent 50%);
-            pointer-events:none;
-          "></div>
         </div>
       `;
       // 3D hover effect
