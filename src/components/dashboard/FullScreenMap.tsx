@@ -459,22 +459,81 @@ const [showSources, setShowSources] = useState(true);
     });
   }, [mapLoaded, stationsWithCoords, onEnterDashboard]);
 
-  // Landmark markers
+  // Landmark markers with real 3D image popups
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
     const markers: maplibregl.Marker[] = [];
     DELHI_LANDMARKS.forEach((lm) => {
+      const imgSrc = LANDMARK_IMAGES[lm.name];
       const el = document.createElement("div");
-      const typeColor = lm.type === "transport" ? "#00B4D8" : lm.type === "monument" ? "#FFD600" : lm.type === "govt" ? "#00E5A0" : lm.type === "religious" ? "#C4A0FF" : lm.type === "park" ? "#4ADE80" : "#FF8C00";
-      el.innerHTML = `<div style="cursor:pointer;display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:rgba(4,8,16,0.85);border:1.5px solid ${typeColor};filter:drop-shadow(0 2px 8px rgba(0,0,0,0.6));transition:transform 0.2s;color:${typeColor};">${getLandmarkIconSVG(lm.type, typeColor)}</div>`;
-      el.addEventListener("mouseenter", () => { el.firstElementChild && ((el.firstElementChild as HTMLElement).style.transform = "scale(1.25)"); });
-      el.addEventListener("mouseleave", () => { el.firstElementChild && ((el.firstElementChild as HTMLElement).style.transform = "scale(1)"); });
+      el.style.cssText = "cursor:pointer;perspective:600px;";
+      el.innerHTML = `
+        <div class="lm-card" style="
+          transform-style:preserve-3d;
+          transition:transform 0.4s cubic-bezier(.23,1,.32,1), box-shadow 0.4s;
+          width:56px;height:68px;
+          border-radius:10px;
+          overflow:hidden;
+          border:2px solid rgba(255,255,255,0.2);
+          box-shadow:0 8px 24px rgba(0,0,0,0.6), 0 0 12px rgba(0,229,160,0.15);
+          position:relative;
+          background:#111;
+        ">
+          <img src="${imgSrc || ''}" style="width:100%;height:46px;object-fit:cover;display:block;" />
+          <div style="
+            padding:2px 4px;
+            background:rgba(4,8,16,0.95);
+            text-align:center;
+          ">
+            <div style="
+              font-family:'DM Sans',sans-serif;
+              font-size:7px;
+              font-weight:700;
+              color:#fff;
+              line-height:1.2;
+              white-space:nowrap;
+              overflow:hidden;
+              text-overflow:ellipsis;
+            ">${lm.name}</div>
+            <div style="
+              font-family:'JetBrains Mono',monospace;
+              font-size:6px;
+              color:rgba(0,229,160,0.7);
+              letter-spacing:1px;
+              text-transform:uppercase;
+            ">${lm.type}</div>
+          </div>
+          <div style="
+            position:absolute;top:0;left:0;right:0;bottom:0;
+            border-radius:10px;
+            background:linear-gradient(135deg,rgba(0,229,160,0.08) 0%,transparent 50%);
+            pointer-events:none;
+          "></div>
+        </div>
+      `;
+      // 3D hover effect
+      el.addEventListener("mouseenter", () => {
+        const card = el.querySelector(".lm-card") as HTMLElement;
+        if (card) {
+          card.style.transform = "rotateY(-8deg) rotateX(5deg) scale(1.3) translateY(-8px)";
+          card.style.boxShadow = "0 16px 40px rgba(0,0,0,0.7), 0 0 20px rgba(0,229,160,0.3)";
+          card.style.borderColor = "rgba(0,229,160,0.5)";
+        }
+      });
+      el.addEventListener("mouseleave", () => {
+        const card = el.querySelector(".lm-card") as HTMLElement;
+        if (card) {
+          card.style.transform = "";
+          card.style.boxShadow = "0 8px 24px rgba(0,0,0,0.6), 0 0 12px rgba(0,229,160,0.15)";
+          card.style.borderColor = "rgba(255,255,255,0.2)";
+        }
+      });
       el.addEventListener("click", () => {
         const nearest = findNearestWard(lm.lat, lm.lon);
         if (nearest) onEnterDashboard(nearest);
       });
-      const m = new maplibregl.Marker({ element: el }).setLngLat([lm.lon, lm.lat]).addTo(map);
+      const m = new maplibregl.Marker({ element: el, anchor: "bottom" }).setLngLat([lm.lon, lm.lat]).addTo(map);
       markers.push(m);
     });
     return () => markers.forEach((m) => m.remove());
