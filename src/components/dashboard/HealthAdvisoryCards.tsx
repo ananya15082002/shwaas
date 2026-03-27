@@ -52,7 +52,7 @@ const getAdvice = (aqi: number, lang: "en" | "hi") => {
   };
   if (aqi <= 300) return {
     level: "veryUnhealthy",
-    color: "#C62BFF",
+    color: "#8B3A8F",
     general: lang === "en" ? "Health alert! Serious effects possible. Stay indoors." : "स्वास्थ्य चेतावनी! गंभीर प्रभाव संभव। घर में रहें।",
     groups: [
       { icon: Baby, label: lang === "en" ? "Children" : "बच्चे", advice: lang === "en" ? "Stay indoors, seal windows, run purifier" : "घर में रहें, खिड़कियाँ सील करें" },
