@@ -30,7 +30,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("ward");
   const { stage, introDone, skip, advanceToNext, replay } = useIntroSequence();
   const { t } = useLanguage();
-  const [showFullMap, setShowFullMap] = useState(false);
+  const [showFullMap, setShowFullMap] = useState(true);
   const [dashboardReady, setDashboardReady] = useState(false);
   const music = useAmbientMusic();
 

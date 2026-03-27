@@ -9,7 +9,7 @@ const STAGE_DURATIONS: Record<number, number> = {
 };
 
 export function useIntroSequence() {
-  const hasVisited = typeof window !== "undefined" && localStorage.getItem("delhiaqi_visited") === "true";
+  const hasVisited = true; // Always open with Delhi map; intro available via logo replay
 
   const [stage, setStage] = useState<IntroStage>(hasVisited ? "done" : 1);
   const [introDone, setIntroDone] = useState(hasVisited);
