@@ -58,6 +58,11 @@ const Index = () => {
     music.changeMode("dashboard");
   };
 
+  const handleBackToMap = () => {
+    setShowFullMap(true);
+    setDashboardReady(false);
+  };
+
   const handleReplay = () => {
     replay();
     setShowFullMap(false);
