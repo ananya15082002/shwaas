@@ -344,7 +344,55 @@ const [showSources, setShowSources] = useState(true);
         onEnterDashboard({ ...p, centroid } as WardFeature["properties"]);
       }
     });
+
+
+  // Ward name labels as a symbol layer
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded || !enrichedWards) return;
+
+    if (map.getLayer("ward-labels")) map.removeLayer("ward-labels");
+    if (map.getSource("ward-centroids")) map.removeSource("ward-centroids");
+
+    const labelFeatures = enrichedWards.features.map((f) => ({
+      type: "Feature" as const,
+      properties: { ward_name: f.properties.ward_name, ward_no: f.properties.ward_no },
+      geometry: { type: "Point" as const, coordinates: [f.properties.centroid[0], f.properties.centroid[1]] },
+    }));
+
+    map.addSource("ward-centroids", {
+      type: "geojson",
+      data: { type: "FeatureCollection", features: labelFeatures },
+    });
+
+    map.addLayer({
+      id: "ward-labels",
+      type: "symbol",
+      source: "ward-centroids",
+      layout: {
+        "text-field": ["get", "ward_name"],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 10, 0, 11, 7, 12, 9, 14, 12, 16, 14],
+        "text-font": ["Open Sans Regular", "Arial Unicode MS Regular"],
+        "text-max-width": 6,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-padding": 2,
+        "text-anchor": "center",
+      },
+      paint: {
+        "text-color": "rgba(255,255,255,0.45)",
+        "text-halo-color": "rgba(0,0,0,0.7)",
+        "text-halo-width": 1.2,
+        "text-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0, 11, 0.3, 12, 0.6, 14, 0.85],
+      },
+    });
+
+    return () => {
+      if (map.getLayer("ward-labels")) map.removeLayer("ward-labels");
+      if (map.getSource("ward-centroids")) map.removeSource("ward-centroids");
+    };
   }, [enrichedWards, mapLoaded]);
+
 
   // Special zones
   useEffect(() => {
