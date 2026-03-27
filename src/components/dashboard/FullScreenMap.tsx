@@ -607,7 +607,14 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   const resetView = () => {
     mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10, pitch: 40, bearing: -10, duration: 1500 });
     setSelectedWard(null);
+    setZoomedInWard(null);
   };
+
+  const handleBackFromZoom = useCallback(() => {
+    mapRef.current?.flyTo({ center: DELHI_CENTER, zoom: 10, pitch: 40, bearing: -10, duration: 1500 });
+    setZoomedInWard(null);
+    setSelectedWard(null);
+  }, []);
 
   const aqiLevel = getAqiLevel(cityAqi);
 
