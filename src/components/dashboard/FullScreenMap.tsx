@@ -344,7 +344,7 @@ const [showSources, setShowSources] = useState(true);
         onEnterDashboard({ ...p, centroid } as WardFeature["properties"]);
       }
     });
-
+  }, [enrichedWards, mapLoaded, onEnterDashboard]);
 
   // Ward name labels as a symbol layer
   useEffect(() => {
