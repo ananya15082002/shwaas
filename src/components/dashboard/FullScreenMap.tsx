@@ -367,41 +367,19 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         const wardProps = { ...p, centroid } as WardFeature["properties"];
         const [cLon, cLat] = centroid;
         
-        // Zoom into the ward
-        map.flyTo({ center: [cLon, cLat], zoom: 14.5, pitch: 55, bearing: -15, duration: 1800, essential: true });
-        setZoomedInWard(wardProps);
-        setSelectedWard(wardProps);
         if (popupRef.current) { popupRef.current.remove(); popupRef.current = null; }
         
-        // Find and show nearest pollution source with image
-        const nearbySources = DELHI_POLLUTION_SOURCES
-          .map(src => ({ ...src, dist: Math.sqrt(Math.pow(src.lat - cLat, 2) + Math.pow(src.lon - cLon, 2)) }))
-          .filter(s => s.dist < 0.05)
-          .sort((a, b) => a.dist - b.dist)
-          .slice(0, 1);
+        // Cinematic zoom into ward, then auto-enter dashboard
+        map.flyTo({ center: [cLon, cLat], zoom: 15, pitch: 60, bearing: -15, duration: 2200, essential: true });
+        setSelectedWard(wardProps);
+        setZoomedInWard(wardProps);
         
-        // Show pollution source image popup on the source location
-        if (nearbySources.length > 0) {
-          const src = nearbySources[0];
-          const imgSrc = POLLUTION_TYPE_IMAGES[src.type] || POLLUTION_TYPE_IMAGES.industrial;
-          setTimeout(() => {
-            if (!mapRef.current) return;
-            const popup = new maplibregl.Popup({ closeButton: true, closeOnClick: true, className: "ward-popup", maxWidth: "220px", anchor: "bottom" })
-              .setLngLat([src.lon, src.lat])
-              .setHTML(`
-                <div style="background:rgba(4,8,16,0.95);border:1px solid rgba(255,140,0,0.3);border-radius:10px;overflow:hidden;backdrop-filter:blur(12px);">
-                  <img src="${imgSrc}" style="width:100%;height:100px;object-fit:cover;display:block;" />
-                  <div style="padding:8px 12px;">
-                    <div style="color:rgba(255,140,0,0.9);font-size:8px;letter-spacing:1.5px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-bottom:2px">⚠ POLLUTION SOURCE</div>
-                    <div style="color:#fff;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;">${src.emoji} ${src.name}</div>
-                    <div style="color:rgba(255,255,255,0.5);font-size:9px;margin-top:2px;font-family:'JetBrains Mono',monospace;">${src.description}</div>
-                    <div style="color:rgba(255,255,255,0.3);font-size:8px;margin-top:4px;text-transform:uppercase;letter-spacing:1px">${src.type}</div>
-                  </div>
-                </div>
-              `)
-              .addTo(mapRef.current);
-          }, 2000);
-        }
+        // After zoom animation completes, enter dashboard
+        const onMoveEnd = () => {
+          map.off("moveend", onMoveEnd);
+          onEnterDashboard(wardProps);
+        };
+        map.once("moveend", onMoveEnd);
       }
     });
   }, [enrichedWards, mapLoaded, onEnterDashboard]);
@@ -440,10 +418,11 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         "text-anchor": "center",
       },
       paint: {
-        "text-color": "rgba(255,255,255,0.7)",
-        "text-halo-color": "rgba(0,0,0,0.85)",
-        "text-halo-width": 1.5,
-        "text-opacity": ["interpolate", ["linear"], ["zoom"], 9.5, 0.15, 10.5, 0.35, 11.5, 0.55, 13, 0.8, 15, 1],
+        "text-color": "#FFFFFF",
+        "text-halo-color": "rgba(0,0,0,1)",
+        "text-halo-width": 2.5,
+        "text-halo-blur": 1,
+        "text-opacity": ["interpolate", ["linear"], ["zoom"], 9.5, 0, 10.5, 0.5, 11.5, 0.75, 13, 0.9, 15, 1],
       },
     });
 

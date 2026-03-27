@@ -177,6 +177,18 @@ const [wardSearch, setWardSearch] = useState("");
     };
   }, []);
 
+  // Auto-zoom to active ward on dashboard entry
+  const initialZoomDone = useRef(false);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded || initialZoomDone.current || !activeWard?.centroid) return;
+    initialZoomDone.current = true;
+    const [cLon, cLat] = activeWard.centroid;
+    setTimeout(() => {
+      map.flyTo({ center: [cLon, cLat], zoom: 14, pitch: 50, bearing: -10, duration: 1800, essential: true });
+    }, 300);
+  }, [mapLoaded, activeWard]);
+
   // Add 3D buildings layer
   useEffect(() => {
     const map = mapRef.current;
