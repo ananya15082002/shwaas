@@ -9,7 +9,8 @@ import { assignAQIToWards, aqiToBorderColor, getAQICategory } from "@/lib/wardAq
 import { DELHI_LANDMARKS } from "@/lib/delhiLandmarks";
 import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
 import { DELHI_POLLUTION_SOURCES, getSourceTypeColor } from "@/lib/delhiPollutionSources";
-import { getLandmarkIconSVG, getPollutionIconSVG } from "@/lib/mapIcons";
+import { getPollutionIconSVG } from "@/lib/mapIcons";
+import { LANDMARK_IMAGES } from "@/lib/landmarkImages";
 
 interface FullScreenMapProps {
   stations: StationData[];
