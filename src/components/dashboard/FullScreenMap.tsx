@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, Navigation, ZoomIn, ZoomOut, Locate, MapPin, Plane, Square, Factory } from "lucide-react";
+import { Search, X, Navigation, ZoomIn, ZoomOut, Locate, MapPin, Plane, Square, Factory, ArrowLeft } from "lucide-react";
 import { StationData, getAqiLevel } from "@/lib/aqi";
 import { useDelhiWards, WardFeature } from "@/hooks/useDelhiWards";
 import { assignAQIToWards, aqiToBorderColor, getAQICategory } from "@/lib/wardAqi";
@@ -11,6 +11,7 @@ import { DELHI_SPECIAL_ZONES } from "@/lib/delhiSpecialZones";
 import { DELHI_POLLUTION_SOURCES, getSourceTypeColor } from "@/lib/delhiPollutionSources";
 import { getPollutionIconSVG } from "@/lib/mapIcons";
 import { LANDMARK_IMAGES } from "@/lib/landmarkImages";
+import { POLLUTION_TYPE_IMAGES } from "@/lib/pollutionImages";
 
 interface FullScreenMapProps {
   stations: StationData[];
