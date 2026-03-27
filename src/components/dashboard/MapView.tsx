@@ -450,8 +450,8 @@ const [wardSearch, setWardSearch] = useState("");
             0.4, "#FFD600",
             0.6, "#FF8C00",
             0.8, "#FF3D3D",
-            0.9, "#C62BFF",
-            1.0, "#FF0033",
+            0.9, "#8B3A8F",
+            1.0, "#7E0023",
           ],
         },
       });
