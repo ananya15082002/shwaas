@@ -807,6 +807,17 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         )}
       </AnimatePresence>
 
+      {/* Back button when zoomed into a ward */}
+      <AnimatePresence>
+        {zoomedInWard && showUI && (
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }} className="absolute top-20 left-4 z-30 sm:top-24">
+            <button onClick={handleBackFromZoom} className="flex items-center gap-2 rounded-full border border-border/50 bg-card/90 px-4 py-2 font-mono text-[11px] text-foreground backdrop-blur-md transition-all hover:bg-primary/10 hover:border-primary/50">
+              <ArrowLeft className="h-3.5 w-3.5" /> BACK TO DELHI
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Selected ward card */}
       <AnimatePresence>
         {selectedWard && (
@@ -817,7 +828,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
                   <h3 className="font-display text-base font-bold text-foreground">{selectedWard.ward_name}</h3>
                   <p className="font-mono text-[10px] tracking-wider text-muted-foreground">WARD {selectedWard.ward_no} · {selectedWard.ac_name}</p>
                 </div>
-                <button onClick={() => setSelectedWard(null)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+                <button onClick={() => { setSelectedWard(null); setZoomedInWard(null); }} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
               </div>
               <div className="flex items-baseline justify-between border-t border-border/30 pt-3">
                 <span className="font-mono text-[10px] tracking-widest text-muted-foreground">AQI</span>
@@ -826,9 +837,16 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
               <div className="mt-2 flex items-center justify-between text-muted-foreground">
                 <span className="font-mono text-[9px] tracking-wider">POP: {selectedWard.total_pop?.toLocaleString() || "—"}</span>
               </div>
-              <button onClick={() => onEnterDashboard(selectedWard)} className="mt-3 w-full rounded-lg border border-primary/40 bg-primary/10 py-2 font-mono text-[11px] tracking-[0.15em] text-primary transition-all hover:bg-primary/20 hover:border-primary/70">
-                EXPLORE THIS WARD →
-              </button>
+              <div className="mt-3 flex gap-2">
+                {zoomedInWard && (
+                  <button onClick={handleBackFromZoom} className="flex-1 rounded-lg border border-border/40 bg-secondary/30 py-2 font-mono text-[11px] tracking-[0.1em] text-muted-foreground transition-all hover:bg-secondary/50">
+                    ← BACK
+                  </button>
+                )}
+                <button onClick={() => onEnterDashboard(selectedWard)} className="flex-1 rounded-lg border border-primary/40 bg-primary/10 py-2 font-mono text-[11px] tracking-[0.15em] text-primary transition-all hover:bg-primary/20 hover:border-primary/70">
+                  EXPLORE →
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
