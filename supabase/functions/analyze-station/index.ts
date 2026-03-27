@@ -152,6 +152,7 @@ CRITICAL ANALYSIS RULES:
 8. title: max 4 words. desc: 1 sentence, actionable, situation-specific
 9. target must be exactly "citizen" or "govt"
 10. If Hindi lang: title and desc in Devanagari Hindi
+RESEARCH CONTEXT FOR ODD-EVEN CARD: If recommending odd_even, the desc MUST reflect evidence-based nuance. Peer-reviewed studies (IIT Delhi, Univ. of Chicago/EPIC, Environmental Pollution journal) show: (a) only 5–14% PM2.5 reduction in winter, 0% in summer (b) two-wheelers are fully exempt yet contribute 6.6% of PM2.5 vs cars' 2% (c) trucks/HGVs at 9.2% are far bigger targets (d) scheme is more effective when paired with night truck ban. Example desc: "Studies show 5–14% PM2.5 cut in winter only. Two-wheelers exempt. Pair with truck ban for real impact."
 11. trend_reason must reference specific data patterns (e.g. "PM2.5 at 85 with low wind 1.2m/s = accumulation")
 12. predicted_next_hours: use time-of-day + weather to make a specific 4-6hr prediction
 Return JSON:
@@ -243,7 +244,7 @@ function buildFallbackAdvisoryCards(sourceType: string, aqi: number, lang: strin
       { visual_key: "metro", title: hi ? "मेट्रो लें" : "Take Metro", desc: hi ? "वाहन प्रदूषण अधिक है — आज मेट्रो या बस से जाएं" : "Vehicle emissions are high — use metro or DTC bus today", target: "citizen", category: "transport" },
       { visual_key: "carpool", title: hi ? "कारपूलिंग करें" : "Carpool Today", desc: hi ? "सहकर्मियों के साथ एक गाड़ी में जाएं, प्रदूषण घटाएं" : "Share a ride with colleagues to cut vehicle count on roads", target: "citizen", category: "transport" },
       { visual_key: "wfh", title: hi ? "घर से काम करें" : "Work From Home", desc: hi ? "आज ऑफिस आना-जाना टालें — WFH एक विकल्प है" : "Avoid the commute today if your work allows WFH", target: "citizen", category: "transport" },
-      { visual_key: "odd_even", title: hi ? "ऑड-ईवन लागू करें" : "Odd-Even Scheme", desc: hi ? "प्रमुख सड़कों पर वाहन राशनिंग योजना सक्रिय करें" : "Activate odd-even vehicle rationing on major corridors today", target: "govt", category: "transport" },
+      { visual_key: "odd_even", title: hi ? "ऑड-ईवन (सीमित असर)" : "Odd-Even (Limited Effect)", desc: hi ? "शोध: केवल 5–14% PM2.5 कमी (IIT दिल्ली/यूनिव. शिकागो)। दोपहिया वाहन छूट में — ट्रक प्रतिबंध के साथ जोड़ने पर अधिक प्रभावी।" : "Research shows only 5–14% PM2.5 reduction (IIT Delhi/UChicago). Two-wheelers exempt. Pair with truck ban for meaningful impact.", target: "govt", category: "transport" },
     );
   }
 
