@@ -133,8 +133,7 @@ function AnimatedEmoji({ emoji, category }: { emoji: string; category: string })
 
 function LottieCard({ card }: { card: AdvisoryCard }) {
   const colors = CATEGORY_COLORS[card.category] ?? CATEGORY_COLORS.transport;
-  const lottieUrl = LOTTIE_URLS[card.visual_key];
-  const emoji = EMOJI_FALLBACK[card.visual_key] ?? "📋";
+  const iconColor = CATEGORY_ICON_COLORS[card.category] ?? CATEGORY_ICON_COLORS.transport;
   const isGovt = card.target === "govt";
 
   return (
