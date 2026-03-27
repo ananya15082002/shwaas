@@ -535,8 +535,8 @@ const [showSources, setShowSources] = useState(true);
       el.addEventListener("mouseenter", () => {
         const card = el.querySelector(".lm-card") as HTMLElement;
         if (card) {
-          card.style.transform = "rotateY(-8deg) rotateX(5deg) scale(1.3) translateY(-8px)";
-          card.style.boxShadow = "0 16px 40px rgba(0,0,0,0.7), 0 0 20px rgba(0,229,160,0.3)";
+          card.style.transform = "rotateY(-6deg) rotateX(4deg) scale(1.4) translateY(-6px)";
+          card.style.boxShadow = "0 10px 24px rgba(0,0,0,0.7), 0 0 14px rgba(0,229,160,0.25)";
           card.style.borderColor = "rgba(0,229,160,0.5)";
         }
       });
@@ -544,7 +544,7 @@ const [showSources, setShowSources] = useState(true);
         const card = el.querySelector(".lm-card") as HTMLElement;
         if (card) {
           card.style.transform = "";
-          card.style.boxShadow = "0 8px 24px rgba(0,0,0,0.6), 0 0 12px rgba(0,229,160,0.15)";
+          card.style.boxShadow = "0 4px 12px rgba(0,0,0,0.5), 0 0 6px rgba(0,229,160,0.1)";
           card.style.borderColor = "rgba(255,255,255,0.2)";
         }
       });
