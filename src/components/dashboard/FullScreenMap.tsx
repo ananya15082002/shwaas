@@ -371,7 +371,7 @@ const [showSources, setShowSources] = useState(true);
       source: "ward-centroids",
       layout: {
         "text-field": ["get", "ward_name"],
-        "text-size": ["interpolate", ["linear"], ["zoom"], 10, 0, 11, 7, 12, 9, 14, 12, 16, 14],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 10, 6, 11, 8, 12, 10, 14, 13, 16, 15],
         "text-font": ["Open Sans Regular", "Arial Unicode MS Regular"],
         "text-max-width": 6,
         "text-allow-overlap": false,
@@ -380,10 +380,10 @@ const [showSources, setShowSources] = useState(true);
         "text-anchor": "center",
       },
       paint: {
-        "text-color": "rgba(255,255,255,0.45)",
-        "text-halo-color": "rgba(0,0,0,0.7)",
-        "text-halo-width": 1.2,
-        "text-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0, 11, 0.3, 12, 0.6, 14, 0.85],
+        "text-color": "rgba(255,255,255,0.7)",
+        "text-halo-color": "rgba(0,0,0,0.85)",
+        "text-halo-width": 1.5,
+        "text-opacity": ["interpolate", ["linear"], ["zoom"], 9.5, 0.15, 10.5, 0.35, 11.5, 0.55, 13, 0.8, 15, 1],
       },
     });
 
