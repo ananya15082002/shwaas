@@ -167,9 +167,9 @@ const Index = () => {
                   </TabsList>
                 </div>
 
-                <TabsContent value="ward" className="mt-0 min-w-0 flex-1 overflow-hidden">
+                <TabsContent value="ward" className="mt-0 min-w-0 flex-1">
                   {displayWard ? (
-                    <div className="h-full min-w-0 overflow-hidden">
+                    <div className="min-w-0">
                       <WardDetailPanel ward={displayWard} onClose={() => { setSelectedWard(null); setActiveTab("city"); }} />
                     </div>
                   ) : (
