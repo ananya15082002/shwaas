@@ -195,7 +195,7 @@ export function TabMiniMap({ stations, highlightedWards = [], className = "" }: 
         const [lon, lat] = feature.properties.centroid;
         const aqi = feature.properties.interpolated_aqi ?? 0;
         const color = aqiToColor(aqi);
-        const borderCol = hw.borderColor || "#C0C0C0";
+        const borderCol = hw.borderColor || "#FFFFFF";
 
         const el = document.createElement("div");
         el.style.cssText = "pointer-events:none;";
