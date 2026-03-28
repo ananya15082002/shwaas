@@ -597,6 +597,6 @@ export function DictionaryTab() {
           </div>
         </div>
       </div>
-    </ScrollArea>
+    </div>
   );
 }
