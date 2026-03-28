@@ -88,7 +88,7 @@ export function WardRankings({ stations, onWardSelect }: WardRankingsProps) {
               const color = aqiToBorderColor(aqi).replace(/0\.\d+\)/, "1)");
               const times = Math.round(aqi / 50);
               return (
-                <div key={w.ward_no} className="flex items-center gap-3 rounded-md border border-border bg-secondary/20 px-3 py-2">
+                <div key={w.ward_no} className="flex items-center gap-3 rounded-md border border-border bg-secondary/20 px-3 py-2 cursor-pointer hover:bg-secondary/40 transition-colors" onClick={() => onWardSelect?.(w)}>
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-display text-[10px] font-black" style={{ backgroundColor: `${color}20`, color }}>{w.rank}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
