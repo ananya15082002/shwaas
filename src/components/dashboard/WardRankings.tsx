@@ -5,6 +5,8 @@ import { assignAQIToWards, aqiToBorderColor, getAQICategory } from "@/lib/wardAq
 import { StationData } from "@/lib/aqi";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Trophy, AlertTriangle, Leaf, TrendingUp } from "lucide-react";
+import { TabMiniMap, HighlightedWard } from "@/components/dashboard/TabMiniMap";
+import { getAqiLevel } from "@/lib/aqi";
 
 const WHO_PM25_DAILY = 15; // µg/m³
 
