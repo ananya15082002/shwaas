@@ -57,7 +57,7 @@ export function CompareTab({ stations }: CompareTabProps) {
   const highlightedWards: HighlightedWard[] = useMemo(
     () => selectedWards.map((w) => ({
       ward_no: w.ward_no,
-      borderColor: "hsl(180, 100%, 45%)",
+      borderColor: "#FFFFFF",
       label: w.ward_name.length > 12 ? w.ward_name.slice(0, 12) + "…" : w.ward_name,
     })),
     [selectedWards]
