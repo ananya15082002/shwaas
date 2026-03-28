@@ -437,7 +437,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   // Ward name labels as a symbol layer
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !mapLoaded || !enrichedWards) return;
+    if (!map || !mapLoaded || !enrichedWards || !map.isStyleLoaded()) return;
 
     if (map.getLayer("ward-labels")) map.removeLayer("ward-labels");
     if (map.getSource("ward-centroids")) map.removeSource("ward-centroids");
