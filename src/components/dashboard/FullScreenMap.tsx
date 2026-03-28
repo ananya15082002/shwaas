@@ -275,7 +275,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !mapLoaded || !enrichedWards) return;
+    if (!map || !mapLoaded || !enrichedWards || !map.isStyleLoaded()) return;
 
     if (map.getLayer("wards-fill")) map.removeLayer("wards-fill");
     if (map.getLayer("wards-border")) map.removeLayer("wards-border");
@@ -437,7 +437,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   // Ward name labels as a symbol layer
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !mapLoaded || !enrichedWards) return;
+    if (!map || !mapLoaded || !enrichedWards || !map.isStyleLoaded()) return;
 
     if (map.getLayer("ward-labels")) map.removeLayer("ward-labels");
     if (map.getSource("ward-centroids")) map.removeSource("ward-centroids");
@@ -492,7 +492,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
   // Special zones
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !mapLoaded) return;
+    if (!map || !mapLoaded || !map.isStyleLoaded()) return;
 
     if (map.getLayer("szones-fill")) map.removeLayer("szones-fill");
     if (map.getLayer("szones-border")) map.removeLayer("szones-border");
