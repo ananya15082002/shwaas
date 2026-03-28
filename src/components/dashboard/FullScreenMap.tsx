@@ -910,7 +910,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex-1 min-h-0 overflow-hidden bg-background border-t border-border/50"
+            className="flex-1 min-h-0 overflow-y-auto bg-background border-t border-border/50"
           >
             <WardDetailPanel ward={zoomedInWard} onClose={handleBackFromZoom} />
           </motion.div>
