@@ -378,9 +378,50 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         const wardProps = { ...p, centroid } as WardFeature["properties"];
         
         if (popupRef.current) { popupRef.current.remove(); popupRef.current = null; }
-        
-        // Go directly to dashboard with this ward selected
-        onEnterDashboard(wardProps);
+
+        // Find the ward feature for highlight border
+        const wardFeature = enrichedWards!.features.find((f) => f.properties.ward_no === wardProps.ward_no);
+
+        // Add white highlight border
+        try {
+          if (map.getLayer("click-highlight-border")) map.removeLayer("click-highlight-border");
+          if (map.getLayer("click-highlight-glow")) map.removeLayer("click-highlight-glow");
+          if (map.getSource("click-highlight")) map.removeSource("click-highlight");
+        } catch {}
+
+        if (wardFeature) {
+          map.addSource("click-highlight", {
+            type: "geojson",
+            data: { type: "FeatureCollection", features: [wardFeature] } as any,
+          });
+          map.addLayer({
+            id: "click-highlight-glow",
+            type: "line",
+            source: "click-highlight",
+            paint: { "line-color": "#FFFFFF", "line-width": 6, "line-opacity": 0.3, "line-blur": 3 },
+          });
+          map.addLayer({
+            id: "click-highlight-border",
+            type: "line",
+            source: "click-highlight",
+            paint: { "line-color": "#FFFFFF", "line-width": 2.5, "line-opacity": 0.95 },
+          });
+
+          // Zoom to ward bounds
+          const bounds = getGeoBounds(wardFeature.geometry);
+          map.fitBounds(bounds as maplibregl.LngLatBoundsLike, { padding: 60, maxZoom: 14, duration: 1500 });
+        }
+
+        // Find nearest pollution source
+        const [cLon, cLat] = centroid;
+        const nearestPollSrc = DELHI_POLLUTION_SOURCES
+          .map(src => ({ ...src, dist: Math.sqrt(Math.pow(src.lat - cLat, 2) + Math.pow(src.lon - cLon, 2)) }))
+          .filter(s => s.dist < 0.05)
+          .sort((a, b) => a.dist - b.dist)[0] || null;
+        setZoomedPollutionSrc(nearestPollSrc ? { name: nearestPollSrc.name, type: nearestPollSrc.type, emoji: nearestPollSrc.emoji } : null);
+
+        setSelectedWard(wardProps);
+        setZoomedInWard(wardProps);
       }
     });
   }, [enrichedWards, mapLoaded, onEnterDashboard]);
