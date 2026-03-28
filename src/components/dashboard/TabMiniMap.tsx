@@ -146,6 +146,18 @@ export function TabMiniMap({ stations, highlightedWards = [], className = "" }: 
 
       if (features.length === 0) return;
 
+      // Fit map to highlighted wards bounds
+      const bounds = new maplibregl.LngLatBounds();
+      features.forEach((f) => {
+        const geom = f.geometry as any;
+        const processCoords = (coords: number[][]) => coords.forEach(([lng, lat]) => bounds.extend([lng, lat]));
+        if (geom.type === "Polygon") geom.coordinates.forEach(processCoords);
+        else if (geom.type === "MultiPolygon") geom.coordinates.forEach((poly: number[][][]) => poly.forEach(processCoords));
+      });
+      if (!bounds.isEmpty()) {
+        map.fitBounds(bounds, { padding: 40, maxZoom: 13, duration: 800 });
+      }
+
       map.addSource("tab-highlight", {
         type: "geojson",
         data: { type: "FeatureCollection", features } as any,
@@ -157,9 +169,9 @@ export function TabMiniMap({ stations, highlightedWards = [], className = "" }: 
         type: "line",
         source: "tab-highlight",
         paint: {
-          "line-color": highlightedWards[0]?.borderColor || "#C0C0C0",
+          "line-color": highlightedWards[0]?.borderColor || "#FFFFFF",
           "line-width": 5,
-          "line-opacity": 0.3,
+          "line-opacity": 0.35,
           "line-blur": 3,
         },
       });
@@ -170,7 +182,7 @@ export function TabMiniMap({ stations, highlightedWards = [], className = "" }: 
         type: "line",
         source: "tab-highlight",
         paint: {
-          "line-color": highlightedWards[0]?.borderColor || "#C0C0C0",
+          "line-color": highlightedWards[0]?.borderColor || "#FFFFFF",
           "line-width": 2.5,
           "line-opacity": 0.95,
         },
@@ -183,7 +195,7 @@ export function TabMiniMap({ stations, highlightedWards = [], className = "" }: 
         const [lon, lat] = feature.properties.centroid;
         const aqi = feature.properties.interpolated_aqi ?? 0;
         const color = aqiToColor(aqi);
-        const borderCol = hw.borderColor || "#C0C0C0";
+        const borderCol = hw.borderColor || "#FFFFFF";
 
         const el = document.createElement("div");
         el.style.cssText = "pointer-events:none;";
