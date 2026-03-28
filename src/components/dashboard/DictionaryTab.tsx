@@ -847,7 +847,7 @@ function SectionTabs({ activeTab, onTabChange }: { activeTab: string; onTabChang
 
 // ─── Main Dictionary Tab ─────────────────────────────────────────
 
-export function DictionaryTab() {
+export function DictionaryTab({ stations = [] }: { stations?: StationData[] }) {
   const { t, lang } = useLanguage();
   const [activeTab, setActiveTab] = useState("pollutants");
 
