@@ -41,6 +41,15 @@ export function WardRankings({ stations }: WardRankingsProps) {
 
   const mostPolluted = sorted.slice(0, 10);
   const leastPolluted = [...sorted].reverse().slice(0, 5);
+
+  const highlightedWards: HighlightedWard[] = useMemo(
+    () => mostPolluted.map((w) => ({
+      ward_no: w.ward_no,
+      rank: w.rank,
+      borderColor: "#C0C0C0",
+    })),
+    [mostPolluted]
+  );
   const avgAqi = sorted.length ? Math.round(sorted.reduce((s, w) => s + (w.interpolated_aqi ?? 0), 0) / sorted.length) : 0;
   const whoMultiple = avgAqi > 0 ? Math.round(avgAqi / 50 * WHO_PM25_DAILY / WHO_PM25_DAILY) : 0;
 
