@@ -116,7 +116,7 @@ const Index = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: showDashboard ? 1 : 0 }}
         transition={{ duration: 0.8 }}
-        className="flex min-h-screen flex-col bg-background"
+        className="flex h-[100dvh] min-h-screen flex-col overflow-hidden bg-background"
         style={{ pointerEvents: showDashboard ? "auto" : "none" }}
       >
         <Navbar lastUpdated={lastUpdated} onRefresh={refresh} loading={loading} onLogoClick={handleReplay} onBackToMap={handleBackToMap} />
@@ -126,7 +126,7 @@ const Index = () => {
         ) : loading && stations.length === 0 ? (
           <HeroSkeleton />
         ) : (
-          <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-y-auto">
+          <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
             {activeTab === "ward" && (
               <div className="shrink-0 border-b border-border">
                 <div className="h-36 xs:h-40 sm:h-56 md:h-64 lg:h-72 xl:h-80">
