@@ -145,8 +145,8 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="flex min-w-0 w-full flex-1 flex-col overflow-hidden">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="flex min-w-0 flex-1 flex-col overflow-hidden">
+            <div className="min-w-0 w-full flex-1">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-0 flex-1">
                 <div className="mx-2 mt-2 sm:mx-3 sm:mt-3">
                   <TabsList className="grid w-full grid-cols-5 bg-secondary/50 sm:inline-flex sm:w-fit">
                     <TabsTrigger value="ward" className="gap-1 px-1 py-1.5 font-mono text-[9px] sm:px-4 sm:py-2 sm:text-xs">
