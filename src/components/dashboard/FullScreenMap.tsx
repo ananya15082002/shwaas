@@ -386,27 +386,31 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         
         // Add white boundary highlight for clicked ward
         const feature = enrichedWards?.features.find(f => f.properties.ward_no === wardProps.ward_no);
-        if (feature) {
-          if (map.getLayer("click-highlight-border")) map.removeLayer("click-highlight-border");
-          if (map.getLayer("click-highlight-glow")) map.removeLayer("click-highlight-glow");
-          if (map.getSource("click-highlight")) map.removeSource("click-highlight");
-          
-          map.addSource("click-highlight", {
-            type: "geojson",
-            data: { type: "FeatureCollection", features: [feature] } as any,
-          });
-          map.addLayer({
-            id: "click-highlight-glow",
-            type: "line",
-            source: "click-highlight",
-            paint: { "line-color": "#FFFFFF", "line-width": 8, "line-opacity": 0.25, "line-blur": 6 },
-          });
-          map.addLayer({
-            id: "click-highlight-border",
-            type: "line",
-            source: "click-highlight",
-            paint: { "line-color": "#FFFFFF", "line-width": 2.5, "line-opacity": 0.95 },
-          });
+        if (feature && map.isStyleLoaded()) {
+          try {
+            if (map.getLayer("click-highlight-border")) map.removeLayer("click-highlight-border");
+            if (map.getLayer("click-highlight-glow")) map.removeLayer("click-highlight-glow");
+            if (map.getSource("click-highlight")) map.removeSource("click-highlight");
+            
+            map.addSource("click-highlight", {
+              type: "geojson",
+              data: { type: "FeatureCollection", features: [feature] } as any,
+            });
+            map.addLayer({
+              id: "click-highlight-glow",
+              type: "line",
+              source: "click-highlight",
+              paint: { "line-color": "#FFFFFF", "line-width": 8, "line-opacity": 0.25, "line-blur": 6 },
+            });
+            map.addLayer({
+              id: "click-highlight-border",
+              type: "line",
+              source: "click-highlight",
+              paint: { "line-color": "#FFFFFF", "line-width": 2.5, "line-opacity": 0.95 },
+            });
+          } catch (e) {
+            console.warn("click-highlight error:", e);
+          }
         }
         
         // Find nearest pollution source and store for overlay
