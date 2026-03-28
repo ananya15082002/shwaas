@@ -126,7 +126,7 @@ const Index = () => {
         ) : loading && stations.length === 0 ? (
           <HeroSkeleton />
         ) : (
-          <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-y-auto">
             {activeTab === "ward" && (
               <div className="shrink-0 border-b border-border">
                 <div className="h-36 xs:h-40 sm:h-56 md:h-64 lg:h-72 xl:h-80">
@@ -147,7 +147,7 @@ const Index = () => {
               </div>
             )}
 
-            <div className="min-w-0 w-full flex-1">
+            <div className="min-w-0 w-full min-h-0 flex-1 flex flex-col">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-0 flex-1">
                 <div className="mx-2 mt-2 sm:mx-3 sm:mt-3">
                   <TabsList className="grid w-full grid-cols-5 bg-secondary/50 sm:inline-flex sm:w-fit">
