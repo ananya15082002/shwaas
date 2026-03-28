@@ -146,6 +146,18 @@ export function TabMiniMap({ stations, highlightedWards = [], className = "" }: 
 
       if (features.length === 0) return;
 
+      // Fit map to highlighted wards bounds
+      const bounds = new maplibregl.LngLatBounds();
+      features.forEach((f) => {
+        const geom = f.geometry as any;
+        const processCoords = (coords: number[][]) => coords.forEach(([lng, lat]) => bounds.extend([lng, lat]));
+        if (geom.type === "Polygon") geom.coordinates.forEach(processCoords);
+        else if (geom.type === "MultiPolygon") geom.coordinates.forEach((poly: number[][][]) => poly.forEach(processCoords));
+      });
+      if (!bounds.isEmpty()) {
+        map.fitBounds(bounds, { padding: 40, maxZoom: 13, duration: 800 });
+      }
+
       map.addSource("tab-highlight", {
         type: "geojson",
         data: { type: "FeatureCollection", features } as any,
