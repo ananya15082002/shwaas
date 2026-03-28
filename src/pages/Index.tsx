@@ -126,7 +126,7 @@ const Index = () => {
         ) : loading && stations.length === 0 ? (
           <HeroSkeleton />
         ) : (
-          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
             <div className="shrink-0 border-b border-border">
               <div className="h-36 xs:h-40 sm:h-56 md:h-64 lg:h-72 xl:h-80">
                 <MapView
@@ -145,8 +145,8 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="flex min-w-0 w-full flex-1 flex-col overflow-hidden">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="flex min-w-0 flex-1 flex-col overflow-hidden">
+            <div className="min-w-0 w-full flex-1">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-0 flex-1">
                 <div className="mx-2 mt-2 sm:mx-3 sm:mt-3">
                   <TabsList className="grid w-full grid-cols-5 bg-secondary/50 sm:inline-flex sm:w-fit">
                     <TabsTrigger value="ward" className="gap-1 px-1 py-1.5 font-mono text-[9px] sm:px-4 sm:py-2 sm:text-xs">
@@ -167,9 +167,9 @@ const Index = () => {
                   </TabsList>
                 </div>
 
-                <TabsContent value="ward" className="mt-0 min-w-0 flex-1 overflow-hidden">
+                <TabsContent value="ward" className="mt-0 min-w-0 flex-1">
                   {displayWard ? (
-                    <div className="h-full min-w-0 overflow-hidden">
+                    <div className="min-w-0">
                       <WardDetailPanel ward={displayWard} onClose={() => { setSelectedWard(null); setActiveTab("city"); }} />
                     </div>
                   ) : (
@@ -179,19 +179,19 @@ const Index = () => {
                   )}
                 </TabsContent>
 
-                <TabsContent value="city" className="mt-0 min-w-0 flex-1 overflow-hidden">
+                <TabsContent value="city" className="mt-0 min-w-0 flex-1">
                   <CityOverviewTab stations={stations} cityAqi={cityAqi} />
                 </TabsContent>
 
-                <TabsContent value="rankings" className="mt-0 min-w-0 flex-1 overflow-hidden">
+                <TabsContent value="rankings" className="mt-0 min-w-0 flex-1">
                   <WardRankings stations={stations} />
                 </TabsContent>
 
-                <TabsContent value="compare" className="mt-0 min-w-0 flex-1 overflow-hidden">
+                <TabsContent value="compare" className="mt-0 min-w-0 flex-1">
                   <CompareTab stations={stations} />
                 </TabsContent>
 
-                <TabsContent value="dictionary" className="mt-0 min-w-0 flex-1 overflow-hidden">
+                <TabsContent value="dictionary" className="mt-0 min-w-0 flex-1">
                   <DictionaryTab />
                 </TabsContent>
               </Tabs>
