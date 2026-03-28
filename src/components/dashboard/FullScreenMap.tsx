@@ -407,9 +407,16 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
             paint: { "line-color": "#FFFFFF", "line-width": 2.5, "line-opacity": 0.95 },
           });
 
-          // Zoom to ward bounds
-          const bounds = getGeoBounds(wardFeature.geometry);
-          map.fitBounds(bounds as maplibregl.LngLatBoundsLike, { padding: 60, maxZoom: 14, duration: 1500 });
+          // Fly to ward with upper camera angle
+          const [cLon2, cLat2] = wardProps.centroid;
+          map.flyTo({
+            center: [cLon2, cLat2],
+            zoom: 14.5,
+            pitch: 60,
+            bearing: -15,
+            duration: 2000,
+            essential: true,
+          });
         }
 
         // Find nearest pollution source
