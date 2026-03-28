@@ -191,7 +191,7 @@ const Index = () => {
                   <CompareTab stations={stations} />
                 </TabsContent>
 
-                <TabsContent value="dictionary" className="mt-0 min-w-0 flex-1 overflow-hidden">
+                <TabsContent value="dictionary" className="mt-0 min-w-0 flex-1">
                   <DictionaryTab />
                 </TabsContent>
               </Tabs>
