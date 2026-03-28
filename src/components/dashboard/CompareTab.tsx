@@ -54,6 +54,15 @@ export function CompareTab({ stations }: CompareTabProps) {
 
   const selectedWards = wardList.filter((w) => selected.includes(w.ward_no));
 
+  const highlightedWards: HighlightedWard[] = useMemo(
+    () => selectedWards.map((w) => ({
+      ward_no: w.ward_no,
+      borderColor: "hsl(180, 100%, 45%)",
+      label: w.ward_name.length > 12 ? w.ward_name.slice(0, 12) + "…" : w.ward_name,
+    })),
+    [selectedWards]
+  );
+
   useEffect(() => {
     if (selectedWards.length >= 2) {
       const wardData = selectedWards.map((w) => ({
