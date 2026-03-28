@@ -186,7 +186,7 @@ const Index = () => {
                 </TabsContent>
 
                 <TabsContent value="rankings" className="mt-0 min-w-0 flex-1">
-                  <WardRankings stations={stations} />
+                  <WardRankings stations={stations} onWardSelect={(w) => { setSelectedWard(w); setActiveTab("ward"); }} />
                 </TabsContent>
 
                 <TabsContent value="compare" className="mt-0 min-w-0 flex-1">
