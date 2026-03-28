@@ -183,7 +183,7 @@ const Index = () => {
                   <CityOverviewTab stations={stations} cityAqi={cityAqi} />
                 </TabsContent>
 
-                <TabsContent value="rankings" className="mt-0 min-w-0 flex-1 overflow-hidden">
+                <TabsContent value="rankings" className="mt-0 min-w-0 flex-1">
                   <WardRankings stations={stations} />
                 </TabsContent>
 
