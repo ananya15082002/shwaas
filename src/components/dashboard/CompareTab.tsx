@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Brain, Loader2, GitCompareArrows, Search, X } from "lucide-react";
 import { StationData } from "@/lib/aqi";
+import { TabMiniMap, HighlightedWard } from "@/components/dashboard/TabMiniMap";
 
 interface CompareTabProps {
   stations: StationData[];
