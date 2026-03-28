@@ -182,6 +182,15 @@ const [wardSearch, setWardSearch] = useState("");
       fadeDuration: 200,
     });
 
+    // On touch devices, prioritize page scrolling over map drag gestures
+    if (window.matchMedia("(hover: none)").matches) {
+      map.dragPan.disable();
+      map.scrollZoom.disable();
+      map.boxZoom.disable();
+      map.doubleClickZoom.disable();
+      map.touchZoomRotate.disable();
+    }
+
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "bottom-right");
 
     map.on("load", () => setMapLoaded(true));

@@ -116,7 +116,7 @@ const Index = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: showDashboard ? 1 : 0 }}
         transition={{ duration: 0.8 }}
-        className="flex min-h-screen flex-col bg-background"
+        className="flex h-[100dvh] min-h-screen flex-col overflow-hidden bg-background"
         style={{ pointerEvents: showDashboard ? "auto" : "none" }}
       >
         <Navbar lastUpdated={lastUpdated} onRefresh={refresh} loading={loading} onLogoClick={handleReplay} onBackToMap={handleBackToMap} />
@@ -126,7 +126,7 @@ const Index = () => {
         ) : loading && stations.length === 0 ? (
           <HeroSkeleton />
         ) : (
-          <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-y-auto">
+          <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
             {activeTab === "ward" && (
               <div className="shrink-0 border-b border-border">
                 <div className="h-36 xs:h-40 sm:h-56 md:h-64 lg:h-72 xl:h-80">
@@ -147,8 +147,8 @@ const Index = () => {
               </div>
             )}
 
-            <div className="min-w-0 w-full min-h-0 flex-1 flex flex-col">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-0 flex-1">
+            <div className="min-w-0 w-full">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-0">
                 <div className="mx-2 mt-2 sm:mx-3 sm:mt-3">
                   <TabsList className="grid w-full grid-cols-5 bg-secondary/50 sm:inline-flex sm:w-fit">
                     <TabsTrigger value="ward" className="gap-1 px-1 py-1.5 font-mono text-[9px] sm:px-4 sm:py-2 sm:text-xs">
@@ -169,7 +169,7 @@ const Index = () => {
                   </TabsList>
                 </div>
 
-                <TabsContent value="ward" className="mt-0 min-w-0 flex-1">
+                <TabsContent value="ward" className="mt-0 min-w-0">
                   {displayWard ? (
                     <div className="min-w-0">
                       <WardDetailPanel ward={displayWard} onClose={() => { setSelectedWard(null); setActiveTab("city"); }} />
@@ -181,19 +181,19 @@ const Index = () => {
                   )}
                 </TabsContent>
 
-                <TabsContent value="city" className="mt-0 min-w-0 flex-1">
+                <TabsContent value="city" className="mt-0 min-w-0">
                   <CityOverviewTab stations={stations} cityAqi={cityAqi} />
                 </TabsContent>
 
-                <TabsContent value="rankings" className="mt-0 min-w-0 flex-1">
+                <TabsContent value="rankings" className="mt-0 min-w-0">
                   <WardRankings stations={stations} onWardSelect={(w) => { setSelectedWard(w); setActiveTab("ward"); }} />
                 </TabsContent>
 
-                <TabsContent value="compare" className="mt-0 min-w-0 flex-1">
+                <TabsContent value="compare" className="mt-0 min-w-0">
                   <CompareTab stations={stations} />
                 </TabsContent>
 
-                <TabsContent value="dictionary" className="mt-0 min-w-0 flex-1">
+                <TabsContent value="dictionary" className="mt-0 min-w-0">
                   <DictionaryTab stations={stations} />
                 </TabsContent>
               </Tabs>
