@@ -94,6 +94,9 @@ export function CompareTab({ stations }: CompareTabProps) {
   return (
     <div>
       <div className="space-y-5 p-4 pb-20 sm:pb-16">
+        {/* Delhi Map with selected wards highlighted */}
+        <TabMiniMap stations={stations} highlightedWards={highlightedWards} className="h-48 sm:h-56" />
+
         <div>
           <h4 className="font-display text-xs font-bold tracking-widest text-primary">
             {t("compare.select")} (Max 4 Wards)

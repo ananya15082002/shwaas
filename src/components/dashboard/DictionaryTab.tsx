@@ -9,6 +9,8 @@ import {
   Gauge, Microscope, ShieldAlert, Sparkles,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { TabMiniMap } from "@/components/dashboard/TabMiniMap";
+import { StationData } from "@/lib/aqi";
 
 // ─── Types ───────────────────────────────────────────────────────
 

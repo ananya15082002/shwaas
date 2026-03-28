@@ -56,6 +56,9 @@ export function WardRankings({ stations }: WardRankingsProps) {
   return (
     <div>
       <div className="space-y-5 p-4 pb-20 sm:pb-16">
+        {/* Top 10 Polluted Wards Map */}
+        <TabMiniMap stations={stations} highlightedWards={highlightedWards} className="h-52 sm:h-60" />
+
         {/* Summary stats */}
         <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
           <div className="rounded-lg border border-border bg-card/50 p-3 text-center">
