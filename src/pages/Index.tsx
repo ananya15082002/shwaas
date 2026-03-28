@@ -192,7 +192,7 @@ const Index = () => {
                 </TabsContent>
 
                 <TabsContent value="dictionary" className="mt-0 min-w-0 flex-1">
-                  <DictionaryTab />
+                  <DictionaryTab stations={stations} />
                 </TabsContent>
               </Tabs>
             </div>

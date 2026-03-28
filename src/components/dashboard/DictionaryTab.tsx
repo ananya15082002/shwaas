@@ -9,6 +9,8 @@ import {
   Gauge, Microscope, ShieldAlert, Sparkles,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { TabMiniMap } from "@/components/dashboard/TabMiniMap";
+import { StationData } from "@/lib/aqi";
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -845,7 +847,7 @@ function SectionTabs({ activeTab, onTabChange }: { activeTab: string; onTabChang
 
 // ─── Main Dictionary Tab ─────────────────────────────────────────
 
-export function DictionaryTab() {
+export function DictionaryTab({ stations = [] }: { stations?: StationData[] }) {
   const { t, lang } = useLanguage();
   const [activeTab, setActiveTab] = useState("pollutants");
 
@@ -879,6 +881,9 @@ export function DictionaryTab() {
           <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-primary/5 blur-2xl" />
           <div className="absolute -bottom-6 -left-6 h-16 w-16 rounded-full bg-accent/5 blur-2xl" />
         </motion.div>
+
+        {/* Delhi Ward Map */}
+        {stations.length > 0 && <TabMiniMap stations={stations} className="h-48 sm:h-56" />}
 
         {/* AQI Scale */}
         <AqiScaleBar />

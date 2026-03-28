@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Brain, Loader2, GitCompareArrows, Search, X } from "lucide-react";
 import { StationData } from "@/lib/aqi";
+import { TabMiniMap, HighlightedWard } from "@/components/dashboard/TabMiniMap";
 
 interface CompareTabProps {
   stations: StationData[];
@@ -53,6 +54,15 @@ export function CompareTab({ stations }: CompareTabProps) {
 
   const selectedWards = wardList.filter((w) => selected.includes(w.ward_no));
 
+  const highlightedWards: HighlightedWard[] = useMemo(
+    () => selectedWards.map((w) => ({
+      ward_no: w.ward_no,
+      borderColor: "hsl(180, 100%, 45%)",
+      label: w.ward_name.length > 12 ? w.ward_name.slice(0, 12) + "…" : w.ward_name,
+    })),
+    [selectedWards]
+  );
+
   useEffect(() => {
     if (selectedWards.length >= 2) {
       const wardData = selectedWards.map((w) => ({
@@ -84,6 +94,9 @@ export function CompareTab({ stations }: CompareTabProps) {
   return (
     <div>
       <div className="space-y-5 p-4 pb-20 sm:pb-16">
+        {/* Delhi Map with selected wards highlighted */}
+        <TabMiniMap stations={stations} highlightedWards={highlightedWards} className="h-48 sm:h-56" />
+
         <div>
           <h4 className="font-display text-xs font-bold tracking-widest text-primary">
             {t("compare.select")} (Max 4 Wards)

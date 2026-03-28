@@ -7,6 +7,7 @@ import { assignAQIToWards, aqiToBorderColor, getAQICategory } from "@/lib/wardAq
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from "recharts";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Brain, Loader2, TrendingUp, AlertTriangle } from "lucide-react";
+import { TabMiniMap } from "@/components/dashboard/TabMiniMap";
 
 interface CityOverviewTabProps {
   stations: StationData[];
@@ -124,6 +125,9 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
   return (
     <div>
       <div className="space-y-4 p-3 pb-20 sm:p-4 sm:pb-16">
+        {/* Delhi Overview Map */}
+        <TabMiniMap stations={stations} className="h-48 sm:h-56" />
+
         <div className="cyber-border rounded-lg p-4 text-center">
           <span className="font-mono text-[10px] text-muted-foreground">CITY AQI (POPULATION-WEIGHTED · 251 WARDS)</span>
           <div className="mt-1 font-display text-4xl font-black" style={{ color: mlLevel.color, textShadow: `0 0 20px ${mlLevel.color}60` }}>
