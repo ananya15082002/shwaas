@@ -12,9 +12,10 @@ const WHO_PM25_DAILY = 15; // µg/m³
 
 interface WardRankingsProps {
   stations: StationData[];
+  onWardSelect?: (ward: any) => void;
 }
 
-export function WardRankings({ stations }: WardRankingsProps) {
+export function WardRankings({ stations, onWardSelect }: WardRankingsProps) {
   const { t } = useLanguage();
   const { wardsGeoJSON } = useDelhiWards();
 
