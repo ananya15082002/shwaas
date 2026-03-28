@@ -247,6 +247,6 @@ export function CompareTab({ stations }: CompareTabProps) {
           </>
         )}
       </div>
-    </ScrollArea>
+    </div>
   );
 }

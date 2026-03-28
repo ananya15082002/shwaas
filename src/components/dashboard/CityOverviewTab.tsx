@@ -237,6 +237,6 @@ export function CityOverviewTab({ stations, cityAqi }: CityOverviewTabProps) {
           </div>
         )}
       </div>
-    </ScrollArea>
+    </div>
   );
 }

@@ -154,6 +154,6 @@ export function WardRankings({ stations }: WardRankingsProps) {
           </div>
         </div>
       </div>
-    </ScrollArea>
+    </div>
   );
 }
