@@ -882,6 +882,9 @@ export function DictionaryTab({ stations = [] }: { stations?: StationData[] }) {
           <div className="absolute -bottom-6 -left-6 h-16 w-16 rounded-full bg-accent/5 blur-2xl" />
         </motion.div>
 
+        {/* Delhi Ward Map */}
+        {stations.length > 0 && <TabMiniMap stations={stations} className="h-48 sm:h-56" />}
+
         {/* AQI Scale */}
         <AqiScaleBar />
 
