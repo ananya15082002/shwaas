@@ -94,11 +94,21 @@ const Index = () => {
 
       <AnimatePresence>
         {showFullMap && (
-          <FullScreenMap
-            stations={stations}
-            cityAqi={cityAqi}
-            onEnterDashboard={handleEnterDashboard}
-          />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 flex flex-col"
+          >
+            <Navbar lastUpdated={lastUpdated} onRefresh={refresh} loading={loading} onLogoClick={handleReplay} />
+            <div className="flex-1 relative">
+              <FullScreenMap
+                stations={stations}
+                cityAqi={cityAqi}
+                onEnterDashboard={handleEnterDashboard}
+              />
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
