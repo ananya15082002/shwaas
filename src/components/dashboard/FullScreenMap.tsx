@@ -848,48 +848,63 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         )}
       </AnimatePresence>
 
-      {/* Zoomed ward: name + pollution source pic overlay */}
+      {/* Zoomed ward: name left + pollution source photo right */}
       <AnimatePresence>
         {zoomedInWard && showUI && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, delay: 1.0 }}
-            className="absolute bottom-3 left-3 right-3 z-30 flex items-end justify-between pointer-events-none"
-          >
-            {/* Ward name + AQI */}
-            <div className="rounded-xl border border-white/20 bg-black/80 backdrop-blur-md px-3 py-2 max-w-[58%]">
-              <p className="font-mono text-[7px] tracking-[0.18em] text-white/40 mb-0.5 uppercase">Selected Ward</p>
-              <h3 className="font-display text-sm font-bold text-white leading-tight">{zoomedInWard.ward_name}</h3>
-              <p className="font-mono text-[8px] text-white/45 mt-0.5">Ward {zoomedInWard.ward_no} · {zoomedInWard.ac_name}</p>
-              <div className="flex items-baseline gap-1.5 mt-1.5 border-t border-white/10 pt-1.5">
-                <span className="font-mono text-[8px] text-white/40 tracking-widest">AQI</span>
-                <span className="font-display text-2xl font-black" style={{ color: aqiToColor(zoomedInWard.interpolated_aqi ?? 0) }}>
-                  {zoomedInWard.interpolated_aqi ?? "—"}
-                </span>
+          <>
+            {/* Ward name — LEFT side */}
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+              className="absolute bottom-16 left-3 z-30 max-w-[55%] sm:bottom-20 sm:left-5"
+            >
+              <div className="rounded-xl border border-white/15 bg-black/85 backdrop-blur-xl px-4 py-3 shadow-2xl">
+                <p className="font-mono text-[7px] tracking-[0.2em] text-white/35 uppercase mb-1">Selected Ward</p>
+                <h3 className="font-display text-lg font-black text-white leading-tight sm:text-xl">{zoomedInWard.ward_name}</h3>
+                <p className="font-mono text-[9px] text-white/40 mt-1">Ward {zoomedInWard.ward_no} · {zoomedInWard.ac_name}</p>
+                <div className="flex items-baseline gap-2 mt-2 border-t border-white/10 pt-2">
+                  <span className="font-mono text-[8px] text-white/35 tracking-widest">AQI</span>
+                  <span className="font-display text-3xl font-black" style={{ color: aqiToColor(zoomedInWard.interpolated_aqi ?? 0) }}>
+                    {zoomedInWard.interpolated_aqi ?? "—"}
+                  </span>
+                  <span className="font-mono text-[8px] text-white/30 ml-1">{getAQICategory(zoomedInWard.interpolated_aqi ?? 0)}</span>
+                </div>
+                <p className="font-mono text-[8px] text-white/30 mt-1">Pop: {zoomedInWard.total_pop?.toLocaleString() || "—"}</p>
               </div>
-            </div>
+            </motion.div>
 
-            {/* Major pollution source pic */}
+            {/* Pollution source photo — RIGHT side */}
             {zoomedPollutionSrc && (
-              <div className="rounded-xl overflow-hidden border border-orange-500/50 shadow-xl" style={{ width: 86, height: 86 }}>
-                <div className="relative w-full h-full">
-                  <img
-                    src={POLLUTION_TYPE_IMAGES[zoomedPollutionSrc.type] ?? POLLUTION_TYPE_IMAGES.industrial}
-                    alt={zoomedPollutionSrc.name}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 55%)" }} />
-                  <div className="absolute bottom-1 left-1 right-1">
-                    <p className="font-mono text-[6px] font-bold leading-tight line-clamp-2" style={{ color: "rgba(255,180,60,0.95)" }}>
-                      {zoomedPollutionSrc.emoji} {zoomedPollutionSrc.name}
-                    </p>
+              <motion.div
+                initial={{ opacity: 0, x: 40, scale: 0.85 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: 40, scale: 0.85 }}
+                transition={{ duration: 0.5, delay: 1.2 }}
+                className="absolute bottom-16 right-3 z-30 sm:bottom-20 sm:right-5"
+              >
+                <div className="rounded-xl overflow-hidden border-2 border-orange-500/60 shadow-[0_0_30px_rgba(255,140,0,0.25)]" style={{ width: 120, height: 120 }}>
+                  <div className="relative w-full h-full">
+                    <img
+                      src={POLLUTION_TYPE_IMAGES[zoomedPollutionSrc.type] ?? POLLUTION_TYPE_IMAGES.industrial}
+                      alt={zoomedPollutionSrc.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 40%, transparent 65%)" }} />
+                    <div className="absolute top-1.5 left-1.5">
+                      <span className="rounded-full bg-orange-500/20 border border-orange-500/40 px-1.5 py-0.5 font-mono text-[6px] font-bold text-orange-300 tracking-wider uppercase">⚠ Source</span>
+                    </div>
+                    <div className="absolute bottom-1.5 left-1.5 right-1.5">
+                      <p className="font-mono text-[7px] font-bold leading-tight text-orange-200 line-clamp-2">
+                        {zoomedPollutionSrc.emoji} {zoomedPollutionSrc.name}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
-          </motion.div>
+          </>
         )}
       </AnimatePresence>
 
