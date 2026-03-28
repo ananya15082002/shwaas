@@ -43,7 +43,7 @@ export function WardRankings({ stations }: WardRankingsProps) {
   const whoMultiple = avgAqi > 0 ? Math.round(avgAqi / 50 * WHO_PM25_DAILY / WHO_PM25_DAILY) : 0;
 
   return (
-    <ScrollArea className="h-full">
+    <div>
       <div className="space-y-5 p-4 pb-20 sm:pb-16">
         {/* Summary stats */}
         <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
@@ -154,6 +154,6 @@ export function WardRankings({ stations }: WardRankingsProps) {
           </div>
         </div>
       </div>
-    </ScrollArea>
+    </div>
   );
 }

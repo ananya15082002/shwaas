@@ -543,7 +543,7 @@ export function DictionaryTab() {
   const { t, lang } = useLanguage();
 
   return (
-    <ScrollArea className="h-full">
+    <div>
       <div className="space-y-5 p-4 pb-20 sm:pb-16">
         {/* Header */}
         <div>
@@ -597,6 +597,6 @@ export function DictionaryTab() {
           </div>
         </div>
       </div>
-    </ScrollArea>
+    </div>
   );
 }
