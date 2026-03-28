@@ -7,6 +7,7 @@ import { assignAQIToWards, aqiToBorderColor, getAQICategory } from "@/lib/wardAq
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from "recharts";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Brain, Loader2, TrendingUp, AlertTriangle } from "lucide-react";
+import { TabMiniMap } from "@/components/dashboard/TabMiniMap";
 
 interface CityOverviewTabProps {
   stations: StationData[];
