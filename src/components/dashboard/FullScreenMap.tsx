@@ -379,67 +379,8 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
         
         if (popupRef.current) { popupRef.current.remove(); popupRef.current = null; }
         
-        // Zoom to ward with highlight, then enter dashboard
-        const [cLon, cLat] = centroid;
-        setSelectedWard(wardProps);
-        setZoomedInWard(wardProps);
-        
-        // Add white boundary highlight for clicked ward
-        const feature = enrichedWards?.features.find(f => f.properties.ward_no === wardProps.ward_no);
-        if (feature && map.isStyleLoaded()) {
-          try {
-            if (map.getLayer("click-highlight-border")) map.removeLayer("click-highlight-border");
-            if (map.getLayer("click-highlight-glow")) map.removeLayer("click-highlight-glow");
-            if (map.getSource("click-highlight")) map.removeSource("click-highlight");
-            
-            map.addSource("click-highlight", {
-              type: "geojson",
-              data: { type: "FeatureCollection", features: [feature] } as any,
-            });
-            map.addLayer({
-              id: "click-highlight-glow",
-              type: "line",
-              source: "click-highlight",
-              paint: { "line-color": "#FFFFFF", "line-width": 8, "line-opacity": 0.25, "line-blur": 6 },
-            });
-            map.addLayer({
-              id: "click-highlight-border",
-              type: "line",
-              source: "click-highlight",
-              paint: { "line-color": "#FFFFFF", "line-width": 2.5, "line-opacity": 0.95 },
-            });
-          } catch (e) {
-            console.warn("click-highlight error:", e);
-          }
-        }
-        
-        // Find nearest pollution source and store for overlay
-        const nearbySrc = DELHI_POLLUTION_SOURCES
-          .map(src => ({ ...src, dist: Math.sqrt(Math.pow(src.lat - cLat, 2) + Math.pow(src.lon - cLon, 2)) }))
-          .sort((a, b) => a.dist - b.dist)[0];
-
-        if (nearbySrc && nearbySrc.dist < 0.08) {
-          setZoomedPollutionSrc(nearbySrc);
-        } else {
-          setZoomedPollutionSrc(nearbySrc ?? null);
-        }
-
-        // After height transition completes (~700ms), resize map then fitBounds to show entire ward
-        setTimeout(() => {
-          map.resize();
-          if (feature) {
-            const bounds = getGeoBounds(feature.geometry);
-            map.fitBounds(bounds, {
-              padding: { top: 70, bottom: 90, left: 55, right: 55 },
-              pitch: 0,
-              bearing: 0,
-              duration: 1400,
-              essential: true,
-            });
-          } else {
-            map.flyTo({ center: [cLon, cLat], zoom: 14, pitch: 0, bearing: 0, duration: 1400, essential: true });
-          }
-        }, 750);
+        // Go directly to dashboard with this ward selected
+        onEnterDashboard(wardProps);
       }
     });
   }, [enrichedWards, mapLoaded, onEnterDashboard]);
