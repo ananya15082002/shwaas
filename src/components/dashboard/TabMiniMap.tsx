@@ -67,6 +67,9 @@ export function TabMiniMap({ stations, highlightedWards = [], className = "" }: 
       bearing: 0,
     });
 
+    // Prevent mini-map wheel capture so parent dashboard can scroll on laptop
+    map.scrollZoom.disable();
+
     map.addControl(new maplibregl.NavigationControl({ showCompass: false, visualizePitch: false }), "bottom-right");
     map.on("load", () => setMapLoaded(true));
     mapRef.current = map;
