@@ -395,7 +395,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
           </div>
         )}
       </div>
-    </ScrollArea>
+    </div>
   );
 }
 
