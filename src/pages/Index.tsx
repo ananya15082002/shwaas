@@ -127,23 +127,25 @@ const Index = () => {
           <HeroSkeleton />
         ) : (
           <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
-            <div className="shrink-0 border-b border-border">
-              <div className="h-36 xs:h-40 sm:h-56 md:h-64 lg:h-72 xl:h-80">
-                <MapView
-                  stations={stations}
-                  selectedStation={effectiveStation}
-                  onSelectStation={(s) => {
-                    setSelectedStation(s);
-                    setSelectedWard(null);
-                  }}
-                  onWardSelect={(w) => {
-                    setSelectedWard(w);
-                    setActiveTab("ward");
-                  }}
-                  activeWard={displayWard}
-                />
+            {activeTab === "ward" && (
+              <div className="shrink-0 border-b border-border">
+                <div className="h-36 xs:h-40 sm:h-56 md:h-64 lg:h-72 xl:h-80">
+                  <MapView
+                    stations={stations}
+                    selectedStation={effectiveStation}
+                    onSelectStation={(s) => {
+                      setSelectedStation(s);
+                      setSelectedWard(null);
+                    }}
+                    onWardSelect={(w) => {
+                      setSelectedWard(w);
+                      setActiveTab("ward");
+                    }}
+                    activeWard={displayWard}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="min-w-0 w-full flex-1">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-0 flex-1">
