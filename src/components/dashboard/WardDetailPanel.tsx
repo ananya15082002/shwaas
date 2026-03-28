@@ -117,7 +117,7 @@ export function WardDetailPanel({ ward, onClose }: WardDetailPanelProps) {
   ].filter((p) => iaqi[p.key]);
 
   return (
-    <ScrollArea className="h-full">
+    <div>
       <div className="space-y-3 p-3 pb-20 sm:space-y-4 sm:p-4 sm:pb-16">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
