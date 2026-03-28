@@ -601,7 +601,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.8 }}
-      className="fixed inset-0 z-[90] bg-background flex flex-col"
+      className="relative h-full w-full bg-background flex flex-col"
     >
       <style>{`
         .ward-popup .maplibregl-popup-content { background: transparent !important; box-shadow: none !important; padding: 0 !important; }
