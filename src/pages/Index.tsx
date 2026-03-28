@@ -179,7 +179,7 @@ const Index = () => {
                   )}
                 </TabsContent>
 
-                <TabsContent value="city" className="mt-0 min-w-0 flex-1 overflow-hidden">
+                <TabsContent value="city" className="mt-0 min-w-0 flex-1">
                   <CityOverviewTab stations={stations} cityAqi={cityAqi} />
                 </TabsContent>
 
