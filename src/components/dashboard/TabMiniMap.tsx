@@ -169,9 +169,9 @@ export function TabMiniMap({ stations, highlightedWards = [], className = "" }: 
         type: "line",
         source: "tab-highlight",
         paint: {
-          "line-color": highlightedWards[0]?.borderColor || "#C0C0C0",
+          "line-color": highlightedWards[0]?.borderColor || "#FFFFFF",
           "line-width": 5,
-          "line-opacity": 0.3,
+          "line-opacity": 0.35,
           "line-blur": 3,
         },
       });
