@@ -135,6 +135,13 @@
     touch-action: pan-y pinch-zoom !important;
   }
 
+  /* Reliable scroll on touch devices inside nested scroll containers */
+  .lovable-scroll-y {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
+
   @keyframes pulse-live {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
