@@ -126,7 +126,7 @@ const Index = () => {
         ) : loading && stations.length === 0 ? (
           <HeroSkeleton />
         ) : (
-          <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
+          <div className="lovable-scroll-y flex min-w-0 min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
             {activeTab === "ward" && (
               <div className="shrink-0 border-b border-border">
                 <div className="h-36 xs:h-40 sm:h-56 md:h-64 lg:h-72 xl:h-80">
