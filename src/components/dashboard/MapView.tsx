@@ -185,8 +185,9 @@ const [wardSearch, setWardSearch] = useState("");
     // Keep dashboard scrolling reliable on laptop/trackpad: wheel should scroll page, not zoom map
     map.scrollZoom.disable();
 
-    // On touch devices, prioritize page scrolling over map drag gestures
-    if (window.matchMedia("(hover: none)").matches) {
+    // On touch-capable devices, prioritize page scrolling over map drag gestures
+    const isTouchDevice = window.matchMedia("(hover: none)").matches || navigator.maxTouchPoints > 0;
+    if (isTouchDevice) {
       map.dragPan.disable();
       map.boxZoom.disable();
       map.doubleClickZoom.disable();
