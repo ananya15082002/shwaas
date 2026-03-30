@@ -263,7 +263,7 @@ export function TabMiniMap({ stations, highlightedWards = [], className = "" }: 
         .maplibregl-ctrl-group button:hover { background: hsl(220,18%,15%) !important; }
         .maplibregl-ctrl-attrib { display: none !important; }
       `}</style>
-      <div className={`relative w-full rounded-xl overflow-hidden border border-border ${className}`}>
+      <div className={`lovable-scroll-map relative w-full rounded-xl overflow-hidden border border-border ${className}`}>
         <div ref={containerRef} className="h-full w-full" style={{ minHeight: "200px" }} />
         {/* Legend */}
         <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1 rounded-full bg-card/90 px-2 py-1 backdrop-blur-sm border border-border/50">

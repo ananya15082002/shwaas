@@ -654,7 +654,7 @@ const [wardSearch, setWardSearch] = useState("");
         .maplibregl-ctrl-group button:hover { background: hsl(220,18%,15%) !important; }
         .maplibregl-ctrl-attrib { display: none !important; }
       `}</style>
-      <div className="relative h-full w-full">
+      <div className="lovable-scroll-map relative h-full w-full">
         <div ref={containerRef} className="h-full w-full" />
 
         {/* Ward toggle */}
