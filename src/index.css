@@ -126,12 +126,6 @@
       linear-gradient(90deg, hsl(180 100% 45% / 0.03) 1px, transparent 1px);
     background-size: 40px 40px;
   }
-
-  .lovable-scroll-map,
-  .lovable-scroll-map .maplibregl-canvas-container,
-  .lovable-scroll-map .maplibregl-canvas {
-    touch-action: pan-y !important;
-  }
 }
 
 @layer utilities {
