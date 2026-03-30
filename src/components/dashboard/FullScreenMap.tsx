@@ -219,6 +219,17 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       fadeDuration: 300,
     });
 
+    // Keep page scrolling reliable across laptops/phones/tablets
+    map.scrollZoom.disable();
+
+    const isTouchDevice = window.matchMedia("(hover: none)").matches || navigator.maxTouchPoints > 0;
+    if (isTouchDevice) {
+      map.dragPan.disable();
+      map.boxZoom.disable();
+      map.doubleClickZoom.disable();
+      map.touchZoomRotate.disable();
+    }
+
     map.on("load", () => {
       setMapLoaded(true);
       // Cinematic entrance - keep zoomed out for full Delhi visibility
