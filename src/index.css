@@ -129,6 +129,12 @@
 }
 
 @layer utilities {
+  .lovable-scroll-map,
+  .lovable-scroll-map .maplibregl-canvas-container,
+  .lovable-scroll-map .maplibregl-canvas {
+    touch-action: pan-y pinch-zoom !important;
+  }
+
   @keyframes pulse-live {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
