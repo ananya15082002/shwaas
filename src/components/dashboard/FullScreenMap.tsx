@@ -604,7 +604,7 @@ export function FullScreenMap({ stations, cityAqi, onEnterDashboard }: FullScree
       `}</style>
 
       {/* Map container - full when no ward zoomed, ~45% when split */}
-      <div className={`relative transition-all duration-700 ease-in-out ${zoomedInWard ? "h-[40vh] sm:h-[45vh]" : "flex-1"}`}>
+      <div className={`lovable-scroll-map relative transition-all duration-700 ease-in-out ${zoomedInWard ? "h-[40vh] sm:h-[45vh]" : "flex-1"}`}>
         <div ref={containerRef} className="absolute inset-0" />
 
         {/* Top gradient */}
