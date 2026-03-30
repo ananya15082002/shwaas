@@ -116,7 +116,7 @@ const Index = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: showDashboard ? 1 : 0 }}
         transition={{ duration: 0.8 }}
-        className="flex h-[100dvh] min-h-screen flex-col overflow-hidden bg-background"
+        className="flex h-[100dvh] flex-col overflow-hidden bg-background"
         style={{ pointerEvents: showDashboard ? "auto" : "none" }}
       >
         <Navbar lastUpdated={lastUpdated} onRefresh={refresh} loading={loading} onLogoClick={handleReplay} onBackToMap={handleBackToMap} />
